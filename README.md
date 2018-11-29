@@ -1,6 +1,6 @@
 ## Amazon Forecast Samples
 
-Notebooks and examples on how to onboard and use various features of Amazon Forecast.
+Notebooks and examples on how to onboard and use various features of Amazon Forecast. Content coming soon. 
 
 ## License Summary
 
