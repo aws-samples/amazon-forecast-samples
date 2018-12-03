@@ -16,7 +16,7 @@ _What do I need to get started?_
 * The quickest set up to run example notebook includes:  
  * An AWS account
  * Proper IAM User and role setup
- * An S3 bucket where your data is stored?
+ * An S3 bucket where your data is stored
 
 _How do I contribute my own example notebook?_
 
