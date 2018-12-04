@@ -12,14 +12,14 @@ These examples include a general introduction to the service and introduces the 
 
 ## FAQ
 _What do I need to get started?_  
-
-* The quickest set up to run example notebook includes:  
+ The quickest set up to run example notebook includes:   
+ 
+ 
  * An AWS account
  * Proper IAM User and role setup
  * An S3 bucket where your data is stored
 
-_How do I contribute my own example notebook?_
-
-* Although we're extremely excited to receive contributions from the community, we're still working on the best mechanism to take in examples from external sources. Please bear with us in the short-term if pull requests take longer than expected or are closed.
+_How do I contribute my own example notebook?_  
+ Although we're extremely excited to receive contributions from the community, we're still working on the best mechanism to take in examples from external sources. Please bear with us in the short-term if pull requests take longer than expected or are closed.
 
 
