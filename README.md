@@ -21,5 +21,8 @@ _What do I need to get started?_
 
 _How do I contribute my own example notebook?_  
  Although we're extremely excited to receive contributions from the community, we're still working on the best mechanism to take in examples from external sources. Please bear with us in the short-term if pull requests take longer than expected or are closed.
+ 
+ ## Contact us
+ Contact the dev team @ forecastpreview-support@amazon.com
 
 
