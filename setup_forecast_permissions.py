@@ -91,7 +91,8 @@ def attach_forecast_policy(session, bucket_name):
             "Action": [
                 "s3:Get*",
                 "s3:List*",
-                "s3:Put*"],
+                "s3:Put*",
+                "s3:DELETE*"],
             "Resource": [
                 "arn:aws:s3:::" + bucket_name,
                 "arn:aws:s3:::" + bucket_name + "/*"]}]})
