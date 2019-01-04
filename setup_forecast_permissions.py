@@ -12,7 +12,7 @@ example of a light weight policy is provided here:
             "Sid": "VisualEditor0",
             "Effect": "Allow",
             "Action": [
-                "forecast:*"
+                "forecast:*",
                 "s3:*",
                 "iam:GetRole",
                 "iam:GetUser",
@@ -20,6 +20,7 @@ example of a light weight policy is provided here:
                 "iam:ListUsers",
                 "iam:ListGroups",
                 "iam:CreateRole",
+                "iam:PassRole",
                 "iam:PutRolePolicy",
                 "iam:PutUserPolicy",
                 "iam:UpdateAssumeRolePolicy",
