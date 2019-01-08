@@ -17,7 +17,7 @@ To the left, will see a category titled `Notebook` inside that, click `Notebook 
 
 Click the orange `Create notebook instance` button.
 
-Give the instance a name unique in the account you are using. If a shared account, place your name first like `ChrisKingForecastDemo`. The default Instance
+Give the instance a name unique in the account you are using. If a shared account, place your name first like `FirstNameLastNameForecastDemo`. The default Instance
 type is fine. 
 
 The Next component to change is the IAM role. Under the drop-down click `Create a new role`. Then for S3, select `Any S3 Bucket`, finally click `Create role`.
