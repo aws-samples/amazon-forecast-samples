@@ -57,7 +57,7 @@ git clone https://github.com/aws-samples/amazon-forecast-samples.git
 
 After that close your Terminal tab and go back to the main Notebook interface.
 
-A new folder titled `amazon-forecast-samples` should be visible, click it, click notebooks, then click `Getting_started_with_Forecast-SageMaker.ipynb` this will open the notebook.
+A new folder titled `amazon-forecast-samples` should be visible, click it, click notebooks, then click `Getting_started_with_Forecast.ipynb` this will open the notebook.
 
 If prompted for a kernel, select `conda_python3`.
 
