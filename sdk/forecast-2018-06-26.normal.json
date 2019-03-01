@@ -25,7 +25,8 @@
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"ResourceNotFoundException"},
         {"shape":"InternalServiceException"}
-      ]
+      ],
+      "documentation":"<p>Creates an Amazon Forecast dataset. The information about the dataset that you provide helps AWS Forecast understand how to consume the data for model training. This includes the following:</p> <ul> <li> <p> <i> <code>DataFormat</code> </i> - The format of the data that you plan to import to the dataset. </p> </li> <li> <p> <i> <code>DataFrequency</code> </i> - How frequently your historical time-series data is collected, including the interval and the multiple of the interval (for example 3H, for every 3 hours). Amazon Forecast uses this information when training the model and generating forecasts. </p> </li> <li> <p> <i> <code>Domain</code> </i> and <i> <code>DatasetType</code> </i> - Each dataset has an associated dataset domain and a type within the domain. Amazon Forecast provides a list of predefined domains and types within each domain. For each unique dataset domain and type within the domain, Amazon Forecast requires your data to include a minimum set of predefined fields. You identify the domain and type when you create a dataset. </p> </li> <li> <p> <i> <code>Schema</code> </i> - Specify a schema only if your data doesn't include headers or if you want to customize the configuration of the schema attribute parameters. </p> </li> </ul> <p>After creating a dataset, you import your training data into the dataset and use the dataset for model training. For more information see <a>howitworks-datasets-groups</a>. </p>"
     },
     "CreateDatasetGroup":{
       "name":"CreateDatasetGroup",
@@ -40,7 +41,8 @@
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"ResourceNotFoundException"},
         {"shape":"InternalServiceException"}
-      ]
+      ],
+      "documentation":"<p>Creates a dataset group. You can add datasets when you create a dataset group, or you can add them later with the <a>UpdateDatasetGroup</a>. </p> <p> For more information about datasets and dataset groups, see <a>howitworks-datasets-groups</a>.</p>"
     },
     "CreateDatasetImportJob":{
       "name":"CreateDatasetImportJob",
@@ -57,7 +59,8 @@
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"InternalServiceException"},
         {"shape":"QuotaLimitExceededException"}
-      ]
+      ],
+      "documentation":"<p>Uploads your training data to an Amazon Forecast dataset. In the request, you provide the location of the Amazon Simple Storage Service (Amazon S3) bucket that contains your training data and the name of the Amazon Forecast dataset that you want to import the data to. </p> <p>A dataset can contain multiple versions of training data. Each <code>CreateDatasetImportJob</code> operation call results in a new dataset version. </p> <p>To import an updated version of your data, you can explicitly call the <code>CreateDatasetImportJob</code> operation or schedule imports by specifying a <code>ScheduleExpression</code> in the <code>CreateDatasetImportJob</code> request. After creating the import job, you can update or cancel the schedule with the <a>UpdateDatasetImportJob</a> operation. </p> <p>To get the status of a dataset import job, use the <a>DescribeDatasetImportJob</a> operation. For more information about using datasets, see <a>howitworks-dataset</a>.</p>"
     },
     "CreateForecastExportJob":{
       "name":"CreateForecastExportJob",
@@ -73,7 +76,8 @@
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"InternalServiceException"},
         {"shape":"QuotaLimitExceededException"}
-      ]
+      ],
+      "documentation":"<p>Creates a forecast export job. Deploying an Amazon Forecast predictor (with the <code>DeployPredictor</code> operation) creates a forecast. To copy the forecast to a specified location, use the <code>CreateForecastExportJob</code> operation. </p> <p>Exporting a forecast lets you process it on the client side. For example, you might ingest a forecast to an Amazon Redshift database for further processing. </p>"
     },
     "CreatePredictor":{
       "name":"CreatePredictor",
@@ -85,11 +89,13 @@
       "output":{"shape":"CreatePredictorResponse"},
       "errors":[
         {"shape":"InvalidInputException"},
+        {"shape":"InvalidStateException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"ResourceNotFoundException"},
         {"shape":"InternalServiceException"},
         {"shape":"QuotaLimitExceededException"}
-      ]
+      ],
+      "documentation":"<p>Creates an Amazon Forecast predictor.</p> <p>In the request, you provide a dataset group and either specify a recipe or let Amazon Forecast choose the recipe for you. The operation uses the algorithm described in the recipe to train a model using the latest version of the datasets in the specified dataset group. The result is called a predictor. In the response, the operation returns a predictor version ID. You can deploy the predictor to generate a forecast using the <a>DeployPredictor</a> operation.</p> <p>In the <code>CreatePredictor</code> request, you can also do the following:</p> <ul> <li> <p>Override algorithm-specific hyperparameters</p> </li> <li> <p>Specify a schedule for automatically retraining models</p> </li> <li> <p>Specify a holiday calendar for various countries</p> </li> </ul> <p>To modify these values later, use the <a>UpdatePredictor</a> operation. </p> <p>After creating a predictor, you can retrain the model and create a new version of the predictor with the <a>RetrainPredictor</a> operation. </p> <p>After training a model, the <code>CreatePredictor</code> operation also evaluates it. To see the evaluation metrics, use the operation. Always review the evaluation metrics before deciding to use the predictor to generate forecasts. </p> <p>For more information about creating and deploying Amazon Forecast predictors, see <a>howitworks-predictor</a>.</p>"
     },
     "DeleteDataset":{
       "name":"DeleteDataset",
@@ -103,7 +109,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"InternalServiceException"},
         {"shape":"InvalidStateException"}
-      ]
+      ],
+      "documentation":"<p>Deletes an Amazon Forecast dataset. </p> <p>Deleting an Amazon Forecast dataset deletes all versions of the dataset. All dataset import jobs that target the dataset are also deleted.</p> <p>Datasets used in active predictors cannot be deleted.</p>"
     },
     "DeleteDatasetGroup":{
       "name":"DeleteDatasetGroup",
@@ -115,10 +122,12 @@
       "output":{"shape":"DeleteDatasetGroupResponse"},
       "errors":[
         {"shape":"InvalidInputException"},
+        {"shape":"InvalidStateException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"ResourceNotFoundException"},
         {"shape":"InternalServiceException"}
-      ]
+      ],
+      "documentation":"<p>Deletes a dataset group. The operation deletes only the group, not the datasets. </p>"
     },
     "DeleteDatasetImport":{
       "name":"DeleteDatasetImport",
@@ -132,7 +141,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"InternalServiceException"},
         {"shape":"InvalidStateException"}
-      ]
+      ],
+      "documentation":"<p>Deletes the specified version of data from the dataset. When <code>versionId</code> is not specified, all data versions are deleted, including the dataset object.</p>"
     },
     "DeleteDeployedPredictor":{
       "name":"DeleteDeployedPredictor",
@@ -146,7 +156,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"InternalServiceException"},
         {"shape":"InvalidStateException"}
-      ]
+      ],
+      "documentation":"<p>Deletes the deployed predictor. The forecast the service generated using the predictor is no longer available.</p>"
     },
     "DeletePredictor":{
       "name":"DeletePredictor",
@@ -160,7 +171,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"InternalServiceException"},
         {"shape":"InvalidStateException"}
-      ]
+      ],
+      "documentation":"<p>Deletes a specific version of a predictor. If you don't specify a version, the <code>DeletePredictor</code> operation deletes all versions of the predictor. </p>"
     },
     "DeployPredictor":{
       "name":"DeployPredictor",
@@ -177,7 +189,8 @@
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"ResourceNotFoundException"},
         {"shape":"QuotaLimitExceededException"}
-      ]
+      ],
+      "documentation":"<p>Deploys a predictor created using the <a>CreatePredictor</a> operation.</p> <p>Deploying a predictor generates a forecast for every item in the dataset group that was used to train the predictor. To retrieve the forecast, use the operation. </p> <p>By default, the latest version of the predictor is deployed. Alternatively, you can deploy a specific predictor version.</p> <p>Each <code>DeployPredictor</code> call generates a new forecast. To get a list of forecasts, use the <a>ListForecasts</a> operation. To run this operation and generate forecasts on a specific schedule, you can specify a <code>scheduleExpression</code>.</p> <p>For more information about Amazon Forecast predictors, see <a>howitworks-predictor</a>.</p>"
     },
     "DescribeDataset":{
       "name":"DescribeDataset",
@@ -192,7 +205,8 @@
         {"shape":"InternalServiceException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"ResourceNotFoundException"}
-      ]
+      ],
+      "documentation":"<p>Returns metadata for an Amazon Forecast dataset created using the <a>CreateDataset</a> operation. </p> <p/>"
     },
     "DescribeDatasetGroup":{
       "name":"DescribeDatasetGroup",
@@ -207,7 +221,8 @@
         {"shape":"InternalServiceException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"ResourceNotFoundException"}
-      ]
+      ],
+      "documentation":"<p>Returns information about a dataset group, including a list of datasets in the group. </p>"
     },
     "DescribeDatasetImportJob":{
       "name":"DescribeDatasetImportJob",
@@ -222,7 +237,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"InternalServiceException"}
-      ]
+      ],
+      "documentation":"<p>Returns information about a job that you created using the <a>CreateDatasetImportJob</a> operation to import training data to your Amazon Forecast dataset. It includes statistical information about each field in the input data.</p> <p>For information about a specific data import job, specify both the dataset name and the version ID. If you don't provide a version ID, the operation uses the latest version ID.</p>"
     },
     "DescribeDeployedPredictor":{
       "name":"DescribeDeployedPredictor",
@@ -237,7 +253,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"InternalServiceException"}
-      ]
+      ],
+      "documentation":"<p>Provides information about a deployed predictor. For information about deploying a predictor, see the <a>DeployPredictor</a> operation.</p>"
     },
     "DescribeForecastExportJob":{
       "name":"DescribeForecastExportJob",
@@ -252,7 +269,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"InternalServiceException"}
-      ]
+      ],
+      "documentation":"<p>Returns the status of a forecast export job that was created with the <code>CreateForecastExportJob</code> operation. </p>"
     },
     "DescribePredictor":{
       "name":"DescribePredictor",
@@ -267,7 +285,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"InternalServiceException"}
-      ]
+      ],
+      "documentation":"<p>Returns information about a predictor that you created using the <a>CreatePredictor</a> operation.</p> <p>For information about a specific predictor, specify both the predictor name and the version ID. If you don't provide a version ID, the operation uses the latest version ID.</p>"
     },
     "DescribeRecipe":{
       "name":"DescribeRecipe",
@@ -282,7 +301,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"InternalServiceException"}
-      ]
+      ],
+      "documentation":"<p>Returns information about a recipe, including the name of the recipe and the algorithms that it provides. For each algorithm, <code>DescribeRecipe</code> returns the parameter configuration that controls how the algorithm is run. </p>"
     },
     "GetDatasetTypes":{
       "name":"GetDatasetTypes",
@@ -297,7 +317,8 @@
         {"shape":"InternalServiceException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"ResourceNotFoundException"}
-      ]
+      ],
+      "documentation":"<p>Returns a list of the dataset types that are supported within each of the dataset domains that are specified in the request. If you don't provide a domain name in the request, Amazon Forecast returns a list of dataset types within each of the supported domains. </p>"
     },
     "GetDomains":{
       "name":"GetDomains",
@@ -312,7 +333,8 @@
         {"shape":"InternalServiceException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"ResourceNotFoundException"}
-      ]
+      ],
+      "documentation":"<p>Returns a list of supported dataset domain names. </p>"
     },
     "GetSchema":{
       "name":"GetSchema",
@@ -327,7 +349,8 @@
         {"shape":"InternalServiceException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"ResourceNotFoundException"}
-      ]
+      ],
+      "documentation":"<p>Returns a schema (a list of fields and datatypes) that is associated with a dataset domain and a dataset type within the domain. For a list of dataset domains, see <a>GetDomains</a>. For a list of types, see <a>GetDatasetTypes</a>. For a conceptual overview, see <a>howitworks-dataset</a>. </p>"
     },
     "ListDatasetGroups":{
       "name":"ListDatasetGroups",
@@ -342,7 +365,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"InternalServiceException"}
-      ]
+      ],
+      "documentation":"<p>Returns a list of dataset group names. </p>"
     },
     "ListDatasetImportJobs":{
       "name":"ListDatasetImportJobs",
@@ -357,7 +381,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"InternalServiceException"}
-      ]
+      ],
+      "documentation":"<p>Returns a list of dataset import jobs for the specified dataset. You create an import job using the <a>CreateDatasetImportJob</a> operation.</p>"
     },
     "ListDatasets":{
       "name":"ListDatasets",
@@ -372,7 +397,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"InternalServiceException"}
-      ]
+      ],
+      "documentation":"<p>Returns a list of datasets.</p>"
     },
     "ListDeployedPredictors":{
       "name":"ListDeployedPredictors",
@@ -387,7 +413,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"InternalServiceException"}
-      ]
+      ],
+      "documentation":"<p>Returns a list of Amazon Forecast predictors that were deployed with <code>DeployPredictor</code> operations. </p>"
     },
     "ListForecastExportJobs":{
       "name":"ListForecastExportJobs",
@@ -402,7 +429,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"InternalServiceException"}
-      ]
+      ],
+      "documentation":"<p>Returns a list of forecast export job IDs for the specified forecast. You create a forecast export job with the <code>CreateForecastExportJob</code> operation. </p>"
     },
     "ListForecasts":{
       "name":"ListForecasts",
@@ -416,7 +444,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"InvalidInputException"},
         {"shape":"InternalServiceException"}
-      ]
+      ],
+      "documentation":"<p>Returns a list of forecasts generated with the <a>DeployPredictor</a> operation. </p>"
     },
     "ListPredictorVersions":{
       "name":"ListPredictorVersions",
@@ -431,7 +460,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"InternalServiceException"}
-      ]
+      ],
+      "documentation":"<p>Returns a list of the versions of a predictor.</p>"
     },
     "ListPredictors":{
       "name":"ListPredictors",
@@ -446,7 +476,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"InternalServiceException"}
-      ]
+      ],
+      "documentation":"<p>Returns a list of the names of the predictors in your AWS account. </p>"
     },
     "ListRecipes":{
       "name":"ListRecipes",
@@ -461,7 +492,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"InternalServiceException"}
-      ]
+      ],
+      "documentation":"<p>Returns a list of the recipes, including recipes provided by Amazon Forecast and custom recipes you created.</p>"
     },
     "RetrainPredictor":{
       "name":"RetrainPredictor",
@@ -476,8 +508,10 @@
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"ResourceNotFoundException"},
         {"shape":"InternalServiceException"},
-        {"shape":"InvalidStateException"}
-      ]
+        {"shape":"InvalidStateException"},
+        {"shape":"QuotaLimitExceededException"}
+      ],
+      "documentation":"<p>Retrains the predictor, which is identified by an Amazon Resource Name (ARN), and returns a new version ID. <code>RetrainPredictor</code> ignores the retraining schedule configured for the predictor, if there is one, and starts retraining immediately. While the predictor is being retrained, you can check its status with the <code>DescribePredictor</code> operation. You must wait until retraining has completed to use the predictor.</p>"
     },
     "UpdateDatasetGroup":{
       "name":"UpdateDatasetGroup",
@@ -493,7 +527,8 @@
         {"shape":"ResourceNotFoundException"},
         {"shape":"InternalServiceException"},
         {"shape":"InvalidStateException"}
-      ]
+      ],
+      "documentation":"<p>Removes existing datasets, if there are any, from the dataset group, and adds the datasets that you specify in the <code>UpdateDatasetGroup</code> request. </p>"
     },
     "UpdateDatasetImportJob":{
       "name":"UpdateDatasetImportJob",
@@ -509,7 +544,8 @@
         {"shape":"ResourceAlreadyExistsException"},
         {"shape":"InternalServiceException"},
         {"shape":"InvalidStateException"}
-      ]
+      ],
+      "documentation":"<p>Changes the update schedule of a dataset import job created with the <a>CreateDatasetImportJob</a> operation. It returns the latest version ID of <code>DatasetName</code>.</p> <p>To stop scheduled updates, specify <code>\"none\"</code> for <code>ScheduleExpression</code>.</p>"
     },
     "UpdatePredictor":{
       "name":"UpdatePredictor",
@@ -526,7 +562,8 @@
         {"shape":"InternalServiceException"},
         {"shape":"InvalidStateException"},
         {"shape":"QuotaLimitExceededException"}
-      ]
+      ],
+      "documentation":"<p>Updates a predictor's configuration, including the retraining schedule and override values for various parameters.</p> <p>If you change only the retraining schedule, Amazon Forecast does not create a new predictor (it doesn't retrain the model). However, if you change other parameters, such as <code>ForecastHorizon</code>, Amazon Forecast creates a new version of the predictor. To force Amazon Forecast to retrain models and create a new predictor version, use the <code>ForceNewVersion</code> parameter.</p> <p>To stop scheduled updates, specify <code>\"none\"</code> for <code>ScheduleExpression</code>.</p>"
     }
   },
   "shapes":{
@@ -539,6 +576,11 @@
         "min",
         "max"
       ]
+    },
+    "Arn":{
+      "type":"string",
+      "max":256,
+      "pattern":"^[a-zA-Z0-9\\-\\_\\.\\/\\:]+$"
     },
     "AttributeType":{
       "type":"string",
@@ -566,13 +608,24 @@
         "N"
       ]
     },
-    "Bucket":{"type":"string"},
+    "Bucket":{
+      "type":"string",
+      "max":256,
+      "pattern":"^[a-zA-Z0-9\\-\\_\\.\\/]+$"
+    },
     "CanonicalSchemaAttribute":{
       "type":"structure",
       "members":{
-        "Attribute":{"shape":"SchemaAttribute"},
-        "Required":{"shape":"Boolean"}
-      }
+        "Attribute":{
+          "shape":"SchemaAttribute",
+          "documentation":"<p>An object that provides information about a dataset attribute or field.</p>"
+        },
+        "Required":{
+          "shape":"Boolean",
+          "documentation":"<p>Indicates whether the attribute or field is required.</p>"
+        }
+      },
+      "documentation":"<p>Provides information about a dataset attribute or field and indicates whether it is required.</p>"
     },
     "CanonicalSchemaAttributes":{
       "type":"list",
@@ -581,9 +634,16 @@
     "CategoricalParameterRange":{
       "type":"structure",
       "members":{
-        "Name":{"shape":"String"},
-        "Values":{"shape":"Values"}
-      }
+        "Name":{
+          "shape":"String",
+          "documentation":"<p>The name of the categorical hyperparameter to tune.</p>"
+        },
+        "Values":{
+          "shape":"Values",
+          "documentation":"<p>A list of the categories for the hyperparameter.</p>"
+        }
+      },
+      "documentation":"<p> Provides a list of categorical hyperparameters to tune. </p>"
     },
     "CategoricalParameterRanges":{
       "type":"list",
@@ -592,10 +652,20 @@
     "CommonParameterRange":{
       "type":"structure",
       "members":{
-        "Name":{"shape":"String"},
-        "MaxValue":{"shape":"String"},
-        "MinValue":{"shape":"String"}
-      }
+        "Name":{
+          "shape":"String",
+          "documentation":"<p>The name of the hyperparameter to tune.</p>"
+        },
+        "MaxValue":{
+          "shape":"String",
+          "documentation":"<p> The maximum value of the hyperparameter to search. </p>"
+        },
+        "MinValue":{
+          "shape":"String",
+          "documentation":"<p> The minimum value of the hyperparameter to search. </p>"
+        }
+      },
+      "documentation":"<p> Specifies the range that a hyperparameter tuning job searches. </p>"
     },
     "CommonParameterRanges":{
       "type":"list",
@@ -608,17 +678,35 @@
         "RoleArn"
       ],
       "members":{
-        "DatasetGroupName":{"shape":"String"},
-        "RoleArn":{"shape":"RoleArn"},
-        "KMSKeyArn":{"shape":"String"},
-        "DatasetNames":{"shape":"StringList"}
+        "DatasetGroupName":{
+          "shape":"String",
+          "documentation":"<p>A name for the dataset group.</p>"
+        },
+        "RoleArn":{
+          "shape":"Arn",
+          "documentation":"<p>The Amazon Resource Name (ARN) of the AWS Identity and Access Management (IAM) role that Amazon Forecast can assume to access the S3 bucket. </p> <p>Cross-account pass role is not allowed. If you pass a role that doesn't belong to your account, an <code>InvalidInputException</code> is thrown.</p>"
+        },
+        "KMSKeyArn":{
+          "shape":"Arn",
+          "documentation":"<p> The Amazon Resource Name (ARN) of the AWS KMS key that you want Amazon Forecast to use to decrypt the object. </p>"
+        },
+        "DatasetNames":{
+          "shape":"StringList",
+          "documentation":"<p>An array of names of the datasets that you want to include in the dataset group.</p>"
+        }
       }
     },
     "CreateDatasetGroupResponse":{
       "type":"structure",
       "members":{
-        "DatasetGroupName":{"shape":"String"},
-        "DatasetGroupArn":{"shape":"String"}
+        "DatasetGroupName":{
+          "shape":"String",
+          "documentation":"<p>The name of the dataset group. </p>"
+        },
+        "DatasetGroupArn":{
+          "shape":"Arn",
+          "documentation":"<p>The Amazon Resource Name (ARN) of the dataset group.</p>"
+        }
       }
     },
     "CreateDatasetImportJobRequest":{
@@ -630,19 +718,43 @@
         "Delimiter"
       ],
       "members":{
-        "DatasetGroupName":{"shape":"String"},
-        "DatasetName":{"shape":"String"},
-        "S3Uri":{"shape":"S3Uri"},
-        "Delimiter":{"shape":"String"},
-        "ScheduleExpression":{"shape":"String"}
+        "DatasetGroupName":{
+          "shape":"String",
+          "documentation":"<p> The name of the dataset group. </p>"
+        },
+        "DatasetName":{
+          "shape":"String",
+          "documentation":"<p>The name of the Amazon Forecast dataset that you want to import data to.</p>"
+        },
+        "S3Uri":{
+          "shape":"S3Uri",
+          "documentation":"<p> The path to the Amazon Simple Storage Service (Amazon S3) bucket where the data that you want to import to your dataset is stored. For example: </p> <p> <code>s3://bucket-name/example-object.csv</code> </p>"
+        },
+        "Delimiter":{
+          "shape":"Delimiter",
+          "documentation":"<p>The delimiter that separates the data elements in the input data. For example, a comma (,) or a pipe (|). </p>"
+        },
+        "ScheduleExpression":{
+          "shape":"CronString",
+          "documentation":"<p>The optional schedule for automatically importing training data. Specify the schedule as an Amazon CloudWatch cron expression. For more information, see <a href=\"https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html\">Cron Expressions</a> in the <i>Amazon CloudWatch User Guide</i>. </p>"
+        }
       }
     },
     "CreateDatasetImportJobResponse":{
       "type":"structure",
       "members":{
-        "DatasetName":{"shape":"String"},
-        "VersionId":{"shape":"String"},
-        "DatasetArn":{"shape":"String"}
+        "DatasetName":{
+          "shape":"String",
+          "documentation":"<p> The dataset name. </p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the data imported to the dataset. A dataset can contain multiple versions of training data. Every time you call the <code>CreateDatasetImportJob</code> operation, Amazon Forecast imports source data and returns a new version ID. </p>"
+        },
+        "DatasetArn":{
+          "shape":"Arn",
+          "documentation":"<p>The Amazon Resource Name (ARN) of the dataset.</p>"
+        }
       }
     },
     "CreateDatasetRequest":{
@@ -654,20 +766,47 @@
         "DatasetName"
       ],
       "members":{
-        "Domain":{"shape":"Domain"},
-        "DatasetType":{"shape":"DatasetType"},
-        "DataFormat":{"shape":"DataFormat"},
-        "DatasetName":{"shape":"String"},
-        "DataFrequency":{"shape":"String"},
-        "TimeStampFormat":{"shape":"String"},
-        "Schema":{"shape":"Schema"}
+        "Domain":{
+          "shape":"Domain",
+          "documentation":"<p>The domain associated with the dataset. The <code>Domain</code> and <code>DatasetType</code> that you choose determine the fields that must be present in the training data that you import to the dataset. For example, if you choose the <code>RETAIL</code> domain and the <code>TARGET_TIME_SERIES</code> as the <code>DatasetType</code>, Amazon Forecast requires <code>item_id</code>, <code>timestamp</code>, and <code>demand</code> fields to be present in your data. For more information, see <a>howitworks-datasets-groups</a>. </p>"
+        },
+        "DatasetType":{
+          "shape":"DatasetType",
+          "documentation":"<p>The type of dataset that you want to use. Valid types depend on the <code>Domain</code> that you choose. </p>"
+        },
+        "DataFormat":{
+          "shape":"DataFormat",
+          "documentation":"<p>The format of your source data. Currently, Amazon Forecast supports only CSV format. </p>"
+        },
+        "DatasetName":{
+          "shape":"String",
+          "documentation":"<p>A name for the dataset. </p>"
+        },
+        "DataFrequency":{
+          "shape":"String",
+          "documentation":"<p>The frequency of data collection.</p> <p>Specify the frequency as a number and interval combination. Valid interval are Y (Year), M (Month), W (Week), D (Day), H (Hour), min (Minute), and S (Second). For example, \"5D\" indicates every 5 days and \"15min\" indicates every 15 minutes.</p>"
+        },
+        "TimeStampFormat":{
+          "shape":"TimeStampString",
+          "documentation":"<p>The format of timestamps in the dataset. For example, <code>yyyy-MM-dd HH:mm:ss</code>. For more information, see <a href=\"https://docs.oracle.com/javase/8/docs/api/java/sql/Timestamp.html\">https://docs.oracle.com/javase/8/docs/api/java/sql/Timestamp.html</a>. </p>"
+        },
+        "Schema":{
+          "shape":"Schema",
+          "documentation":"<p>The schema for the dataset. The dataset <code>Domain</code> and <code>DatasetType</code> that you choose determine the minimum required fields in your training data. Your schema must include the minimum required fields for the <code>Domain</code> and <code>DatasetType</code> that you choose. The order of the schema elements must match the order of the fields in your data. For information about required fields for a specific dataset domain and type, see <a>howitworks-domains-ds-types</a>.</p> <p> <code>Schema</code> is optional. You can include headers in your data or define a schema that includes the required fields. Your data can also include additional fields. </p> <p>If you choose to <i>not</i> specify a schema, your data must include headers that include the required fields for the domain and dataset type that you choose. </p> <p>If you specify a schema and your data includes headers, then the schema takes precedence. Amazon Forecast ignores the headers in your data. </p>"
+        }
       }
     },
     "CreateDatasetResponse":{
       "type":"structure",
       "members":{
-        "DatasetName":{"shape":"String"},
-        "DatasetArn":{"shape":"String"}
+        "DatasetName":{
+          "shape":"String",
+          "documentation":"<p>The name of the dataset. </p>"
+        },
+        "DatasetArn":{
+          "shape":"Arn",
+          "documentation":"<p>The Amazon Resource Name (ARN) of the dataset. </p>"
+        }
       }
     },
     "CreateForecastExportJobRequest":{
@@ -677,15 +816,27 @@
         "OutputPath"
       ],
       "members":{
-        "ForecastId":{"shape":"String"},
-        "OutputPath":{"shape":"S3DataSource"}
+        "ForecastId":{
+          "shape":"String",
+          "documentation":"<p>The ID of the forecast that you want to export.</p>"
+        },
+        "OutputPath":{
+          "shape":"S3DataSource",
+          "documentation":"<p>The path to the S3 bucket where you want to save the forecast.</p> <p>Cross-account pass role is not allowed. If you pass a role that doesn't belong to your account, an <code>InvalidInputException</code> is thrown.</p>"
+        }
       }
     },
     "CreateForecastExportJobResponse":{
       "type":"structure",
       "members":{
-        "ForecastExportJobId":{"shape":"String"},
-        "ForecastExportArn":{"shape":"String"}
+        "ForecastExportJobId":{
+          "shape":"String",
+          "documentation":"<p>The job ID of the forecast export job. Use this ID to check the status of the forecast that was exported with the <code>DescribeForecastExportJob</code> operation. </p>"
+        },
+        "ForecastExportArn":{
+          "shape":"Arn",
+          "documentation":"<p> The Amazon Resource Name (ARN) of the export job. </p>"
+        }
       }
     },
     "CreatePredictorRequest":{
@@ -696,44 +847,91 @@
         "ForecastHorizon"
       ],
       "members":{
-        "PredictorName":{"shape":"String"},
-        "RecipeName":{"shape":"String"},
-        "DatasetGroupName":{"shape":"String"},
-        "ForecastHorizon":{"shape":"Integer"},
-        "TrainingParameters":{"shape":"TrainingParameters"},
-        "PerformHPO":{"shape":"Boolean"},
-        "HPOConfig":{"shape":"HyperParameterTuningJobConfig"},
-        "PerformAutoML":{"shape":"Boolean"},
-        "ForecastParameters":{"shape":"ForecastParameters"},
-        "RecipeParameters":{"shape":"RecipeParameters"},
-        "ScheduleExpression":{"shape":"String"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>A name for the new predictor. </p>"
+        },
+        "RecipeName":{
+          "shape":"String",
+          "documentation":"<p>The name of the recipe to use for model training. If <code>PerformAutoML</code> is set to N, if you must specify the recipe name. </p>"
+        },
+        "DatasetGroupName":{
+          "shape":"String",
+          "documentation":"<p>The name of the dataset group to use for model training. </p>"
+        },
+        "ForecastHorizon":{
+          "shape":"Integer",
+          "documentation":"<p>Specifies the number of time-steps of the forecast. The forecast horizon is also called the prediction length.</p> <p>When you call the <a>CreatePredictor</a> operation, the algorithm trains a model. After training has completed, the algorithm produces a test inference as part of the model evaluation process. The forecast horizon determines the number of forecast time-steps that the inference generates.</p> <p>For example, if you configure a dataset for daily data collection (using the <code>DataFrequency</code> parameter of the <a>CreateDataset</a> operation) and set the forecast horizon to 10, the model returns forecasts for 10 days during the evaluation process.</p>"
+        },
+        "TrainingParameters":{
+          "shape":"TrainingParameters",
+          "documentation":"<p>The training parameters to override for model training. The parameters that you can override are listed in the individual recipes in <a>aws-forecast-choosing-recipes</a>.</p>"
+        },
+        "PerformHPO":{
+          "shape":"Boolean",
+          "documentation":"<p>Whether to perform hyperparameter optimization.</p> <p>To create a hyperparameter tuning job to find optimal hyperparameter values for your training data, set <code>PerformHPO</code> to <code>Y</code>. If you specify <code>HPOConfig</code>, the tuning job works on the ranges that you provide. Otherwise, it works with the default hyperparameter ranges.</p> <p>The following recipes support HPO:</p> <ul> <li> <p>DeepAR+</p> </li> <li> <p>Spline Quantile Forecaster (SQF)</p> </li> </ul>"
+        },
+        "HPOConfig":{
+          "shape":"HyperParameterTuningJobConfig",
+          "documentation":"<p>Provides hyperparameter override values for the algorithm in the specified recipe. If you don't provide this parameter, Amazon Forecast uses default values.</p>"
+        },
+        "PerformAutoML":{
+          "shape":"Boolean",
+          "documentation":"<p>The default value is <code>N</code>. You are required to choose a recipe.</p> <p>If you want Amazon Forecast to evaluate the recipes it provides (not custom recipes) and choose the best recipe and configuration for your training dataset, set <code>PerformAutoML</code> to <code>Y</code>. This is a good option if you aren't sure which recipe is suitable for your application.</p>"
+        },
+        "ForecastParameters":{
+          "shape":"ForecastParameters",
+          "documentation":"<p>The forecast parameters to override when running inference to generate a forecast. </p> <p>If the specified recipe has multiple algorithms and you want to override a hyperparameter for a specific algorithm, specify <code>algorithm.hyperparameter:value</code>. If a recipe has only one algorithm or if you want to override the hyperparameter in all of the recipe's algorithms, specify <code>hyperparameter:value</code>.</p>"
+        },
+        "RecipeParameters":{
+          "shape":"RecipeParameters",
+          "documentation":"<p>Overrides recipe parameters.</p> <p> <code>BackTestWindowCount parameter</code> - If <code>BackTestWindowCount</code> isn't specified, Amazon Forecast uses the value from the chosen recipe. If <code>BackTestWindowCount</code> isn't specified in the recipe, Amazon Forecast returns an error.</p> <p> <code>BackTestWindowOffset</code> parameter - If <code>BackTestWindowOffset</code> isn't specified, Amazon Forecast uses the value from the chosen recipe. If <code>BackTestWindowOffset</code> isn't specified in the recipe, Amazon Forecast determines the value as follows:</p> <ul> <li> <p>If <code>MinTimeseriesLength &gt;= (2 * BackTestWindowCount * ForecastHorizon)</code>,</p> <p>then <code>BackTestWindowOffset = ForecastHorizon</code>.</p> </li> <li> <p>If <code>MinTimeseriesLength &lt; (2 * BackTestWindowCount * ForecastHorizon)</code>,</p> <p>then the dataset is too small to use <code>ForecastHorizon</code> as an offset,</p> <p>and <code>BackTestWindowOffset = MinTimeseriesLength / (2 * BackTestWindowCount)</code>.</p> </li> </ul> <p> <code>MinTimeseriesLength</code> is the minimum timeseries length in the dataset, computed during dataset import.</p>"
+        },
+        "ScheduleExpression":{
+          "shape":"CronString",
+          "documentation":"<p>Specifies a schedule for retraining the model. </p> <p>Specify this value as an Amazon CloudWatch cron expression. For more information, see <a href=\"https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html\">Cron Expressions</a> in the <i>Amazon CloudWatch User Guide</i>. </p>"
+        }
       }
     },
     "CreatePredictorResponse":{
       "type":"structure",
       "members":{
-        "PredictorName":{"shape":"String"},
-        "VersionId":{"shape":"String"},
-        "PredictorArn":{"shape":"String"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The name of the predictor.</p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the predictor.</p>"
+        },
+        "PredictorArn":{
+          "shape":"Arn",
+          "documentation":"<p>The Amazon Resource Name (ARN) of the predictor.</p>"
+        }
       }
+    },
+    "CronString":{
+      "type":"string",
+      "max":256,
+      "pattern":"^[a-zA-Z0-9\\_\\*\\?\\,\\|\\^\\-\\/\\#\\s\\(\\)\\+]+$"
     },
     "DataFormat":{
       "type":"string",
       "enum":["CSV"]
     },
-    "DataSource":{
-      "type":"structure",
-      "members":{
-        "S3Uri":{"shape":"S3Uri"},
-        "PresignedUrl":{"shape":"String"}
-      }
-    },
     "DatasetImportJobsResponseItem":{
       "type":"structure",
       "members":{
-        "DatasetName":{"shape":"String"},
-        "VersionId":{"shape":"String"}
-      }
+        "DatasetName":{
+          "shape":"String",
+          "documentation":"<p>The name of the dataset.</p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the dataset.</p>"
+        }
+      },
+      "documentation":"<p>Provides information about a dataset import job. </p>"
     },
     "DatasetImportJobsResponseItemList":{
       "type":"list",
@@ -760,7 +958,10 @@
       "type":"structure",
       "required":["DatasetGroupName"],
       "members":{
-        "DatasetGroupName":{"shape":"String"}
+        "DatasetGroupName":{
+          "shape":"String",
+          "documentation":"<p>The name of the dataset group to delete.</p>"
+        }
       }
     },
     "DeleteDatasetGroupResponse":{
@@ -772,22 +973,37 @@
       "type":"structure",
       "required":["DatasetName"],
       "members":{
-        "DatasetName":{"shape":"String"},
-        "VersionId":{"shape":"String"}
+        "DatasetName":{
+          "shape":"String",
+          "documentation":"<p>The name of the dataset.</p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the dataset.</p>"
+        }
       }
     },
     "DeleteDatasetImportResponse":{
       "type":"structure",
       "members":{
-        "DatasetName":{"shape":"String"},
-        "VersionId":{"shape":"String"}
+        "DatasetName":{
+          "shape":"String",
+          "documentation":"<p>The name of the dataset.</p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the dataset.</p>"
+        }
       }
     },
     "DeleteDatasetRequest":{
       "type":"structure",
       "required":["DatasetName"],
       "members":{
-        "DatasetName":{"shape":"String"}
+        "DatasetName":{
+          "shape":"String",
+          "documentation":"<p>The name of the dataset to delete.</p>"
+        }
       }
     },
     "DeleteDatasetResponse":{
@@ -799,180 +1015,452 @@
       "type":"structure",
       "required":["PredictorName"],
       "members":{
-        "PredictorName":{"shape":"String"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The predictor name.</p>"
+        }
       }
     },
     "DeleteDeployedPredictorResponse":{
       "type":"structure",
       "members":{
-        "PredictorName":{"shape":"String"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The predictor name.</p>"
+        }
       }
     },
     "DeletePredictorRequest":{
       "type":"structure",
       "required":["PredictorName"],
       "members":{
-        "PredictorName":{"shape":"String"},
-        "VersionId":{"shape":"String"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The name of the predictor that you want to delete. </p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the predictor that you want to delete. </p>"
+        }
       }
     },
     "DeletePredictorResponse":{
       "type":"structure",
       "members":{
-        "PredictorName":{"shape":"String"},
-        "VersionId":{"shape":"String"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The predictor name. </p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the predictor. </p>"
+        }
       }
+    },
+    "Delimiter":{
+      "type":"string",
+      "max":256,
+      "pattern":"^[a-zA-Z0-9\\_\\*\\?\\,\\|\\^\\-\\/\\#\\s\\(\\)\\+\\\\\\\\]+$"
     },
     "DeployPredictorRequest":{
       "type":"structure",
       "required":["PredictorName"],
       "members":{
-        "PredictorName":{"shape":"String"},
-        "VersionId":{"shape":"String"},
-        "ScheduleExpression":{"shape":"String"},
-        "TargetCacheOffset":{"shape":"Integer"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The name of the predictor that you want to use to generate a forecast.</p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the predictor to deploy.</p>"
+        },
+        "ScheduleExpression":{
+          "shape":"CronString",
+          "documentation":"<p>The schedule for generating forecasts with the specified predictor. Specify the schedule as an Amazon CloudWatch cron expression. For more information, see <a href=\"https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html\">Cron Expressions</a> in the <i>Amazon CloudWatch User Guide</i>.</p>"
+        },
+        "TargetCacheOffset":{
+          "shape":"Integer",
+          "documentation":"<p>The <code>DeployPredictor</code> operation generates a forecast. Amazon Forecast then caches the forecast, for example, for visualization in the Amazon Forecast console. When visualizing the forecast, Amazon Forecast also caches the last part of the target time series data to provide you better context.</p> <p>By default, Amazon Forecast caches the last target time series that is the size of the <code>ForecastHorizon</code> (which is set either in the recipe or overridden in the <code>CreatePredictor</code> operation that uses the recipe). For example, if <code>ForecastHorizon</code> is 30, Amazon Forecast caches the last 30 data points of the target time series.</p>"
+        }
       }
     },
     "DeployPredictorResponse":{
       "type":"structure",
       "members":{
-        "PredictorName":{"shape":"String"},
-        "VersionId":{"shape":"String"},
-        "PredictorArn":{"shape":"String"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The name of the deployed predictor.</p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the deployed predictor.</p>"
+        },
+        "PredictorArn":{
+          "shape":"Arn",
+          "documentation":"<p>The Amazon Resource Name (ARN) of the deployed predictor.</p>"
+        }
       }
     },
     "DescribeDatasetGroupRequest":{
       "type":"structure",
       "required":["DatasetGroupName"],
       "members":{
-        "DatasetGroupName":{"shape":"String"},
-        "MaxResults":{"shape":"MaxResults"},
-        "NextToken":{"shape":"String"}
+        "DatasetGroupName":{
+          "shape":"String",
+          "documentation":"<p>The name of the dataset group that you want information about. </p>"
+        },
+        "MaxResults":{
+          "shape":"MaxResults",
+          "documentation":"<p>The number of items to return in the response.</p>"
+        },
+        "NextToken":{
+          "shape":"String",
+          "documentation":"<p>If the result of the previous request was truncated, the response includes a <code>NextToken</code>. To retrieve the next set of results, use the token in the next request.</p>"
+        }
       }
     },
     "DescribeDatasetGroupResponse":{
       "type":"structure",
       "members":{
-        "DatasetGroupName":{"shape":"String"},
-        "DatasetGroupArn":{"shape":"String"},
-        "Datasets":{"shape":"StringList"},
-        "RoleArn":{"shape":"RoleArn"},
-        "KMSKeyArn":{"shape":"String"},
-        "NextToken":{"shape":"String"}
+        "DatasetGroupName":{
+          "shape":"String",
+          "documentation":"<p>The name of the dataset group. </p>"
+        },
+        "DatasetGroupArn":{
+          "shape":"Arn",
+          "documentation":"<p>The Amazon Resource Name (ARN) of the dataset group. </p>"
+        },
+        "Datasets":{
+          "shape":"StringList",
+          "documentation":"<p>An array of dataset names.</p>"
+        },
+        "RoleArn":{
+          "shape":"Arn",
+          "documentation":"<p> The Amazon Resource Name (ARN) of the IAM role. </p>"
+        },
+        "KMSKeyArn":{
+          "shape":"Arn",
+          "documentation":"<p> The Amazon Resource Name (ARN) of the AWS KMS key. </p>"
+        },
+        "NextToken":{
+          "shape":"String",
+          "documentation":"<p>If the response is truncated, Amazon Forecast returns this token. To retrieve the next set of results, use the token in the next request.</p>"
+        }
       }
     },
     "DescribeDatasetImportJobRequest":{
       "type":"structure",
       "required":["DatasetName"],
       "members":{
-        "DatasetName":{"shape":"String"},
-        "VersionId":{"shape":"String"}
+        "DatasetName":{
+          "shape":"String",
+          "documentation":"<p/>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the dataset that you want information about.</p>"
+        }
       }
     },
     "DescribeDatasetImportJobResponse":{
       "type":"structure",
       "members":{
-        "DatasetArn":{"shape":"String"},
-        "DatasetName":{"shape":"String"},
-        "VersionId":{"shape":"String"},
-        "Status":{"shape":"String"},
-        "FieldStatistics":{"shape":"FieldStatistics"},
-        "Message":{"shape":"ErrorMessage"}
+        "DatasetArn":{
+          "shape":"Arn",
+          "documentation":"<p>The Amazon Resource Name (ARN) of the dataset. </p>"
+        },
+        "DatasetName":{
+          "shape":"String",
+          "documentation":"<p>The name of the dataset.</p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the dataset.</p>"
+        },
+        "Status":{
+          "shape":"String",
+          "documentation":"<p>The status of the dataset that is being refreshed: <code>CREATING</code>, <code>ACTIVE</code>, or <code>FAILED</code>. </p>"
+        },
+        "FieldStatistics":{
+          "shape":"FieldStatistics",
+          "documentation":"<p>Statistical information about each field in the input data. </p>"
+        },
+        "Message":{
+          "shape":"ErrorMessage",
+          "documentation":"<p>If an error occurred, an informational message about the error.</p>"
+        },
+        "S3Uri":{
+          "shape":"S3Uri",
+          "documentation":"<p> The path to the Amazon Simple Storage Service (Amazon S3) bucket where the data that you want to import to your dataset is stored. For example:</p> <p> <code>s3://bucket-name/example-object.csv</code> </p>"
+        },
+        "Delimiter":{
+          "shape":"Delimiter",
+          "documentation":"<p>The delimiter that separates the data elements in the input data. For example, a comma (,) or a pipe (|).</p>"
+        },
+        "StartTime":{
+          "shape":"TimeStamp",
+          "documentation":"<p>The start time of the dataset import job.</p>"
+        },
+        "LastModificationTime":{
+          "shape":"TimeStamp",
+          "documentation":"<p>The last modification time of the dataset import job.</p>"
+        }
       }
     },
     "DescribeDatasetRequest":{
       "type":"structure",
       "required":["DatasetName"],
       "members":{
-        "DatasetName":{"shape":"String"}
+        "DatasetName":{
+          "shape":"String",
+          "documentation":"<p>The name of the dataset that you want metadata for. </p>"
+        }
       }
     },
     "DescribeDatasetResponse":{
       "type":"structure",
       "members":{
-        "DatasetName":{"shape":"String"},
-        "DatasetType":{"shape":"DatasetType"},
-        "DataFormat":{"shape":"DataFormat"},
-        "DataSource":{"shape":"DataSource"},
-        "Domain":{"shape":"Domain"},
-        "ScheduleExpression":{"shape":"String"},
-        "DatasetArn":{"shape":"String"},
-        "Status":{"shape":"String"}
+        "DatasetName":{
+          "shape":"String",
+          "documentation":"<p>The name of the dataset.</p>"
+        },
+        "DatasetType":{
+          "shape":"DatasetType",
+          "documentation":"<p>The dataset type.</p>"
+        },
+        "DataFormat":{
+          "shape":"DataFormat",
+          "documentation":"<p>The format of the data that you can import.</p>"
+        },
+        "DataFrequency":{
+          "shape":"String",
+          "documentation":"<p>The frequency of data collection specified as a number and interval combination.</p> <p>Valid interval are Y (Year), M (Month), W (Week), D (Day), H (Hour), min (Minute), and S (Second). For example, \"5D\" indicates every 5 days and \"15min\" indicates every 15 minutes.</p>"
+        },
+        "TimeStampFormat":{
+          "shape":"TimeStampString",
+          "documentation":"<p>The format of timestamps in the dataset. For example, <code>yyyy-MM-dd HH:mm:ss</code>. For more information, see <a href=\"https://docs.oracle.com/javase/8/docs/api/java/sql/Timestamp.html\">https://docs.oracle.com/javase/8/docs/api/java/sql/Timestamp.html</a>. </p>"
+        },
+        "Schema":{"shape":"Schema"},
+        "Domain":{
+          "shape":"Domain",
+          "documentation":"<p> The dataset domain. </p>"
+        },
+        "ScheduleExpression":{
+          "shape":"CronString",
+          "documentation":"<p>The schedule for automated imports to the dataset.</p>"
+        },
+        "DatasetArn":{
+          "shape":"Arn",
+          "documentation":"<p>The Amazon Resource Name (ARN) of the dataset. </p>"
+        },
+        "Status":{
+          "shape":"String",
+          "documentation":"<p> The dataset status. It reflects status of any import jobs in progress. </p>"
+        }
       }
     },
     "DescribeDeployedPredictorRequest":{
       "type":"structure",
       "required":["PredictorName"],
       "members":{
-        "PredictorName":{"shape":"String"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The name of the predictor that you want information about.</p>"
+        }
       }
     },
     "DescribeDeployedPredictorResponse":{
       "type":"structure",
       "members":{
-        "PredictorName":{"shape":"String"},
-        "ScheduleExpression":{"shape":"String"},
-        "CurrentlyDeployedVersionId":{"shape":"String"},
-        "DeploymentInProgressVersionId":{"shape":"String"},
-        "Status":{"shape":"String"},
-        "PredictorArn":{"shape":"String"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The name of the predictor.</p>"
+        },
+        "ScheduleExpression":{
+          "shape":"CronString",
+          "documentation":"<p>The schedule on which Amazon Forecast uses the predictor to run inference and generate forecasts. </p>"
+        },
+        "CurrentlyDeployedVersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the predictor that is currently deployed. That is, the predictor version ID that Amazon Forecast used to run inference and generate the forecast.</p>"
+        },
+        "DeploymentInProgressVersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the predictor that is currently being deployed. </p>"
+        },
+        "Status":{
+          "shape":"String",
+          "documentation":"<p>The status of the deployment that is in progress.</p>"
+        },
+        "PredictorArn":{
+          "shape":"Arn",
+          "documentation":"<p>The Amazon Resource Name (ARN) of the predictor. </p>"
+        },
+        "CompletionPercent":{
+          "shape":"Integer",
+          "documentation":"<p>The progress of the current job.</p>"
+        },
+        "Message":{
+          "shape":"ErrorMessage",
+          "documentation":"<p>If the deployment failed, the error message.</p>"
+        },
+        "StartTime":{
+          "shape":"TimeStamp",
+          "documentation":"<p>The start time of the deployed predictor.</p>"
+        },
+        "LastModificationTime":{
+          "shape":"TimeStamp",
+          "documentation":"<p>The last modification time of the deployed predictor.</p>"
+        },
+        "TargetCacheOffset":{
+          "shape":"Integer",
+          "documentation":"<p>The <code>DescribeDeployedPredictor</code> operation generates a forecast. Amazon Forecast then caches the forecast, for example, for visualization in the Amazon Forecast console. When visualizing the forecast, Amazon Forecast uses the <code>TargetCacheOffset</code> parameter to set the number of cached data points from the end of the target time series.</p> <p>By default, Amazon Forecast caches the last target time series that is the size of the <code>ForecastHorizon</code> (which is set either in the recipe or overridden in the <code>CreatePredictor</code> operation that uses the recipe). For example, if <code>ForecastHorizon</code> is 30, Amazon Forecast caches the last 30 data points of the target time series.</p>"
+        }
       }
     },
     "DescribeForecastExportJobRequest":{
       "type":"structure",
       "required":["ForecastExportJobId"],
       "members":{
-        "ForecastExportJobId":{"shape":"String"}
+        "ForecastExportJobId":{
+          "shape":"String",
+          "documentation":"<p>The ID of the forecast export job that you want status for.</p>"
+        }
       }
     },
     "DescribeForecastExportJobResponse":{
       "type":"structure",
       "members":{
-        "ForecastId":{"shape":"String"},
-        "OutputPath":{"shape":"S3DataSource"},
-        "ForecastExportArn":{"shape":"String"},
-        "Status":{"shape":"String"},
-        "Message":{"shape":"ErrorMessage"}
+        "ForecastId":{
+          "shape":"String",
+          "documentation":"<p>The ID of the Amazon Forecast forecast that is being exported.</p>"
+        },
+        "OutputPath":{
+          "shape":"S3DataSource",
+          "documentation":"<p>The path to the S3 bucket where the output is stored.</p>"
+        },
+        "ForecastExportArn":{
+          "shape":"Arn",
+          "documentation":"<p> The Amazon Resource Name (ARN) of the forecast export job. </p>"
+        },
+        "Status":{
+          "shape":"String",
+          "documentation":"<p>The status of the job.</p>"
+        },
+        "Message":{
+          "shape":"ErrorMessage",
+          "documentation":"<p>If the job failed, the error message.</p>"
+        },
+        "StartTime":{
+          "shape":"TimeStamp",
+          "documentation":"<p>The start time of the forecast export job.</p>"
+        },
+        "LastModificationTime":{
+          "shape":"TimeStamp",
+          "documentation":"<p>The last modification time of the forecast export job.</p>"
+        }
       }
     },
     "DescribePredictorRequest":{
       "type":"structure",
       "required":["PredictorName"],
       "members":{
-        "PredictorName":{"shape":"String"},
-        "VersionId":{"shape":"String"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The name of a predictor that you want information about.</p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the predictor that you want information about.</p>"
+        }
       }
     },
     "DescribePredictorResponse":{
       "type":"structure",
       "members":{
-        "PredictorName":{"shape":"String"},
-        "VersionId":{"shape":"String"},
-        "TrainingParameters":{"shape":"TrainingParameters"},
-        "ForecastParameters":{"shape":"ForecastParameters"},
-        "Status":{"shape":"String"},
-        "ScheduleExpression":{"shape":"String"},
-        "CreationStartTime":{"shape":"String"},
-        "CreationCompleteTime":{"shape":"String"},
-        "LastModificationTime":{"shape":"String"},
-        "PredictorArn":{"shape":"String"},
-        "RecipeName":{"shape":"String"},
-        "DatasetGroup":{"shape":"String"},
-        "RecipeParameters":{"shape":"RecipeParameters"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The name of the predictor.</p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the predictor.</p>"
+        },
+        "TrainingParameters":{
+          "shape":"TrainingParameters",
+          "documentation":"<p>The training parameters to override for model training. The parameters that you can override are listed in the individual recipes in <a>aws-forecast-choosing-recipes</a>.</p>"
+        },
+        "ForecastParameters":{
+          "shape":"ForecastParameters",
+          "documentation":"<p>The forecast parameters to override when running inference to generate a forecast.</p>"
+        },
+        "Status":{
+          "shape":"String",
+          "documentation":"<p>The status of the predictor.</p>"
+        },
+        "ScheduleExpression":{
+          "shape":"CronString",
+          "documentation":"<p>The model retraining schedule.</p>"
+        },
+        "StartTime":{
+          "shape":"TimeStamp",
+          "documentation":"<p>The start time for model training.</p>"
+        },
+        "LastModificationTime":{
+          "shape":"TimeStamp",
+          "documentation":"<p>The last predictor modification time stamp.</p>"
+        },
+        "PredictorArn":{
+          "shape":"Arn",
+          "documentation":"<p>The Amazon Resource Name (ARN) of the predictor.</p>"
+        },
+        "RecipeName":{
+          "shape":"String",
+          "documentation":"<p>The name of the recipe.</p>"
+        },
+        "DatasetGroup":{
+          "shape":"String",
+          "documentation":"<p>The name of the dataset group used for training the predictor.</p>"
+        },
+        "RecipeParameters":{
+          "shape":"RecipeParameters",
+          "documentation":"<p>The recipe parameters used, if any.</p>"
+        },
+        "CompletionPercent":{
+          "shape":"Integer",
+          "documentation":"<p>The progress of the current job.</p>"
+        },
+        "ForecastHorizon":{
+          "shape":"Integer",
+          "documentation":"<p>The number of time-steps of the forecast. The forecast horizon is also called the prediction length.</p>"
+        },
+        "Message":{
+          "shape":"ErrorMessage",
+          "documentation":"<p>If the creation of the predictor failed, the error message.</p>"
+        }
       }
     },
     "DescribeRecipeRequest":{
       "type":"structure",
       "required":["RecipeName"],
       "members":{
-        "RecipeName":{"shape":"String"}
+        "RecipeName":{
+          "shape":"String",
+          "documentation":"<p>The name of the recipe. </p>"
+        }
       }
     },
     "DescribeRecipeResponse":{
       "type":"structure",
       "members":{
-        "Recipe":{"shape":"RecipeItem"},
-        "RecipeArn":{"shape":"String"}
+        "Recipe":{
+          "shape":"RecipeItem",
+          "documentation":"<p>A <code>Recipe</code> object describing the recipe. </p>"
+        },
+        "RecipeArn":{
+          "shape":"Arn",
+          "documentation":"<p>The Amazon Resource Name (ARN) of the custom recipe. </p>"
+        }
       }
     },
     "Domain":{
@@ -1025,10 +1513,20 @@
     "ForecastInfo":{
       "type":"structure",
       "members":{
-        "PredictorName":{"shape":"String"},
-        "VersionId":{"shape":"String"},
-        "ForecastId":{"shape":"String"}
-      }
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The name of the predictor that you deployed to generate the forecast.</p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the predictor.</p>"
+        },
+        "ForecastId":{
+          "shape":"String",
+          "documentation":"<p>The forecast ID.</p>"
+        }
+      },
+      "documentation":"<p>Provides information about a forecast.</p>"
     },
     "ForecastInfoList":{
       "type":"list",
@@ -1055,13 +1553,19 @@
       "type":"structure",
       "required":["Domains"],
       "members":{
-        "Domains":{"shape":"Domains"}
+        "Domains":{
+          "shape":"Domains",
+          "documentation":"<p>A list of dataset domains. </p>"
+        }
       }
     },
     "GetDatasetTypesResponse":{
       "type":"structure",
       "members":{
-        "DatasetTypes":{"shape":"DatasetTypesMap"}
+        "DatasetTypes":{
+          "shape":"DatasetTypesMap",
+          "documentation":"<p>A map of dataset domain and dataset types within the domain.</p>"
+        }
       }
     },
     "GetDomainsRequest":{
@@ -1072,7 +1576,10 @@
     "GetDomainsResponse":{
       "type":"structure",
       "members":{
-        "Domains":{"shape":"Domains"}
+        "Domains":{
+          "shape":"Domains",
+          "documentation":"<p>An array of dataset domain names. </p>"
+        }
       }
     },
     "GetSchemaRequest":{
@@ -1082,172 +1589,320 @@
         "DatasetType"
       ],
       "members":{
-        "Domain":{"shape":"Domain"},
-        "DatasetType":{"shape":"DatasetType"}
+        "Domain":{
+          "shape":"Domain",
+          "documentation":"<p>A dataset domain name. </p>"
+        },
+        "DatasetType":{
+          "shape":"DatasetType",
+          "documentation":"<p>A dataset type within the specified domain. </p>"
+        }
       }
     },
     "GetSchemaResponse":{
       "type":"structure",
       "members":{
-        "Schema":{"shape":"CanonicalSchemaAttributes"}
+        "Schema":{
+          "shape":"CanonicalSchemaAttributes",
+          "documentation":"<p>The schema for a dataset domain and dataset type within the domain. If you specify the domain and type in the request, the operation returns a specific schema. If you specify only a domain, the response returns schemas for all of the types within the domain. If you don't provide a domain or a type in the request, the operation returns all of the schemas. </p>"
+        }
       }
     },
     "HyperParameterTuningInfo":{
       "type":"structure",
       "members":{
-        "PerformHPO":{"shape":"Boolean"},
-        "HPOConfig":{"shape":"HyperParameterTuningJobConfig"}
-      }
+        "PerformHPO":{
+          "shape":"Boolean",
+          "documentation":"<p>Indicates whether to perform hyperparameter tuning.</p>"
+        },
+        "HPOConfig":{
+          "shape":"HyperParameterTuningJobConfig",
+          "documentation":"<p>Configures a hyperparameter tuning job.</p>"
+        }
+      },
+      "documentation":"<p>Provides information about hyperparameter tuning.</p>"
     },
     "HyperParameterTuningJobConfig":{
       "type":"structure",
       "members":{
-        "HyperParameterTuningJobObjective":{"shape":"HyperParameterTuningJobObjective"},
-        "ParameterRanges":{"shape":"ParameterRanges"},
-        "StaticHyperParameters":{"shape":"StaticHyperParameters"},
-        "ResourceLimits":{"shape":"ResourceLimits"},
-        "Strategy":{"shape":"String"}
-      }
+        "HyperParameterTuningJobObjective":{
+          "shape":"HyperParameterTuningJobObjective",
+          "documentation":"<p>The <code>HyperParameterTuningJobObjective</code> object that specifies the objective metric for this tuning job. </p>"
+        },
+        "ParameterRanges":{
+          "shape":"ParameterRanges",
+          "documentation":"<p>The <code>ParameterRanges</code> object that specifies the ranges of hyperparameters that this tuning job searches. </p>"
+        },
+        "StaticHyperParameters":{
+          "shape":"StaticHyperParameters",
+          "documentation":"<p>Specifies the values of the hyperparameters that do not change for the tuning job.</p>"
+        },
+        "ResourceLimits":{
+          "shape":"ResourceLimits",
+          "documentation":"<p>The <code>ResourceLimits</code> object that specifies the maximum number of training jobs and parallel training jobs for this tuning job. </p>"
+        },
+        "Strategy":{
+          "shape":"String",
+          "documentation":"<p> Specifies the search strategy for hyperparameters. Currently, the only valid value is Bayesian. </p>"
+        }
+      },
+      "documentation":"<p>Configures a hyperparameter tuning job.</p>"
     },
     "HyperParameterTuningJobObjective":{
       "type":"structure",
       "members":{
-        "MetricName":{"shape":"String"},
-        "Type":{"shape":"String"}
-      }
+        "MetricName":{
+          "shape":"String",
+          "documentation":"<p>The name of the metric to use for the objective metric.</p>"
+        },
+        "Type":{
+          "shape":"String",
+          "documentation":"<p>Whether to minimize or maximize the objective metric.</p>"
+        }
+      },
+      "documentation":"<p>Defines the objective metric for a hyperparameter tuning job. Hyperparameter tuning uses the value of this metric to evaluate the training jobs it launches, and returns the training job that results in either the highest or lowest value for this metric, depending on the value that you specify for the <code>Type</code> parameter. </p>"
     },
     "Integer":{"type":"integer"},
     "InternalServiceException":{
       "type":"structure",
       "members":{
       },
+      "documentation":"<p>Request processing has failed due to some unknown error, exception, or failure.</p>",
       "exception":true
     },
     "InvalidInputException":{
       "type":"structure",
       "members":{
       },
+      "documentation":"<p>We can't process the request because it includes an invalid value or a value that exceeds the valid range.</p>",
       "exception":true
     },
     "InvalidStateException":{
       "type":"structure",
       "members":{
       },
+      "documentation":"<p>Processing has reached an invalid state. Amazon Forecast returns this exception when an operation attempts to perform an action on a resource that is changing.</p>",
       "exception":true
     },
     "ListDatasetGroupsRequest":{
       "type":"structure",
       "members":{
-        "MaxResults":{"shape":"MaxResults"},
-        "NextToken":{"shape":"String"}
+        "MaxResults":{
+          "shape":"MaxResults",
+          "documentation":"<p>The number of items to return in the response.</p>"
+        },
+        "NextToken":{
+          "shape":"NextToken",
+          "documentation":"<p>If the result of the previous request was truncated, the response includes a <code>NextToken</code>. To retrieve the next set of results, use the token in the next request.</p>"
+        }
       }
     },
     "ListDatasetGroupsResponse":{
       "type":"structure",
       "members":{
-        "DatasetGroupNames":{"shape":"StringList"},
-        "NextToken":{"shape":"String"}
+        "DatasetGroupNames":{
+          "shape":"StringList",
+          "documentation":"<p>An array of dataset group names. </p>"
+        },
+        "NextToken":{
+          "shape":"NextToken",
+          "documentation":"<p>If the response is truncated, Amazon Forecast returns this token. To retrieve the next set of results, use the token in the next request. </p>"
+        }
       }
     },
     "ListDatasetImportJobsRequest":{
       "type":"structure",
       "required":["DatasetName"],
       "members":{
-        "DatasetName":{"shape":"String"},
-        "MaxResults":{"shape":"MaxResults"},
-        "NextToken":{"shape":"String"}
+        "DatasetName":{
+          "shape":"String",
+          "documentation":"<p>The name of the dataset.</p>"
+        },
+        "MaxResults":{
+          "shape":"MaxResults",
+          "documentation":"<p>The number of items to return in the response.</p>"
+        },
+        "NextToken":{
+          "shape":"NextToken",
+          "documentation":"<p>If the result of the previous request was truncated, the response includes a <code>NextToken</code>. To retrieve the next set of results, use the token in the next request.</p>"
+        }
       }
     },
     "ListDatasetImportJobsResponse":{
       "type":"structure",
       "members":{
-        "DatasetImportJobs":{"shape":"DatasetImportJobsResponseItemList"},
-        "NextToken":{"shape":"String"}
+        "DatasetImportJobs":{
+          "shape":"DatasetImportJobsResponseItemList",
+          "documentation":"<p>An array of <code>DatasetImportJobsResonseItem</code> objects, one for each job for the specified dataset.</p>"
+        },
+        "NextToken":{
+          "shape":"NextToken",
+          "documentation":"<p>If the response is truncated, Amazon Forecast returns this token. To retrieve the next set of results, use the token in the next request. </p>"
+        }
       }
     },
     "ListDatasetsRequest":{
       "type":"structure",
       "members":{
-        "MaxResults":{"shape":"MaxResults"},
-        "NextToken":{"shape":"String"}
+        "MaxResults":{
+          "shape":"MaxResults",
+          "documentation":"<p>The number of items to return in the response.</p>"
+        },
+        "NextToken":{
+          "shape":"NextToken",
+          "documentation":"<p>If the result of the previous request was truncated, the response includes a <code>NextToken</code>. To retrieve the next set of results, use the token in the next request.</p>"
+        }
       }
     },
     "ListDatasetsResponse":{
       "type":"structure",
       "members":{
-        "DatasetNames":{"shape":"StringList"},
-        "NextToken":{"shape":"String"}
+        "DatasetNames":{
+          "shape":"StringList",
+          "documentation":"<p>An array of dataset names.</p>"
+        },
+        "NextToken":{
+          "shape":"NextToken",
+          "documentation":"<p>If the response is truncated, Amazon Forecast returns this token. To retrieve the next set of results, use the token in the next request.</p>"
+        }
       }
     },
     "ListDeployedPredictorsRequest":{
       "type":"structure",
       "members":{
-        "MaxResults":{"shape":"MaxResults"},
-        "NextToken":{"shape":"String"}
+        "MaxResults":{
+          "shape":"MaxResults",
+          "documentation":"<p>The number of items to return in the response.</p>"
+        },
+        "NextToken":{
+          "shape":"NextToken",
+          "documentation":"<p>If the result of the previous request was truncated, the response includes a <code>NextToken</code>. To retrieve the next set of results, use the token in the next request. </p>"
+        }
       }
     },
     "ListDeployedPredictorsResponse":{
       "type":"structure",
       "members":{
-        "PredictorNames":{"shape":"StringList"},
-        "NextToken":{"shape":"String"}
+        "PredictorNames":{
+          "shape":"StringList",
+          "documentation":"<p>The names of the deployed predictors.</p>"
+        },
+        "NextToken":{
+          "shape":"NextToken",
+          "documentation":"<p> If the response is truncated, Amazon Forecast returns this token. To retrieve the next set of results, use the token in the next request. </p>"
+        }
       }
     },
     "ListForecastExportJobsRequest":{
       "type":"structure",
       "required":["ForecastId"],
       "members":{
-        "ForecastId":{"shape":"String"},
-        "MaxResults":{"shape":"MaxResults"},
-        "NextToken":{"shape":"String"}
+        "ForecastId":{
+          "shape":"String",
+          "documentation":"<p>The forecast ID that you want to retrieve forecast export job IDs for.</p>"
+        },
+        "MaxResults":{
+          "shape":"MaxResults",
+          "documentation":"<p>The number of items to return in the response.</p>"
+        },
+        "NextToken":{
+          "shape":"NextToken",
+          "documentation":"<p>If the result of the previous request was truncated, the response includes a <code>NextToken</code>. To retrieve the next set of results, use the token in the next request. </p>"
+        }
       }
     },
     "ListForecastExportJobsResponse":{
       "type":"structure",
       "members":{
-        "ForecastExportJobIds":{"shape":"StringList"},
-        "NextToken":{"shape":"String"}
+        "ForecastExportJobIds":{
+          "shape":"StringList",
+          "documentation":"<p>A list of forecast export job IDs.</p>"
+        },
+        "NextToken":{
+          "shape":"NextToken",
+          "documentation":"<p> If the response is truncated, Amazon Forecast returns this token. To retrieve the next set of results, use the token in the next request. </p>"
+        }
       }
     },
     "ListForecastsRequest":{
       "type":"structure",
       "required":["PredictorName"],
       "members":{
-        "PredictorName":{"shape":"String"},
-        "VersionId":{"shape":"String"},
-        "NextToken":{"shape":"String"},
-        "MaxResults":{"shape":"MaxResults"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The name of the predictor that you want forecast IDs for.</p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the predictor that you want forecast IDs for. If you don't specify a version ID, the operation returns the IDs of forecasts generated by all versions of the predictor. </p>"
+        },
+        "NextToken":{
+          "shape":"NextToken",
+          "documentation":"<p>If the result of the previous request was truncated, the response includes a <code>NextToken</code>. To retrieve the next set of results, use the token in the next request.</p>"
+        },
+        "MaxResults":{
+          "shape":"MaxResults",
+          "documentation":"<p>The number of items to return in the response.</p>"
+        }
       }
     },
     "ListForecastsResponse":{
       "type":"structure",
       "members":{
-        "NextToken":{"shape":"String"},
-        "ForecastInfoList":{"shape":"ForecastInfoList"}
+        "NextToken":{
+          "shape":"NextToken",
+          "documentation":"<p>If the response is truncated, Amazon Forecast returns this token. To retrieve the next set of results, use the token in the next request.</p>"
+        },
+        "ForecastInfoList":{
+          "shape":"ForecastInfoList",
+          "documentation":"<p>An array of <code>ForecastInfo</code> objects. There is one object for each forecast. </p>"
+        }
       }
     },
     "ListPredictorVersionsRequest":{
       "type":"structure",
       "required":["PredictorName"],
       "members":{
-        "PredictorName":{"shape":"String"},
-        "MaxResults":{"shape":"MaxResults"},
-        "NextToken":{"shape":"String"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The name of the Amazon Forecast predictor.</p>"
+        },
+        "MaxResults":{
+          "shape":"MaxResults",
+          "documentation":"<p>The number of items to return in the response.</p>"
+        },
+        "NextToken":{
+          "shape":"NextToken",
+          "documentation":"<p>If the result of the previous request was truncated, the response includes a <code>NextToken</code>. To retrieve the next set of results, use the token in the next request. </p>"
+        }
       }
     },
     "ListPredictorVersionsResponse":{
       "type":"structure",
       "members":{
-        "PredictorVersions":{"shape":"ListPredictorVersionsResponseItemList"},
-        "NextToken":{"shape":"String"}
+        "PredictorVersions":{
+          "shape":"ListPredictorVersionsResponseItemList",
+          "documentation":"<p>A list of versions of the predictor.</p>"
+        },
+        "NextToken":{
+          "shape":"NextToken",
+          "documentation":"<p> If the response is truncated, Amazon Forecast returns this token. To retrieve the next set of results, use the token in the next request. </p>"
+        }
       }
     },
     "ListPredictorVersionsResponseItem":{
       "type":"structure",
       "members":{
-        "PredictorName":{"shape":"String"},
-        "VersionId":{"shape":"String"}
-      }
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The name of the predictor.</p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the predictor.</p>"
+        }
+      },
+      "documentation":"<p>Provides name and version ID of a predictor.</p>"
     },
     "ListPredictorVersionsResponseItemList":{
       "type":"list",
@@ -1256,29 +1911,53 @@
     "ListPredictorsRequest":{
       "type":"structure",
       "members":{
-        "MaxResults":{"shape":"MaxResults"},
-        "NextToken":{"shape":"String"}
+        "MaxResults":{
+          "shape":"MaxResults",
+          "documentation":"<p>The number of items to return in the response.</p>"
+        },
+        "NextToken":{
+          "shape":"NextToken",
+          "documentation":"<p>If the result of the previous request was truncated, the response includes a <code>NextToken</code>. To retrieve the next set of results, use the token in the next request. </p>"
+        }
       }
     },
     "ListPredictorsResponse":{
       "type":"structure",
       "members":{
-        "PredictorNames":{"shape":"StringList"},
-        "NextToken":{"shape":"String"}
+        "PredictorNames":{
+          "shape":"StringList",
+          "documentation":"<p>An array of the names of the predictors in your account.</p>"
+        },
+        "NextToken":{
+          "shape":"NextToken",
+          "documentation":"<p>If the response is truncated, Amazon Forecast returns this token. To retrieve the next set of results, use the token in the next request.</p>"
+        }
       }
     },
     "ListRecipesRequest":{
       "type":"structure",
       "members":{
-        "MaxResults":{"shape":"MaxResults"},
-        "NextToken":{"shape":"String"}
+        "MaxResults":{
+          "shape":"MaxResults",
+          "documentation":"<p>The number of items to return in the response.</p>"
+        },
+        "NextToken":{
+          "shape":"NextToken",
+          "documentation":"<p>If the result of the previous request was truncated, the response includes a <code>NextToken</code>. To retrieve the next set of results, use the token in the next request.</p>"
+        }
       }
     },
     "ListRecipesResponse":{
       "type":"structure",
       "members":{
-        "RecipeNames":{"shape":"StringList"},
-        "NextToken":{"shape":"String"}
+        "RecipeNames":{
+          "shape":"StringList",
+          "documentation":"<p>An array of recipe names.</p>"
+        },
+        "NextToken":{
+          "shape":"NextToken",
+          "documentation":"<p>If the response is truncated, Amazon Forecast returns this token. To retrieve the next set of results, use the token in the next request.</p>"
+        }
       }
     },
     "MaxResults":{
@@ -1290,110 +1969,211 @@
       "type":"list",
       "member":{"shape":"Bucket"}
     },
+    "NextToken":{
+      "type":"string",
+      "max":2000,
+      "min":1
+    },
     "ParameterKey":{
       "type":"string",
-      "max":256
+      "max":256,
+      "pattern":"^[a-zA-Z0-9\\-\\_\\.\\/\\[\\]\\,\\\\]+$"
     },
     "ParameterRanges":{
       "type":"structure",
       "members":{
-        "CategoricalParameterRanges":{"shape":"CategoricalParameterRanges"},
-        "ContinuousParameterRanges":{"shape":"CommonParameterRanges"},
-        "IntegerParameterRanges":{"shape":"CommonParameterRanges"}
-      }
+        "CategoricalParameterRanges":{
+          "shape":"CategoricalParameterRanges",
+          "documentation":"<p>The array of <code>CategoricalParameterRange</code> objects that specify ranges of categorical hyperparameters that a hyperparameter tuning job searches. </p>"
+        },
+        "ContinuousParameterRanges":{
+          "shape":"CommonParameterRanges",
+          "documentation":"<p>The array of <code>ContinuousParameterRange</code> objects that specify ranges of continuous hyperparameters that a hyperparameter tuning job searches. </p>"
+        },
+        "IntegerParameterRanges":{
+          "shape":"CommonParameterRanges",
+          "documentation":"<p>The array of <code>IntegerParameterRange</code> objects that specify ranges of integer hyperparameters that a hyperparameter tuning job searches. </p>"
+        }
+      },
+      "documentation":"<p>Specifies the ranges of integer, continuous, and categorical hyperparameters that a hyperparameter tuning job searches over. </p>"
     },
     "ParameterValue":{
       "type":"string",
-      "max":256
+      "max":256,
+      "pattern":"^[a-zA-Z0-9\\-\\_\\.\\/\\[\\]\\,\\\"\\\\\\s]+$"
     },
     "QuotaLimitExceededException":{
       "type":"structure",
       "members":{
       },
+      "documentation":"<p>You have exceeded the quota limits for resources that are long-running jobs, such as import jobs, create predictors, and forecasts. You might also be creating too many resources concurrently, in which case, you might wait for resources to be created and try again.</p>",
       "exception":true
     },
     "RecipeItem":{
       "type":"structure",
       "members":{
-        "Name":{"shape":"String"},
-        "Train":{"shape":"TrainingItemList"}
-      }
+        "Name":{
+          "shape":"String",
+          "documentation":"<p>The name of the recipe that you want information about. </p>"
+        },
+        "Train":{
+          "shape":"TrainingItemList",
+          "documentation":"<p>A list of <a>TrainingItem</a> objects, each of which describes an algorithm. </p>"
+        }
+      },
+      "documentation":"<p>Provides information about a recipe. </p>"
     },
     "RecipeParameters":{
       "type":"structure",
       "members":{
-        "BackTestWindowCount":{"shape":"Integer"},
-        "BackTestWindowOffset":{"shape":"Integer"},
-        "MetricsBuckets":{"shape":"MetricsBuckets"},
-        "AuxiliaryForecastKeys":{"shape":"StringList"},
-        "DefaultTrainingSubsampleRatio":{"shape":"Double"},
-        "HolidayCalendarName":{"shape":"String"}
-      }
+        "BackTestWindowCount":{
+          "shape":"Integer",
+          "documentation":"<p>The number of times that the algorithm splits the input data for use in training and evaluation. </p>"
+        },
+        "BackTestWindowOffset":{
+          "shape":"Integer",
+          "documentation":"<p>The point in the dataset where you want to split the data for model training and evaluation.</p> <p>Every time the algorithm splits the data (as specified by in the <code>BackTestWindowCount</code> parameter), this parameter determines how far from the end of the data that the algorithm splits the data for training and evaluation. </p> <p>For example, suppose that you have a dataset with data collection frequency set to every day and you have 100 days worth of data (that is, 100 data points). Now suppose that you set the <code>BackTestWindowCount</code> to 2 and the <code>BackTestWindowOffset</code> parameter to 10. The algorithm splits the data twice. The first time, the algorithm trains the models using the first 90 data points and uses the last 10 data points for evaluation. The second time, the algorithm trains the models using the first 80 data points and uses the last 20 data points for evaluation. </p>"
+        },
+        "MetricsBuckets":{
+          "shape":"MetricsBuckets",
+          "documentation":"<p> Provides override values for <code>MetricsBuckets</code> keys configured for a recipe. To review the bucket metrics configured for a recipe, use the <code>DescribeRecipe</code> operation. </p> <p> After model training, the algorithm evaluates the model and generates overall model metrics. In addition, the algorithm also generates bucket metrics specified in the recipe configuration. For example: </p> <ul> <li> <p> If you have training data in the retail domain, you might want to forecast item sales by item color. Specify <code>MetricsBuckets</code> as follows: </p> <p> <code>\"MetricsBuckets\": [ \"color\" ]</code> </p> <p> Amazon Forecast groups the training data by color and computes metrics for each color bucket. </p> </li> <li> <p> Amazon Forecast also provides two predefined strings: <code>\"age\"</code> and <code>\"velocity\"</code>. <code>age</code> is item age and <code>velocity</code> is how well the item is selling. You can add these as <code>MetricsBuckets</code> keys. </p> </li> </ul> <p> Valid values for bucket keys: <code>age</code>, <code>velocity</code>, and any field in your dataset of the <code>ITEM_METADATA</code> dataset type that you include in a dataset group used for model training. You can specify up to two buckets. </p>"
+        },
+        "GroupByForecastKeys":{
+          "shape":"StringList",
+          "documentation":"<p>By default, when you deploy a predictor using the <code>DeployPredictor</code> operation, the operation generates a forecast for each item in the dataset. Alternatively, you can use the <code>GroupByForecastKeys</code> parameter to specify a key to use to generate a forecast. The key is a combination of one or more fields in your dataset. </p> <p>For example, suppose that you are generating a forecast for item sales across all of your company's stores. By default, you will get a forecast for each item. But what if you want the sales forecast for each item by store? You would use the <code>GroupByForecastKeys</code> parameter to specify a key that is the store ID:</p> <p> <code>[\"store_id\"]</code> </p> <p> The <code>DeployPredictor</code> builds a forecast key using both these fields and generates a forecast. </p>"
+        },
+        "DefaultTrainingSubsampleRatio":{
+          "shape":"Double",
+          "documentation":"<p>The subsample ratio is a value between 0 and 1 that determines the percentage of items in the data you want Amazon Forecast to use for training. For example, if it is .8, Amazon Forecast trains using 80% of the items. Amazon Forecast attempts to make sure it has a good representation of different categories across items. This parameter is useful when the data is very large, and setting a ratio can lead to more efficient training. </p>"
+        },
+        "HolidayCalendarName":{
+          "shape":"String",
+          "documentation":"<p>The holiday calendar you want to include for model training. For more information, see <a>howitworks-dataset-3rdparty</a>. Amazon Forecast supports the following holiday calendars. In your request, specify the strings provided in parentheses.</p> <ul> <li> <p>\"AL\" - ALBANIA</p> </li> <li> <p>\"AR\" - ARGENTINA</p> </li> <li> <p>\"AT\" - AUSTRIA</p> </li> <li> <p>\"AU\" - AUSTRALIA</p> </li> <li> <p>\"BA\" - BOSNIA_HERZIGOWINA</p> </li> <li> <p>\"BE\" - BELGIUM</p> </li> <li> <p>\"BG\" - BULGARIA</p> </li> <li> <p>\"BO\" - BOLIVIA</p> </li> <li> <p>\"BR\" - BRAZIL</p> </li> <li> <p>\"BY\" - BELARUS</p> </li> <li> <p>\"CA\" - CANADA</p> </li> <li> <p>\"CN\" - CHINA</p> </li> <li> <p>\"CL\" - CHILE</p> </li> <li> <p>\"CO\" - COLOMBIA</p> </li> <li> <p>\"CR\" - COSTA_RICA</p> </li> <li> <p>\"HR\" - CROATIA</p> </li> <li> <p>\"CZ\" - CZECH_REPUBLIC</p> </li> <li> <p>\"DK\" - DENMARK</p> </li> <li> <p>\"EC\" - ECUADOR</p> </li> <li> <p>\"EE\" - ESTONIA</p> </li> <li> <p>\"ET\" - ETHIOPIA</p> </li> <li> <p>\"FI\" - FINLAND</p> </li> <li> <p>\"FR\" - FRANCE</p> </li> <li> <p>\"DE\" - GERMANY</p> </li> <li> <p>\"GR\" - GREECE</p> </li> <li> <p>\"HU\" - HUNGARY</p> </li> <li> <p>\"IS\" - ICELAND</p> </li> <li> <p>\"IE\" - IRELAND</p> </li> <li> <p>\"IT\" - ITALY</p> </li> <li> <p>\"JP\" - JAPAN</p> </li> <li> <p>\"KZ\" - KAZAKHSTAN</p> </li> <li> <p>\"KR\" - KOREAN</p> </li> <li> <p>\"LV\" - LATVIA</p> </li> <li> <p>\"LI\" - LIECHTENSTEIN</p> </li> <li> <p>\"LT\" - LITHUANIA</p> </li> <li> <p>\"LU\" - LUXEMBOURG</p> </li> <li> <p>\"MK\" - MACEDONIA</p> </li> <li> <p>\"MT\" - MALTA</p> </li> <li> <p>\"MX\" - MEXICO</p> </li> <li> <p>\"MD\" - MOLDOVA</p> </li> <li> <p>\"ME\" - MONTENEGRO</p> </li> <li> <p>\"NL\" - NETHERLANDS</p> </li> <li> <p>\"NI\" - NICARAGUA</p> </li> <li> <p>\"NG\" - NIGERIA</p> </li> <li> <p>\"NO\" - NORWAY</p> </li> <li> <p>\"PA\" - PANAMA</p> </li> <li> <p>\"PY\" - PARAGUAY</p> </li> <li> <p>\"PE\" - PERU</p> </li> <li> <p>\"PL\" - POLAND</p> </li> <li> <p>\"PT\" - PORTUGAL</p> </li> <li> <p>\"RO\" - ROMANIA</p> </li> <li> <p>\"RU\" - RUSSIA</p> </li> <li> <p>\"RS\" - SERBIA</p> </li> <li> <p>\"SK\" - SLOWAKIA</p> </li> <li> <p>\"SI\" - SLOWENIA</p> </li> <li> <p>\"ZA\" - SOUTH_AFRICA</p> </li> <li> <p>\"ES\" - SPAIN</p> </li> <li> <p>\"SE\" - SWEDEN</p> </li> <li> <p>\"CH\" - SWITZERLAND</p> </li> <li> <p>\"UA\" - UKRAINE</p> </li> <li> <p>\"US\" - UNITED_STATES</p> </li> <li> <p>\"UK\" - UNITED_KINGDOM</p> </li> <li> <p>\"UY\" - URUGUAY</p> </li> <li> <p>\"VE\" - VENEZUELA</p> </li> <li> <p>\"NYSE\" - NYSE</p> </li> </ul>"
+        }
+      },
+      "documentation":"<p>Provides override values for recipe-level default values. </p>"
     },
     "ResourceAlreadyExistsException":{
       "type":"structure",
       "members":{
       },
+      "documentation":"<p>There is already a resource with this name and characteristics. Try again with different settings. </p>",
       "exception":true
     },
     "ResourceLimits":{
       "type":"structure",
       "members":{
-        "MaxNumberOfTrainingJobs":{"shape":"Integer"},
-        "MaxParallelTrainingJobs":{"shape":"Integer"}
-      }
+        "MaxNumberOfTrainingJobs":{
+          "shape":"Integer",
+          "documentation":"<p>The maximum number of training jobs that a hyperparameter tuning job can launch. </p>"
+        },
+        "MaxParallelTrainingJobs":{
+          "shape":"Integer",
+          "documentation":"<p>The maximum number of concurrent training jobs that a hyperparameter tuning job can launch. </p>"
+        }
+      },
+      "documentation":"<p>Specifies the maximum number of training jobs and parallel training jobs that a hyperparameter tuning job can launch. </p>"
     },
     "ResourceNotFoundException":{
       "type":"structure",
       "members":{
       },
+      "documentation":"<p>We can't find a resource with that name. Check the name and try again.</p>",
       "exception":true
     },
     "RetrainPredictorRequest":{
       "type":"structure",
       "required":["PredictorName"],
       "members":{
-        "PredictorName":{"shape":"String"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The name of the predictor to retrain.</p>"
+        }
       }
     },
     "RetrainPredictorResponse":{
       "type":"structure",
       "members":{
-        "PredictorName":{"shape":"String"},
-        "VersionId":{"shape":"String"},
-        "PredictorArn":{"shape":"String"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The name of the retrained predictor.</p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The new version ID of the predictor.</p>"
+        },
+        "PredictorArn":{
+          "shape":"Arn",
+          "documentation":"<p>The Amazon Resource Name (ARN) of the predictor.</p>"
+        }
       }
     },
-    "RoleArn":{"type":"string"},
     "S3DataSource":{
       "type":"structure",
       "members":{
-        "S3Uri":{"shape":"S3Uri"},
-        "RoleArn":{"shape":"String"}
-      }
+        "S3Uri":{
+          "shape":"S3Uri",
+          "documentation":"<p>The path to the Amazon Simple Storage Service (Amazon S3) bucket where the data that you want to import to your dataset is stored. For example:</p> <p> <code>s3://bucket-name/example-object.csv</code>. </p>"
+        },
+        "RoleArn":{
+          "shape":"Arn",
+          "documentation":"<p>The Amazon Resource Name (ARN) of the AWS Identity and Access Management (IAM) role that Amazon Forecast can assume to access the S3 bucket.</p> <p>Cross-account pass role is not allowed.</p>"
+        }
+      },
+      "documentation":"<p>Describes the data source that contains the data to import to a dataset. </p>"
     },
     "S3Uri":{
       "type":"string",
-      "max":1024
+      "max":1024,
+      "pattern":"^[a-zA-Z0-9\\-\\_\\.\\/\\:]+$"
     },
     "Schema":{
       "type":"structure",
       "members":{
-        "Attributes":{"shape":"SchemaAttributes"}
-      }
+        "Attributes":{
+          "shape":"SchemaAttributes",
+          "documentation":"<p>An array of objects. Each object provides information abut a schema attribute, including name, type, and configuration parameters. </p>"
+        }
+      },
+      "documentation":"<p>Provides information about the dataset schema. </p>"
     },
     "SchemaAttribute":{
       "type":"structure",
       "members":{
-        "AttributeName":{"shape":"String"},
-        "AttributeType":{"shape":"AttributeType"},
-        "AggregationMethod":{"shape":"AggregationMethod"},
-        "FillMethod":{"shape":"FillMethod"},
-        "FrontFillMethod":{"shape":"FrontFillMethod"},
-        "BackFillMethod":{"shape":"BackFillMethod"},
-        "FillValue":{"shape":"String"},
-        "FeatureType":{"shape":"FeatureType"}
-      }
+        "AttributeName":{
+          "shape":"String",
+          "documentation":"<p>The name of the data field. This is required for every field in a schema.</p>"
+        },
+        "AttributeType":{
+          "shape":"AttributeType",
+          "documentation":"<p>The data type of the field. This is required for every field in a schema.</p>"
+        },
+        "AggregationMethod":{
+          "shape":"AggregationMethod",
+          "documentation":"<p> The aggregation method to use with the field. Amazon Forecast uses this method to aggregate field values to the <code>DataFrequency</code> configured for the dataset. For example, suppose that your data frequency is set to 1H (every hour) but the time series data for the items exist for every minute or a non-hour boundary. In this case, Amazon Forecast uses the method specified to combine the time series interval to fit the 1H data frequency. </p> <p>If a forecast frequency is different from the frequency of input datasets (e.g., forecast frequency is weekly and dataset frequency is daily), this method aggregates the dataset by the forecast frequency with a deterministic start time (e.g., every Sunday).</p>"
+        },
+        "FillMethod":{
+          "shape":"FillMethod",
+          "documentation":"<p>The fill method Amazon Forecast should use for missing data.</p> <p class=\"title\"> <b>Valid values:</b> </p> <ul> <li> <p>nan - Not a number</p> </li> <li> <p>zero</p> </li> <li> <p>spline - Multivariate adaptive regression splines</p> </li> <li> <p>nearest - The nearest value, either previous or next</p> </li> <li> <p>next - The next non-missing value</p> </li> <li> <p>previous - The previous non-missing value</p> </li> <li> <p>linear - Linear regression</p> </li> <li> <p>min - The minimum value from the data series</p> </li> <li> <p>max - The maximum value from the data series</p> </li> <li> <p>value - The value specified by the <code>FillValue</code> attribute</p> </li> </ul>"
+        },
+        "FrontFillMethod":{
+          "shape":"FrontFillMethod",
+          "documentation":"<p>The front fill method to use if the time-series data for various items don't align. Front filling adds missing data to the beginning of a data set.</p> <p>Suppose that the timestamps for <code>itemA demand</code> and <code>itemB demand</code> in your data don't align. For example, the timestamp value of <code>itemA demand</code> in your data starts on January 1, and the value for <code>itemB demand</code> starts on January 5. You would use the <code>frontFillMethod</code> to indicate how to fill in the missing <code>itemB demand</code> data between January 1 and January 5.</p> <p>For descriptions of the valid values, see the <code>FillValue</code> attribute.</p> <p>The value <code>none</code> means Amazon Forecast will not do any front filling.</p>"
+        },
+        "BackFillMethod":{
+          "shape":"BackFillMethod",
+          "documentation":"<p>The back fill method to use if the time-series data for various items don't align. Back filling adds missing data to the end of a data set.</p> <p>Suppose that the timestamps for <code>itemA demand</code> and <code>itemB demand</code> in your data don't align. For example, the timestamp value of <code>itemA demand</code> ends on December 1, and the timestamp value for <code>itemB demand</code> ends on December 31. You would use the <code>BackFillMethod</code> parameter to indicate how to fill in the <code>itemA demand</code> data for December 2 through December 31.</p> <p>For descriptions of the valid values, see the <code>FillValue</code> attribute.</p> <p>The value <code>none</code> means Amazon Forecast will not do any back filling.</p>"
+        },
+        "FillValue":{
+          "shape":"String",
+          "documentation":"<p>The value to use if <code>FillMethod</code>, <code>FrontFillMethod</code>, or <code>BackFillMethod</code> is set to <code>Value</code>. </p>"
+        },
+        "FeatureType":{
+          "shape":"FeatureType",
+          "documentation":"<p>The type of attribute data. For example, for a <code>Price</code> attribute or field, the type is likely a time series. A <code>Color</code> attribute or field contains data that doesn't change over time, so it is likely a static field. Amazon Forecast uses this information in model training and forecasting. </p>"
+        }
+      },
+      "documentation":"<p>Provides information about a data field, including its name, type, and configuration parameters that specify how to process the data in the corresponding column. </p>"
     },
     "SchemaAttributes":{
       "type":"list",
@@ -1407,40 +2187,111 @@
     "Statistics":{
       "type":"structure",
       "members":{
-        "Count":{"shape":"Integer"},
-        "CountDistinct":{"shape":"Integer"},
-        "CountNull":{"shape":"Integer"},
-        "Min":{"shape":"String"},
-        "Max":{"shape":"String"},
-        "Avg":{"shape":"Double"},
-        "Stddev":{"shape":"Double"}
-      }
+        "Count":{
+          "shape":"Integer",
+          "documentation":"<p>The number of values in the field. </p>"
+        },
+        "CountDistinct":{
+          "shape":"Integer",
+          "documentation":"<p>The number of distinct values in the field. </p>"
+        },
+        "CountNull":{
+          "shape":"Integer",
+          "documentation":"<p>The number of null values in the field. </p>"
+        },
+        "CountNan":{
+          "shape":"Integer",
+          "documentation":"<p>The number of NAN values in the field.</p>"
+        },
+        "Min":{
+          "shape":"String",
+          "documentation":"<p>For a numeric field, the minimum value in the field.</p>"
+        },
+        "Max":{
+          "shape":"String",
+          "documentation":"<p>For a numeric field, the maximum value in the field.</p>"
+        },
+        "Avg":{
+          "shape":"Double",
+          "documentation":"<p>For a numeric field, the average value in the field.</p>"
+        },
+        "Stddev":{
+          "shape":"Double",
+          "documentation":"<p>For a numeric field, the standard deviation. </p>"
+        }
+      },
+      "documentation":"<p>Provides statistics for each data field in the data imported to an Amazon Forecast dataset with the <a>CreateDatasetImportJob</a> operation. </p>"
     },
-    "String":{"type":"string"},
+    "String":{
+      "type":"string",
+      "max":256,
+      "pattern":"^[a-zA-Z0-9\\_]+$"
+    },
     "StringList":{
       "type":"list",
       "member":{"shape":"String"}
     },
+    "TimeStamp":{"type":"timestamp"},
+    "TimeStampString":{
+      "type":"string",
+      "max":256,
+      "pattern":"^[a-zA-Z0-9\\-\\:\\.\\,\\'\\s]+$"
+    },
     "TrainingInfo":{
       "type":"structure",
       "members":{
-        "TrainedModelName":{"shape":"String"},
-        "AlgorithmName":{"shape":"String"},
-        "TrainingParameters":{"shape":"TrainingParameters"},
-        "HPOInfo":{"shape":"HyperParameterTuningInfo"},
-        "TrainingDataWindowBeginDate":{"shape":"String"},
-        "TrainingDataWindowEndDate":{"shape":"String"},
-        "ForceNew":{"shape":"Boolean"}
-      }
+        "TrainedModelName":{
+          "shape":"String",
+          "documentation":"<p>The name of the trained model. </p>"
+        },
+        "AlgorithmName":{
+          "shape":"String",
+          "documentation":"<p>The name of your algorithm.</p>"
+        },
+        "TrainingParameters":{
+          "shape":"TrainingParameters",
+          "documentation":"<p>The model-specific hyperparameters that you want the algorithm to use during model training. </p>"
+        },
+        "HPOInfo":{
+          "shape":"HyperParameterTuningInfo",
+          "documentation":"<p>The hyperparameter optimization information.</p>"
+        },
+        "TrainingDataWindowBeginDate":{
+          "shape":"String",
+          "documentation":"<p>The algorithm uses training data within a specified date range. Use this parameter to specify the start date. If you want the algorithm to use the first date in the dataset, don't set this parameter. </p>"
+        },
+        "TrainingDataWindowEndDate":{
+          "shape":"String",
+          "documentation":"<p>The end date of the training data date range that the algorithm uses for model training. If you want the algorithm to use all of the data after the start date, don't set this parameter. </p>"
+        },
+        "ForceNew":{
+          "shape":"Boolean",
+          "documentation":"<p>Indicates whether to force a training to run. </p>"
+        }
+      },
+      "documentation":"<p>Describes the specification for a training algorithm that controls how the algorithm is run. </p>"
     },
     "TrainingItem":{
       "type":"structure",
       "members":{
-        "TrainingInfo":{"shape":"TrainingInfo"},
-        "BackTestWindowCount":{"shape":"Integer"},
-        "BackTestWindowOffset":{"shape":"Integer"},
-        "MetricsBuckets":{"shape":"MetricsBuckets"}
-      }
+        "TrainingInfo":{
+          "shape":"TrainingInfo",
+          "documentation":"<p>A description of how the algorithm is run. </p>"
+        },
+        "BackTestWindowCount":{
+          "shape":"Integer",
+          "documentation":"<p>The number of times that the algorithm splits the input data for use in training and evaluation. </p> <p>When computing metrics with BackTestWindowCount greater than 1, the metrics for each backtest window are averaged. This provides a more accurate, less biased, estimate of the predictor accuracy. </p>"
+        },
+        "BackTestWindowOffset":{
+          "shape":"Integer",
+          "documentation":"<p>The point in the dataset where you want the algorithm to split the data for model training and evaluation.</p> <p>Every time the algorithm splits the data (as specified by in the <code>BackTestWindowCount</code> parameter), this parameter determines how far from the end of the data that the algorithm splits the data for training and evaluation. </p> <p>For example, suppose that you have a dataset with data collection frequency set to every day and you have 100 days worth of data (that is, 100 data points). Now suppose that you set the <code>BackTestWindowCount</code> to 2 and the <code>BackTestWindowOffset</code> parameter to 10. The algorithm splits the data twice. The first time, the algorithm trains the models using the first 90 data points and uses the last 10 data points for evaluation. The second time, the algorithm trains the models using the first 80 data points and uses the 10 points after the first 80 points, leaving the last 10 points unevaluated. </p>"
+        },
+        "MetricsBuckets":{
+          "shape":"MetricsBuckets",
+          "documentation":"<p>After model training, Amazon Forecast evaluates the model and generates overall model metrics. In addition, you can specify a key to tell Amazon Forecast to compute bucket metrics. For example: </p> <ul> <li> <p>If you have training data in the retail domain, you might want to forecast item sales by item color. Specify <code>MetricsBuckets</code> as follows:</p> <p> <code>\"MetricsBuckets\": [ \"color\" ]</code> </p> <p> Amazon Forecast groups the training data by color and computes metrics for each color bucket. </p> </li> <li> <p>Amazon Forecast also provides two predefined strings: <code>\"age\"</code> and <code>\"velocity\"</code>. <code>age</code> is item age and <code>velocity</code> is how well the item is selling. You can add these as <code>MetricsBuckets</code> keys.</p> </li> </ul> <p>Valid values for bucket keys: <code>age</code>, <code>velocity</code>, and any field in your dataset of the <code>ITEM_METADATA</code> dataset type that you include in a dataset group used for model training. You can specify up to two buckets.</p>"
+        }
+      },
+      "documentation":"<p>Provides information about an algorithm, including the parameter configuration that controls how the algorithm is run. </p>"
     },
     "TrainingItemList":{
       "type":"list",
@@ -1457,15 +2308,27 @@
       "type":"structure",
       "required":["DatasetGroupName"],
       "members":{
-        "DatasetGroupName":{"shape":"String"},
-        "DatasetNames":{"shape":"StringList"}
+        "DatasetGroupName":{
+          "shape":"String",
+          "documentation":"<p>The name of the dataset group. </p>"
+        },
+        "DatasetNames":{
+          "shape":"StringList",
+          "documentation":"<p>An array of dataset names. </p>"
+        }
       }
     },
     "UpdateDatasetGroupResponse":{
       "type":"structure",
       "members":{
-        "DatasetGroupName":{"shape":"String"},
-        "DatasetGroupArn":{"shape":"String"}
+        "DatasetGroupName":{
+          "shape":"String",
+          "documentation":"<p>The name of the dataset group that was updated. </p>"
+        },
+        "DatasetGroupArn":{
+          "shape":"Arn",
+          "documentation":"<p>The Amazon Resource Name (ARN) of the dataset group that was updated. </p>"
+        }
       }
     },
     "UpdateDatasetImportJobRequest":{
@@ -1475,42 +2338,88 @@
         "ScheduleExpression"
       ],
       "members":{
-        "DatasetName":{"shape":"String"},
-        "ScheduleExpression":{"shape":"String"}
+        "DatasetName":{
+          "shape":"String",
+          "documentation":"<p>The dataset name.</p>"
+        },
+        "ScheduleExpression":{
+          "shape":"CronString",
+          "documentation":"<p>The schedule for importing your training data into your Amazon Forecast dataset. Specify an Amazon CloudWatch cron expression. For more information, see <a href=\"https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html\">Cron Expressions</a> in the <i>Amazon CloudWatch User Guide</i>.</p> <p>To stop scheduled updates, specify <code>\"none\"</code>.</p>"
+        }
       }
     },
     "UpdateDatasetImportJobResponse":{
       "type":"structure",
       "members":{
-        "DatasetName":{"shape":"String"},
-        "VersionId":{"shape":"String"},
-        "DatasetArn":{"shape":"String"}
+        "DatasetName":{
+          "shape":"String",
+          "documentation":"<p>The dataset name.</p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The latest version ID of the dataset. </p>"
+        },
+        "DatasetArn":{
+          "shape":"Arn",
+          "documentation":"<p>The Amazon Resource Name (ARN) of the dataset. </p>"
+        }
       }
     },
     "UpdatePredictorRequest":{
       "type":"structure",
       "required":["PredictorName"],
       "members":{
-        "PredictorName":{"shape":"String"},
-        "TrainingParameters":{"shape":"TrainingParameters"},
-        "ForecastParameters":{"shape":"ForecastParameters"},
-        "RecipeParameters":{"shape":"RecipeParameters"},
-        "ScheduleExpression":{"shape":"String"},
-        "ForceNewVersion":{"shape":"Boolean"},
-        "ForecastHorizon":{"shape":"Integer"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The name of the predictor to update.</p>"
+        },
+        "TrainingParameters":{
+          "shape":"TrainingParameters",
+          "documentation":"<p>The training parameters to override for model training. The parameters that you can override are listed in the individual recipes in <a>aws-forecast-choosing-recipes</a>.</p>"
+        },
+        "ForecastParameters":{
+          "shape":"ForecastParameters",
+          "documentation":"<p>The forecast parameters to override when running inference to generate a forecast.</p>"
+        },
+        "RecipeParameters":{
+          "shape":"RecipeParameters",
+          "documentation":"<p> The recipe-level parameters. </p>"
+        },
+        "ScheduleExpression":{
+          "shape":"CronString",
+          "documentation":"<p>The retraining schedule for the predictor. Specify the schedule as an Amazon CloudWatch cron expression. For more information, see <a href=\"https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html\">Cron Expressions</a> in the <i>Amazon CloudWatch User Guide</i>.</p> <p>To stop scheduled updates, specify <code>\"none\"</code>.</p>"
+        },
+        "ForceNewVersion":{
+          "shape":"Boolean",
+          "documentation":"<p>Specifies whether to force retraining of the models and create a new version of the predictor. </p>"
+        },
+        "ForecastHorizon":{
+          "shape":"Integer",
+          "documentation":"<p>Specifies the number of time-steps of the forecast. The forecast horizon is also called the prediction length.</p>"
+        }
       }
     },
     "UpdatePredictorResponse":{
       "type":"structure",
       "members":{
-        "PredictorName":{"shape":"String"},
-        "VersionId":{"shape":"String"},
-        "PredictorArn":{"shape":"String"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The name of the updated predictor. </p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the predictor.</p>"
+        },
+        "PredictorArn":{
+          "shape":"Arn",
+          "documentation":"<p>The Amazon Resource Name (ARN) of the predictor. </p>"
+        }
       }
     },
     "Values":{
       "type":"list",
       "member":{"shape":"String"}
     }
-  }
+  },
+  "documentation":"<p>Provides APIs for creating and managing Amazon Forecast resources.</p>"
 }
