@@ -563,14 +563,13 @@
         {"shape":"InvalidStateException"},
         {"shape":"QuotaLimitExceededException"}
       ],
-      "documentation":"<p>Updates a predictor's configuration, including the retraining schedule and override values for various parameters.</p> <p>If you change only the retraining schedule, Amazon Forecast does not create a new predictor (it doesn't retrain the model). However, if you change other parameters, such as <code>ForecastHorizon</code>, Amazon Forecast creates a new version of the predictor. To force Amazon Forecast to retrain models and create a new predictor version, use the <code>ForceNewVersion</code> parameter.</p> <p>To stop scheduled updates, specify <code>\"none\"</code> for <code>ScheduleExpression</code>.</p>"
+      "documentation":"<p>Updates a predictor's configuration, including the retraining schedule and override values for various parameters.</p> <p>If you change only the retraining schedule, Amazon Forecast does not create a new predictor (it doesn't retrain the model). However, if you change other parameters, such as <code>ForecastHorizon</code>, Amazon Forecast creates a new version of the predictor. </p> <p>To stop scheduled updates, specify <code>\"none\"</code> for <code>ScheduleExpression</code>.</p>"
     }
   },
   "shapes":{
     "AggregationMethod":{
       "type":"string",
       "enum":[
-        "first",
         "sum",
         "avg",
         "min",
@@ -784,7 +783,7 @@
         },
         "DataFrequency":{
           "shape":"String",
-          "documentation":"<p>The frequency of data collection.</p> <p>Specify the frequency as a number and interval combination. Valid interval are Y (Year), M (Month), W (Week), D (Day), H (Hour), min (Minute), and S (Second). For example, \"5D\" indicates every 5 days and \"15min\" indicates every 15 minutes.</p>"
+          "documentation":"<p>The frequency of data collection.</p> <p>Specify the frequency as a number and interval combination. Valid interval are Y (Year), M (Month), W (Week), D (Day), H (Hour), and min (Minute). For example, \"5D\" indicates every 5 days and \"15min\" indicates every 15 minutes.</p>"
         },
         "TimeStampFormat":{
           "shape":"TimeStampString",
@@ -1660,7 +1659,7 @@
           "documentation":"<p>Whether to minimize or maximize the objective metric.</p>"
         }
       },
-      "documentation":"<p>Defines the objective metric for a hyperparameter tuning job. Hyperparameter tuning uses the value of this metric to evaluate the training jobs it launches, and returns the training job that results in either the highest or lowest value for this metric, depending on the value that you specify for the <code>Type</code> parameter. </p>"
+      "documentation":"<p>Defines the objective metric for a hyperparameter tuning job. Hyperparameter tuning uses the value of this metric to evaluate the training jobs it launches, and returns the training job that results in either the highest or lowest value for this metric, depending on the value that you specify for the <code>Type</code> parameter. Part of the <a>HyperParameterTuningJobConfig</a> object.</p>"
     },
     "Integer":{"type":"integer"},
     "InternalServiceException":{
@@ -1995,7 +1994,7 @@
           "documentation":"<p>The array of <code>IntegerParameterRange</code> objects that specify ranges of integer hyperparameters that a hyperparameter tuning job searches. </p>"
         }
       },
-      "documentation":"<p>Specifies the ranges of integer, continuous, and categorical hyperparameters that a hyperparameter tuning job searches over. </p>"
+      "documentation":"<p>Specifies the ranges of integer, continuous, and categorical hyperparameters that a hyperparameter tuning job searches over. Part of the <a>HyperParameterTuningJobConfig</a> object. </p>"
     },
     "ParameterValue":{
       "type":"string",
@@ -2032,7 +2031,7 @@
         },
         "BackTestWindowOffset":{
           "shape":"Integer",
-          "documentation":"<p>The point in the dataset where you want to split the data for model training and evaluation.</p> <p>Every time the algorithm splits the data (as specified by in the <code>BackTestWindowCount</code> parameter), this parameter determines how far from the end of the data that the algorithm splits the data for training and evaluation. </p> <p>For example, suppose that you have a dataset with data collection frequency set to every day and you have 100 days worth of data (that is, 100 data points). Now suppose that you set the <code>BackTestWindowCount</code> to 2 and the <code>BackTestWindowOffset</code> parameter to 10. The algorithm splits the data twice. The first time, the algorithm trains the models using the first 90 data points and uses the last 10 data points for evaluation. The second time, the algorithm trains the models using the first 80 data points and uses the last 20 data points for evaluation. </p>"
+          "documentation":"<p>The point in the dataset where you want to split the data for model training and evaluation.</p> <p>Every time the algorithm splits the data (as specified by the <code>BackTestWindowCount</code> parameter), this parameter determines how far <i>from the end</i> of the data that the algorithm splits the data for training and evaluation.</p> <p>For example, suppose that you have a dataset with data collection frequency set to every day and you have 100 days worth of data (that is, 100 data points). Now suppose that you set the <code>BackTestWindowCount</code> to 2 and the <code>BackTestWindowOffset</code> parameter to 10. The algorithm splits the data twice. The first time, the algorithm trains the models using the first 90 data points and uses the last 10 data points for evaluation. The second time, the algorithm trains the models using the first 80 data points and uses the last 20 data points for evaluation. </p>"
         },
         "MetricsBuckets":{
           "shape":"MetricsBuckets",
@@ -2044,7 +2043,7 @@
         },
         "DefaultTrainingSubsampleRatio":{
           "shape":"Double",
-          "documentation":"<p>The subsample ratio is a value between 0 and 1 that determines the percentage of items in the data you want Amazon Forecast to use for training. For example, if it is .8, Amazon Forecast trains using 80% of the items. Amazon Forecast attempts to make sure it has a good representation of different categories across items. This parameter is useful when the data is very large, and setting a ratio can lead to more efficient training. </p>"
+          "documentation":"<p>The default subsample ratio determines the percentage of items in the data that you want Amazon Forecast to use for training. The ratio is a value greater than 0 and less than or equal to 1. For example, if the ratio is .8, Amazon Forecast uses 80% of the data for training. When choosing the data for training, Amazon Forecast attempts to make sure it has a good representation of different categories across items. This parameter is useful when the data is very large, and setting a ratio can lead to more efficient training.</p>"
         },
         "HolidayCalendarName":{
           "shape":"String",
@@ -2072,7 +2071,7 @@
           "documentation":"<p>The maximum number of concurrent training jobs that a hyperparameter tuning job can launch. </p>"
         }
       },
-      "documentation":"<p>Specifies the maximum number of training jobs and parallel training jobs that a hyperparameter tuning job can launch. </p>"
+      "documentation":"<p>Specifies the maximum number of training jobs and parallel training jobs that a hyperparameter tuning job can launch. Part of the <a>HyperParameterTuningJobConfig</a> object.</p>"
     },
     "ResourceNotFoundException":{
       "type":"structure",
@@ -2284,7 +2283,7 @@
         },
         "BackTestWindowOffset":{
           "shape":"Integer",
-          "documentation":"<p>The point in the dataset where you want the algorithm to split the data for model training and evaluation.</p> <p>Every time the algorithm splits the data (as specified by in the <code>BackTestWindowCount</code> parameter), this parameter determines how far from the end of the data that the algorithm splits the data for training and evaluation. </p> <p>For example, suppose that you have a dataset with data collection frequency set to every day and you have 100 days worth of data (that is, 100 data points). Now suppose that you set the <code>BackTestWindowCount</code> to 2 and the <code>BackTestWindowOffset</code> parameter to 10. The algorithm splits the data twice. The first time, the algorithm trains the models using the first 90 data points and uses the last 10 data points for evaluation. The second time, the algorithm trains the models using the first 80 data points and uses the 10 points after the first 80 points, leaving the last 10 points unevaluated. </p>"
+          "documentation":"<p>The point in the dataset where you want the algorithm to split the data for model training and evaluation.</p> <p>Every time the algorithm splits the data (as specified by the <code>BackTestWindowCount</code> parameter), this parameter determines how far <i>from the end</i> of the data that the algorithm splits the data for training and evaluation.</p> <p>For example, suppose that you have a dataset with data collection frequency set to every day and you have 100 days worth of data (that is, 100 data points). Now suppose that you set the <code>BackTestWindowCount</code> to 2 and the <code>BackTestWindowOffset</code> parameter to 10. The algorithm splits the data twice. The first time, the algorithm trains the models using the first 90 data points and uses the last 10 data points for evaluation. The second time, the algorithm trains the models using the first 80 data points and uses the 10 points after the first 80 points, leaving the last 10 points unevaluated. </p>"
         },
         "MetricsBuckets":{
           "shape":"MetricsBuckets",
@@ -2306,7 +2305,10 @@
     },
     "UpdateDatasetGroupRequest":{
       "type":"structure",
-      "required":["DatasetGroupName"],
+      "required":[
+        "DatasetGroupName",
+        "DatasetNames"
+      ],
       "members":{
         "DatasetGroupName":{
           "shape":"String",
@@ -2383,15 +2385,11 @@
         },
         "RecipeParameters":{
           "shape":"RecipeParameters",
-          "documentation":"<p> The recipe-level parameters. </p>"
+          "documentation":"<p>The recipe-level parameters. </p>"
         },
         "ScheduleExpression":{
           "shape":"CronString",
           "documentation":"<p>The retraining schedule for the predictor. Specify the schedule as an Amazon CloudWatch cron expression. For more information, see <a href=\"https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html\">Cron Expressions</a> in the <i>Amazon CloudWatch User Guide</i>.</p> <p>To stop scheduled updates, specify <code>\"none\"</code>.</p>"
-        },
-        "ForceNewVersion":{
-          "shape":"Boolean",
-          "documentation":"<p>Specifies whether to force retraining of the models and create a new version of the predictor. </p>"
         },
         "ForecastHorizon":{
           "shape":"Integer",

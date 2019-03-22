@@ -23,9 +23,9 @@
       "output":{"shape":"GetAccuracyMetricsResponse"},
       "errors":[
         {"shape":"InvalidInputException"},
-        {"shape":"ResourceNotFoundException"},
-        {"shape":"InternalServiceException"}
-      ]
+        {"shape":"ResourceNotFoundException"}
+      ],
+      "documentation":"<p>Provides metrics on the accuracy of the models that were trained with the operation. Use metrics to see how well the model did and to decide whether to use the predictor to generate forecasts (with the operation).</p> <p>Metrics are only computed on items that have complete data in the range being evaluated.</p> <p>Metrics include an overall evaluation of the model (for example, p10, p50, and p90 metrics for the model). If you grouped items into categories when you trained the model, the response includes buckets of metrics for each requested category. For example: </p> <ul> <li> <p>To forecast a client's electricity usage, you might group the electricity usage field by client location. </p> </li> <li> <p>To forecast item sales, you might group items by color. For example, you might want to know how well blue clothing is selling. </p> </li> </ul> <p>For an example of how to train a model and review metrics, see <a>getting-started</a>.</p>"
     },
     "GetForecast":{
       "name":"GetForecast",
@@ -37,9 +37,9 @@
       "output":{"shape":"GetForecastResponse"},
       "errors":[
         {"shape":"ResourceNotFoundException"},
-        {"shape":"InvalidInputException"},
-        {"shape":"InternalServiceException"}
-      ]
+        {"shape":"InvalidInputException"}
+      ],
+      "documentation":"<p> Returns a forecast. You can get three types of forecasts:</p> <ul> <li> <p>For the latest forecast generated using a predictor, regardless of the version that was used to generate the forecast, specify only the predictor name.</p> </li> <li> <p>For the latest forecast that was generated using a specific version of a predictor, specify the predictor name and version ID.</p> </li> <li> <p>For a specific forecast, include a forecast ID with either of the above.</p> </li> </ul> <p>By default, the operation returns a forecast for up to 1 year. You can specify a date range within the year. </p>"
     }
   },
   "shapes":{
@@ -59,17 +59,31 @@
     "DataPoint":{
       "type":"structure",
       "members":{
-        "Date":{"shape":"String"},
-        "Val":{"shape":"Double"}
-      }
+        "Date":{
+          "shape":"String",
+          "documentation":"<p>The date of the specific forecast.</p>"
+        },
+        "Val":{
+          "shape":"Double",
+          "documentation":"<p> The forecast value. </p>"
+        }
+      },
+      "documentation":"<p>The forecast value for the specific date. </p>"
     },
     "Double":{"type":"double"},
     "ErrorMetrics":{
       "type":"structure",
       "members":{
-        "Metrics":{"shape":"MetricsMap"},
-        "MetricsByBucket":{"shape":"MetricsByBuckets"}
-      }
+        "Metrics":{
+          "shape":"MetricsMap",
+          "documentation":"<p>Provides evaluation metrics for the overall model.</p>"
+        },
+        "MetricsByBucket":{
+          "shape":"MetricsByBuckets",
+          "documentation":"<p>Provides bucket metrics if you requested them. To get bucket metrics if you are using a recipe provided by Amazon Forecast, use the <code>MetricsBuckets</code> parameter in the <code>CreatePredictor</code> request.</p>"
+        }
+      },
+      "documentation":"<p>Provides information about a model evaluation performed with the <code>CreatePredictor</code> operation.</p>"
     },
     "FieldName":{
       "type":"string",
@@ -90,16 +104,29 @@
     "Forecast":{
       "type":"structure",
       "members":{
-        "ForecastId":{"shape":"String"},
-        "Predictions":{"shape":"Predictions"}
-      }
+        "ForecastId":{
+          "shape":"String",
+          "documentation":"<p>The forecast ID.</p>"
+        },
+        "Predictions":{
+          "shape":"Predictions",
+          "documentation":"<p>The forecast.</p>"
+        }
+      },
+      "documentation":"<p>Provides information about a forecast. </p>"
     },
     "GetAccuracyMetricsRequest":{
       "type":"structure",
       "required":["PredictorName"],
       "members":{
-        "PredictorName":{"shape":"String"},
-        "VersionId":{"shape":"String"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p> The name of the predictor. </p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p> The version ID of the predictor. </p>"
+        }
       }
     },
     "GetAccuracyMetricsResponse":{
@@ -116,31 +143,50 @@
         "Filters"
       ],
       "members":{
-        "PredictorName":{"shape":"String"},
-        "VersionId":{"shape":"String"},
-        "ForecastId":{"shape":"String"},
-        "StartDate":{"shape":"String"},
-        "EndDate":{"shape":"String"},
-        "Interval":{"shape":"String"},
-        "Filters":{"shape":"Filters"}
+        "PredictorName":{
+          "shape":"String",
+          "documentation":"<p>The name of the predictor that Amazon Forecast used to run inference and generate the forecast. </p>"
+        },
+        "VersionId":{
+          "shape":"String",
+          "documentation":"<p>The version ID of the predictor.</p>"
+        },
+        "ForecastId":{
+          "shape":"String",
+          "documentation":"<p> The ID of the forecast. </p>"
+        },
+        "StartDate":{
+          "shape":"Timestamp",
+          "documentation":"<p>The start date for the forecast. Specify the date using this format: yyyy-MM-dd'T'HH:mm:ss'Z' (ISO 8601 format) For example, \"1970-01-01T00:00:00Z.\"</p>"
+        },
+        "EndDate":{
+          "shape":"Timestamp",
+          "documentation":"<p>The end date for the forecast. Specify the date using this format: yyyy-MM-dd'T'HH:mm:ss'Z' (ISO 8601 format). For example, \"1970-01-01T00:00:00Z.\" </p>"
+        },
+        "Interval":{
+          "shape":"String",
+          "documentation":"<p>The aggregation interval. Specify an aggregation interval that is greater than or equal to your dataset's data collection frequency. Whether data is aggregated depends on how frequently data for your dataset is collected and the value you set for the interval. For example:</p> <ul> <li> <p>If the frequency of data collection for your dataset is hourly, and you specify hourly for the aggregation interval, Amazon Forecast doesn't aggregate the forecast data. </p> </li> <li> <p>If the frequency of data collection for your dataset is hourly, and you specify daily as the aggregation interval, Amazon Forecast aggregates the forecast. </p> </li> </ul> <p> </p>"
+        },
+        "Filters":{
+          "shape":"Filters",
+          "documentation":"<p>The filtering criteria to apply when retrieving the forecast. For example:</p> <ul> <li> <p>To get a forecast for a specific item, specify the following:</p> <p> <code>{\"item_id\" : \"client_1\"}</code> </p> </li> </ul> <ul> <li> <p>To get a forecast for a specific item sold in a specific location, specify the following:</p> <p> <code>{\"item_id\" : \"client_1\", \"location\" : \"ny\"} </code> </p> </li> </ul> <ul> <li> <p>To get a forecast for all blue items sold in a specific location, specify the following:</p> <p> <code>{ \"location\" : \"ny\", \"color\":\"blue\"} </code> </p> </li> </ul>"
+        }
       }
     },
     "GetForecastResponse":{
       "type":"structure",
       "members":{
-        "Forecast":{"shape":"Forecast"}
+        "Forecast":{
+          "shape":"Forecast",
+          "documentation":"<p>Provides information about the forecast.</p>"
+        }
       }
-    },
-    "InternalServiceException":{
-      "type":"structure",
-      "members":{
-      },
-      "exception":true
     },
     "InvalidInputException":{
       "type":"structure",
       "members":{
       },
+      "documentation":"<p>The value that you provided was invalid or too long.</p>",
       "exception":true
     },
     "ItemCount":{"type":"double"},
@@ -155,10 +201,20 @@
     "MetricsBucket":{
       "type":"structure",
       "members":{
-        "BucketMetrics":{"shape":"MetricsMap"},
-        "Bucket":{"shape":"Bucket"},
-        "BucketItemCount":{"shape":"ItemCount"}
-      }
+        "BucketMetrics":{
+          "shape":"MetricsMap",
+          "documentation":"<p>Provides metrics for the specified bucket. </p>"
+        },
+        "Bucket":{
+          "shape":"Bucket",
+          "documentation":"<p>Identifies the bucket and its values. For example, buckets might include age, velocity, color, and location, and the corresponding value for each. </p>"
+        },
+        "BucketItemCount":{
+          "shape":"ItemCount",
+          "documentation":"<p>The number of items in the bucket.</p>"
+        }
+      },
+      "documentation":"<p>Provides metrics for and information about a bucket.</p>"
     },
     "MetricsByBuckets":{
       "type":"list",
@@ -182,6 +238,7 @@
       "type":"structure",
       "members":{
       },
+      "documentation":"<p>We can't find that resource. Check the information that you've provided and try again.</p>",
       "exception":true
     },
     "String":{
@@ -192,6 +249,12 @@
     "TimeSeries":{
       "type":"list",
       "member":{"shape":"DataPoint"}
+    },
+    "Timestamp":{
+      "type":"string",
+      "max":20,
+      "pattern":"^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
     }
-  }
+  },
+  "documentation":"<p>Provides APIs for creating and managing Amazon Forecast resources.</p>"
 }
