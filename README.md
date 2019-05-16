@@ -19,6 +19,11 @@ _What do I need to get started?_
  * Proper IAM User and role setup
  * An S3 bucket where your data is stored
 
+_How do I use control AWS Forecast resources using the aws cli?_
+
+ You can clone or download this repository and run `aws configure add-model --service-model [MODEL_JSON_FILE]`
+ on the files in `sdk`, eg `aws configure add-model --service-model forecast-2019-05-15.normal.json`
+
 _How do I contribute my own example notebook?_  
  Although we're extremely excited to receive contributions from the community, we're still working on the best mechanism to take in examples from external sources. Please bear with us in the short-term if pull requests take longer than expected or are closed.
  
