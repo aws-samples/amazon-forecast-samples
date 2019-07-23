@@ -634,12 +634,14 @@
     },
     "DataDestination":{
       "type":"structure",
+      "required":["S3Config"],
       "members":{
         "S3Config":{"shape":"S3Config"}
       }
     },
     "DataSource":{
       "type":"structure",
+      "required":["S3Config"],
       "members":{
         "S3Config":{"shape":"S3Config"}
       },
@@ -956,6 +958,10 @@
     "Double":{"type":"double"},
     "EncryptionConfig":{
       "type":"structure",
+      "required":[
+        "RoleArn",
+        "KMSKeyArn"
+      ],
       "members":{
         "RoleArn":{"shape":"Arn"},
         "KMSKeyArn":{"shape":"KMSKeyArn"}
@@ -1112,7 +1118,7 @@
     },
     "Frequency":{
       "type":"string",
-      "pattern":"^Y|M|W|D|H|15min|30min|1min$"
+      "pattern":"^Y|M|W|D|H|30min|15min|10min|5min|1min$"
     },
     "GetAccuracyMetricsRequest":{
       "type":"structure",
@@ -1130,41 +1136,12 @@
     "HyperParameterTuningJobConfig":{
       "type":"structure",
       "members":{
-        "HyperParameterTuningJobObjective":{
-          "shape":"HyperParameterTuningJobObjective",
-          "documentation":"<p>The <code>HyperParameterTuningJobObjective</code> object that specifies the objective metric for this tuning job. </p>"
-        },
         "ParameterRanges":{
           "shape":"ParameterRanges",
           "documentation":"<p>The <code>ParameterRanges</code> object that specifies the ranges of hyperparameters that this tuning job searches. </p>"
         }
       },
       "documentation":"<p>Configures a hyperparameter tuning job.</p>"
-    },
-    "HyperParameterTuningJobObjective":{
-      "type":"structure",
-      "required":[
-        "MetricName",
-        "Type"
-      ],
-      "members":{
-        "MetricName":{
-          "shape":"Name",
-          "documentation":"<p>The name of the metric to use for the objective metric.</p>"
-        },
-        "Type":{
-          "shape":"HyperParameterTuningJobObjectiveType",
-          "documentation":"<p>Whether to minimize or maximize the objective metric.</p>"
-        }
-      },
-      "documentation":"<p>Defines the objective metric for a hyperparameter tuning job. Hyperparameter tuning uses the value of this metric to evaluate the training jobs it launches, and returns the training job that results in either the highest or lowest value for this metric, depending on the value that you specify for the <code>Type</code> parameter. Part of the <a>HyperParameterTuningJobConfig</a> object.</p>"
-    },
-    "HyperParameterTuningJobObjectiveType":{
-      "type":"string",
-      "enum":[
-        "Maximize",
-        "Minimize"
-      ]
     },
     "InputDataConfig":{
       "type":"structure",
@@ -1463,6 +1440,10 @@
     },
     "S3Config":{
       "type":"structure",
+      "required":[
+        "Path",
+        "RoleArn"
+      ],
       "members":{
         "Path":{"shape":"S3Path"},
         "RoleArn":{"shape":"Arn"},
