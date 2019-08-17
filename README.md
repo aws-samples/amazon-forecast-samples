@@ -10,6 +10,13 @@ These examples include a general introduction to the service and introduces the 
 
 * [Getting started](notebooks) runs a household power consumption dataset through Amazon Forecast. 
 
+## Building Your Environment
+
+As mentioned above, the first step is to deploy a CloudFormation template that will perform much of the initial setup for you. In another browser window login to your AWS account. Once you have done that open the link below in a new tab to start the process of deploying the items you need via CloudFormation.
+
+[![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=ForecastDemo&templateURL=https://chriskingpartnershare.s3.amazonaws.com/PersonalizeDemo.yaml)
+
+
 ## FAQ
 _What do I need to get started?_  
  The quickest set up to run example notebook includes:   
