@@ -50,8 +50,7 @@
       "members":{
         "Timestamp":{"shape":"Timestamp"},
         "Value":{"shape":"Double"}
-      },
-      "documentation":"<p>The forecast value for the specific date. </p>"
+      }
     },
     "DateTime":{
       "type":"string",
@@ -70,19 +69,14 @@
     "Forecast":{
       "type":"structure",
       "members":{
-        "Predictions":{
-          "shape":"Predictions",
-          "documentation":"<p>The forecast.</p>"
-        }
-      },
-      "documentation":"<p>Provides information about a forecast. </p>"
+        "Predictions":{"shape":"Predictions"}
+      }
     },
     "InvalidInputException":{
       "type":"structure",
       "members":{
         "Message":{"shape":"ErrorMessage"}
       },
-      "documentation":"<p>The value that you provided was invalid or too long.</p>",
       "exception":true
     },
     "InvalidNextTokenException":{
@@ -141,7 +135,6 @@
       "members":{
         "Message":{"shape":"ErrorMessage"}
       },
-      "documentation":"<p>We can't find that resource. Check the information that you've provided and try again.</p>",
       "exception":true
     },
     "Statistic":{
@@ -157,6 +150,5 @@
       "max":20,
       "pattern":"^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
     }
-  },
-  "documentation":"<p>Provides APIs for creating and managing Amazon Forecast resources.</p>"
+  }
 }
