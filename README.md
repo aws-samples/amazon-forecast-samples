@@ -69,7 +69,6 @@ The steps below outline the process of building your own time-series prediction 
 1. `Getting_Data_Ready.ipynb` - Guides you through preparing your dataset to be used with Amazon Forecast.
 1. `Building_Your_Model.ipynb` - Explains how to use the dataset you prepared to build your first model.
 1. `Evaluating_Your_Model.ipynb` - Takes the model you just created and evaluates its performance against real observed measurements.
-1. `Cleanup.ipnyb` - Deletes anything that was created during the exercise to prevent unwanted additional charges.
 
 Each notebook can be found within the `notebooks` folder in this project.
 
