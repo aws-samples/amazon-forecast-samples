@@ -20,7 +20,8 @@ In the Notebooks you will learn to:
 ## Outline
 
 1. First you will deploy a CloudFormation template that will create an S3 bucket for data storage, a SageMaker Notebook Instance where the exercises are executed, IAM policies for the Notebook Instance, and it will clone this repository into the Notebook Instance so you are ready to get started.
-1. Next you will open the `First` #TODO Notebook to get started.
+1. Next you will open the `Getting_Data_Ready.ipynb` to get started.
+1. This notebook will guide you through the process of the other notebooks until you have a working and evaluated forecast.
 
 
 ## Building Your Environment:
