@@ -63,7 +63,7 @@ Resources:
       NotebookInstanceName: !Ref NotebookName
       RoleArn: !GetAtt SageMakerIamRole.Arn
       VolumeSizeInGB: !Ref VolumeSize
-      DefaultCodeRepository: https://github.com/chrisking/amazon-forecast-samples.git
+      DefaultCodeRepository: https://github.com/aws-samples/amazon-forecast-samples.git
 
 Outputs:
   S3Bucket:
