@@ -11,6 +11,17 @@ In the Notebooks you will learn to:
 1. Evaluate a model's performance based on real observations.
 1. How to evaluate the value of a Forecast compared to another.
 
+## Agenda
+
+The steps below outline the process of building your own time-series prediction models, evaluating them, and then cleaning up all of yuour resources to prevent any unwanted charges. To get started execute the following steps.
+
+1. Deploy the CloudFormation Template below or build a local Jupyter environment with the AWS CLI installed and configured for your IAM account.
+1. `1.Getting_Data_Ready.ipynb` - Guides you through preparing your dataset to be used with Amazon Forecast.
+1. `2.Building_Your_Predictor.ipynb` - Explains how to use the dataset you prepared to build your first model.
+1. `3.Evaluating_Your_Predictor.ipynb` - Takes the model you just created and evaluates its performance against real observed measurements.
+
+Each notebook can be found within the `notebooks` folder in this project.
+
 ## Prerequisites 
 
 1. An AWS Account
@@ -63,15 +74,6 @@ Now that you have your environment created, you need to save the name of your S3
 
 ![StackWizard5](static/imgs/img8.png)
 
-## Agenda
-
-The steps below outline the process of building your own time-series prediction models, evaluating them, and then cleaning up all of yuour resources to prevent any unwanted charges. To get started execute the following steps in each notebook below.
-
-1. `Getting_Data_Ready.ipynb` - Guides you through preparing your dataset to be used with Amazon Forecast.
-1. `Building_Your_Model.ipynb` - Explains how to use the dataset you prepared to build your first model.
-1. `Evaluating_Your_Model.ipynb` - Takes the model you just created and evaluates its performance against real observed measurements.
-
-Each notebook can be found within the `notebooks` folder in this project.
 
 ## FAQ
 
