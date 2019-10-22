@@ -41,9 +41,11 @@ def wait(callback, time_interval=30):
     logging.info(f"Finished in {elapsed_time} seconds with status {job_status}")
     return not is_failed
 
-def load_exact_sol(fname, item_id):
+def load_exact_sol(fname, item_id, is_schema_perm=False):
     exact = pd.read_csv(fname, header = None)
     exact.columns = ['item_id', 'timestamp', 'target']
+    if is_schema_perm:
+        exact.columns = ['timestamp', 'target', 'item_id']
     return exact.loc[exact['item_id'] == item_id]
 
 def get_or_create_role_arn():
@@ -71,17 +73,11 @@ def get_or_create_role_arn():
     except iam.exceptions.EntityAlreadyExistsException:
         print("The role " + role_name + "exists, ignore to create it")
         role_arn = boto3.resource('iam').Role(role_name).arn
-    # AmazonPersonalizeFullAccess provides access to any S3 bucket with a name that includes "personalize" or "Personalize"
-    # if you would like to use a bucket with a different name, please consider creating and attaching a new policy
-    # that provides read access to your bucket or attaching the AmazonS3ReadOnlyAccess policy to the role
     policy_arn = "arn:aws:iam::aws:policy/AmazonForecastFullAccess"
     iam.attach_role_policy(
         RoleName = role_name,
         PolicyArn = policy_arn
     )
-    
-    # Now add S3 support
-    
     iam.attach_role_policy(
         PolicyArn='arn:aws:iam::aws:policy/AmazonS3FullAccess',
         RoleName=role_name
@@ -108,3 +104,4 @@ def plot_forecasts(fcsts, exact, freq = '1H', forecastHorizon=24, time_back = 80
     plt.axvline(x=pd.Timestamp(fcst_start_date, freq)+forecastHorizon-1, linewidth=3, color='g', ls='dashed');
     plt.xticks(rotation=30);
     plt.legend(['Target', 'Forecast'], loc = 'lower left')
+    
