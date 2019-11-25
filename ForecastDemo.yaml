@@ -22,20 +22,71 @@ Parameters:
     MaxValue: 16384
     ConstraintDescription: Must be an integer between 5 (GB) and 16384 (16 TB).
     Description: Enter the size of the EBS volume in GB.
-
+  
+  UseVPC:
+    Type: String
+    AllowedValues:
+      - "true"
+      - "false"
+      
+  SecurityGroup:
+    # Use String rather than AWS::EC2::SecurityGroup::Id to allow for empty values
+    Type: String
+    Description: The security group to provide the notebook access within the VPC
+  
+  PrivateSubnet:
+    # Use String rather than AWS::EC2::Subnet::Id to allow for empty values
+    Type: String
+    Description: The ID of the subnet in a VPC to which you would like to have a connectivity from your ML compute instance
 
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterLabels:
       BucketName:
         default: S3 Bucket Name
+      UseVPC:
+        default: Use existing VPC?
+      SecurityGroup:
+        default: Security Group Id
+      PrivateSubnet:
+        default: Private Subnet Id
+      NotebookName:
+        default: Notebook Name
+      VolumeSize:
+        default: EBS (Hard disk) Volume Size
 
+    ParameterGroups:
+      - Label:
+          default: Datastorage
+        Parameters:
+          - BucketName
+      - Label:
+          default: VPC Settings (Required if UseVPC is true)
+        Parameters:
+          - UseVPC
+          - SecurityGroup
+          - PrivateSubnet
+
+Conditions:
+  UseOwnVPC: !Equals [!Ref UseVPC, "true"]
+  
 Resources:
   # S3 First
   S3Bucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Ref BucketName
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          -
+            ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+
   # SageMaker Execution Role
   SageMakerIamRole:
     Type: "AWS::IAM::Role"
@@ -64,6 +115,9 @@ Resources:
       RoleArn: !GetAtt SageMakerIamRole.Arn
       VolumeSizeInGB: !Ref VolumeSize
       DefaultCodeRepository: https://github.com/aws-samples/amazon-forecast-samples.git
+      SecurityGroupIds:
+        - !If [ UseOwnVPC, !Ref SecurityGroup, !Ref "AWS::NoValue"]
+      SubnetId: !If [ UseOwnVPC, !Ref PrivateSubnet, !Ref "AWS::NoValue"]
 
 Outputs:
   S3Bucket:
