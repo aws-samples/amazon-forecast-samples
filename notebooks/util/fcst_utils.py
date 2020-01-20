@@ -1,9 +1,33 @@
+import sys
 import time
 import boto3
 import json
 import pandas as pd
-import logging
 import matplotlib.pyplot as plt
+
+
+class StatusIndicator:
+    
+    def __init__(self):
+        self.previous_status = None
+        self.need_newline = False
+        
+    def update( self, status ):
+        if self.previous_status != status:
+            if self.need_newline:
+                sys.stdout.write("\n")
+            sys.stdout.write( status + " ")
+            self.need_newline = True
+            self.previous_status = status
+        else:
+            sys.stdout.write(".")
+            self.need_newline = True
+        sys.stdout.flush()
+
+    def end(self):
+        if self.need_newline:
+            sys.stdout.write("\n")
+
 
 def wait_till_delete(callback, check_time = 5, timeout = 180):
     elapsed_time = 0
@@ -13,13 +37,16 @@ def wait_till_delete(callback, check_time = 5, timeout = 180):
         except Exception as e:
             # When given the resource not found exception, deletion has occured
             if e.response['Error']['Code'] == 'ResourceNotFoundException':
-                logging.info('Successful delete\n')
+                print('Successful delete')
                 return
             # Fails with other error
-            logging.info(f'Deletion failed: {e}')
+            print(f'Deletion failed: {e}')
             return(e)
         time.sleep(check_time)  # units of seconds
         elapsed_time += check_time
+
+    raise TimeoutError( "Forecast resource deletion timed-out." )
+
 
 def wait(callback, time_interval=30):
     last_status = callback()['Status']
@@ -38,8 +65,9 @@ def wait(callback, time_interval=30):
         is_failed = False
     job_status = "failed" if is_failed else "success"
     print('')
-    logging.info(f"Finished in {elapsed_time} seconds with status {job_status}")
+    print(f"Finished in {elapsed_time} seconds with status {job_status}")
     return not is_failed
+
 
 def load_exact_sol(fname, item_id, is_schema_perm=False):
     exact = pd.read_csv(fname, header = None)
@@ -47,6 +75,7 @@ def load_exact_sol(fname, item_id, is_schema_perm=False):
     if is_schema_perm:
         exact.columns = ['timestamp', 'target', 'item_id']
     return exact.loc[exact['item_id'] == item_id]
+
 
 def get_or_create_role_arn():
     iam = boto3.client("iam")
@@ -104,4 +133,4 @@ def plot_forecasts(fcsts, exact, freq = '1H', forecastHorizon=24, time_back = 80
     plt.axvline(x=pd.Timestamp(fcst_start_date, freq)+forecastHorizon-1, linewidth=3, color='g', ls='dashed');
     plt.xticks(rotation=30);
     plt.legend(['Target', 'Forecast'], loc = 'lower left')
-    
+
