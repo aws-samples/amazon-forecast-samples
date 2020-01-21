@@ -100,7 +100,7 @@ def get_or_create_role_arn():
         )
         role_arn = create_role_response["Role"]["Arn"]
     except iam.exceptions.EntityAlreadyExistsException:
-        print("The role " + role_name + "exists, ignore to create it")
+        print("The role " + role_name + " exists, ignore to create it")
         role_arn = boto3.resource('iam').Role(role_name).arn
     policy_arn = "arn:aws:iam::aws:policy/AmazonForecastFullAccess"
     iam.attach_role_policy(
