@@ -1,7 +1,9 @@
 import sys
 import time
-import boto3
 import json
+import gzip
+
+import boto3
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -48,25 +50,19 @@ def wait_till_delete(callback, check_time = 5, timeout = 180):
     raise TimeoutError( "Forecast resource deletion timed-out." )
 
 
-def wait(callback, time_interval=30):
-    last_status = callback()['Status']
-    time.sleep(time_interval)
-    elapsed_time = time_interval
-    is_failed = True
+def wait(callback, time_interval = 10):
 
-    while (last_status != 'ACTIVE'):
-        last_status = callback()['Status']
-        time.sleep(time_interval)  # units of seconds
-        elapsed_time += time_interval
-        print('.', end='', flush=True)
-        if last_status == 'CREATE_FAILED':
-            break
-    if last_status == "ACTIVE":
-        is_failed = False
-    job_status = "failed" if is_failed else "success"
-    print('')
-    print(f"Finished in {elapsed_time} seconds with status {job_status}")
-    return not is_failed
+    status_indicator = StatusIndicator()
+
+    while True:
+        status = callback()['Status']
+        status_indicator.update(status)
+        if status in ('ACTIVE', 'CREATE_FAILED'): break
+        time.sleep(time_interval)
+
+    status_indicator.end()
+    
+    return (status=="ACTIVE")
 
 
 def load_exact_sol(fname, item_id, is_schema_perm=False):
@@ -133,4 +129,16 @@ def plot_forecasts(fcsts, exact, freq = '1H', forecastHorizon=24, time_back = 80
     plt.axvline(x=pd.Timestamp(fcst_start_date, freq)+forecastHorizon-1, linewidth=3, color='g', ls='dashed');
     plt.xticks(rotation=30);
     plt.legend(['Target', 'Forecast'], loc = 'lower left')
+
+
+def extract_gz( src, dst ):
+    
+    print( f"Extracting {src} to {dst}" )    
+
+    with open(dst, 'wb') as fd_dst:
+        with gzip.GzipFile( src, 'rb') as fd_src:
+            data = fd_src.read()
+            fd_dst.write(data)
+
+    print("Done.")
 
