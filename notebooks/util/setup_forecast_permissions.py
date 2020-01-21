@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 The script sets up the role for Forecast to assume in the customer whitelisted
 account. The user running the script should have some basic AWS permissions. An
@@ -39,12 +37,10 @@ Run python setup_forecast_permissions.py <bucket_name> to get started
 
 import boto3
 import json
-import logging
 import sys
 import time
 from botocore.exceptions import ClientError
 from botocore.exceptions import NoCredentialsError
-import argparse
 
 ROLE_NAME = 'amazonforecast'
 FORECAST_ADMIN_POLICY_ARN = 'arn:aws:iam::aws:policy/service-role/AmazonForecastFullAccess'
@@ -65,8 +61,6 @@ FORECAST_USER_POLICY_DOCUMENT = json.dumps({
         }
     ]
 })
-logging.basicConfig(level=logging.INFO)
-
 
 def assume_role_policy_document(forecast_service_principal):
     return json.dumps({
@@ -130,9 +124,9 @@ def grant_decrypt(session, bucket_name, role_arn):
             _error(message)
     except ClientError as clientError:
         if clientError.response['Error']['Code'] == 'ServerSideEncryptionConfigurationNotFoundError':
-            logging.info("Bucket is not encrypted. Skipping KMS grants.")
+            print("Bucket is not encrypted. Skipping KMS grants.")
         else:
-            logging.error(clientError)
+            print(clientError)
 
 
 def get_or_create_role_arn(session, bucket_name, stage='prod'):
@@ -143,13 +137,13 @@ def get_or_create_role_arn(session, bucket_name, stage='prod'):
         response = iam.get_role(RoleName=ROLE_NAME)
         trust_service_dict = response["Role"]["AssumeRolePolicyDocument"]['Statement'][0]['Principal']
         if 'Service' not in trust_service_dict or trust_service_dict['Service'] != forecast_service_principal:
-            logging.info("Updating service principal.")
+            print("Updating service principal.")
             iam.update_assume_role_policy(RoleName=ROLE_NAME, PolicyDocument=assume_role_policy_document(forecast_service_principal))
     except NoCredentialsError as e:  # TODO see if this can be reached or remove this
-        logging.error(e)
+        print(e)
         _error('Please set up .aws locally or uncomment and fill in "aws_access_key_id" and "aws_secret_access_key".')
     except iam.exceptions.NoSuchEntityException:
-        logging.info("Creating Role.")
+        print("Creating Role.")
         response = iam.create_role(RoleName=ROLE_NAME, AssumeRolePolicyDocument=assume_role_policy_document(forecast_service_principal))
         time.sleep(10)
     role = response['Role']
@@ -174,20 +168,6 @@ def validate_bucket_name(session, bucket):
             error = "Bucket " + bucket + " does not exist."
         _error(error)
     return bucket
-
-
-def fetch_arguments():
-    parser = argparse.ArgumentParser(description='Sets up the necessary permissions for Forecast.')
-    parser.add_argument("bucket_name", type=str, help='S3 bucket name of format s3://<bucket_name> or <bucket_name>')
-    parser.add_argument("--access_key", help="AWS Access key ID for creating the session")
-    parser.add_argument("--secret_key", help="AWS Secret key for the session")
-    parser.add_argument("--stage", help='Valid input: beta, gamma or prod', default='prod')
-
-    args = parser.parse_args()
-
-    if len([x for x in (args.access_key, args.secret_key) if x is not None]) == 1:
-        parser.error('--access_key and --secret_key must be given together')
-    return args.bucket_name, args.access_key, args.secret_key, args.stage
 
 
 def _print_message(message, file=None):
@@ -245,7 +225,7 @@ def add_pass_role_check_policy(session, role_arn, stage='prod', userName=None):
                     "iam:PassedToService": [
                         forecast_service_principal]}}}]})
     iam.put_user_policy(UserName=userName, PolicyName=policy_name, PolicyDocument=policy_document)
-    logging.info("Attach PassRoleToForecastPolicy to User: " + userName)
+    print("Attach PassRoleToForecastPolicy to User: " + userName)
 
 
 def add_forecast_admin_policy(session, userName=None):
@@ -255,15 +235,16 @@ def add_forecast_admin_policy(session, userName=None):
     policy_name = "ForecastUserPolicy"
     policy_document = FORECAST_USER_POLICY_DOCUMENT
     iam.put_user_policy(UserName=userName, PolicyName=policy_name, PolicyDocument=policy_document)
-    logging.info("Attach ForecastUserPolicy to User: " + userName)
+    print("Attach ForecastUserPolicy to User: " + userName)
 
 
-if __name__ == "__main__":
-    bucket_name, access_key, secret_key, stage = fetch_arguments()
-    session = get_session(access_key, secret_key)
+def run( bucket_name ):
+    session = get_session()
     bucket_name = validate_bucket_name(session, bucket_name)
-    role_arn = get_or_create_role_arn(session, bucket_name, stage)
+    role_arn = get_or_create_role_arn(session, bucket_name)
     grant_decrypt(session, bucket_name, role_arn)
     add_forecast_admin_policy(session)
-    add_pass_role_check_policy(session, role_arn, stage)
-    logging.info("Role ARN for Forecast : %s\n" % role_arn)
+    add_pass_role_check_policy(session, role_arn)
+    print("Role ARN for Forecast : %s\n" % role_arn)
+    return role_arn
+
