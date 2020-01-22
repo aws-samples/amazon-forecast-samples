@@ -33,10 +33,10 @@ class StatusIndicator:
             sys.stdout.write("\n")
 
 
-def wait_till_delete(callback, check_time = 5, timeout = 180):
+def wait_till_delete(callback, check_time = 5, timeout = None):
 
     elapsed_time = 0
-    while elapsed_time < timeout:
+    while timeout==None or elapsed_time < timeout:
         try:
             out = callback()
         except botocore.exceptions.ClientError as e:
