@@ -4,6 +4,8 @@ import json
 import gzip
 
 import boto3
+import botocore.exceptions
+
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -32,18 +34,18 @@ class StatusIndicator:
 
 
 def wait_till_delete(callback, check_time = 5, timeout = 180):
+
     elapsed_time = 0
     while elapsed_time < timeout:
         try:
             out = callback()
-        except Exception as e:
+        except botocore.exceptions.ClientError as e:
             # When given the resource not found exception, deletion has occured
             if e.response['Error']['Code'] == 'ResourceNotFoundException':
                 print('Successful delete')
                 return
-            # Fails with other error
-            print(f'Deletion failed: {e}')
-            return(e)
+            else:
+                raise
         time.sleep(check_time)  # units of seconds
         elapsed_time += check_time
 
