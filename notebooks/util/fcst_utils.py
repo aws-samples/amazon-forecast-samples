@@ -1,4 +1,3 @@
-import sys
 import time
 import json
 import gzip
@@ -9,28 +8,7 @@ import botocore.exceptions
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
-class StatusIndicator:
-    
-    def __init__(self):
-        self.previous_status = None
-        self.need_newline = False
-        
-    def update( self, status ):
-        if self.previous_status != status:
-            if self.need_newline:
-                sys.stdout.write("\n")
-            sys.stdout.write( status + " ")
-            self.need_newline = True
-            self.previous_status = status
-        else:
-            sys.stdout.write(".")
-            self.need_newline = True
-        sys.stdout.flush()
-
-    def end(self):
-        if self.need_newline:
-            sys.stdout.write("\n")
+import util.notebook_utils
 
 
 def wait_till_delete(callback, check_time = 5, timeout = None):
@@ -54,7 +32,7 @@ def wait_till_delete(callback, check_time = 5, timeout = None):
 
 def wait(callback, time_interval = 10):
 
-    status_indicator = StatusIndicator()
+    status_indicator = util.notebook_utils.StatusIndicator()
 
     while True:
         status = callback()['Status']
