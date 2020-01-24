@@ -14,7 +14,7 @@ import util.notebook_utils
 def wait_till_delete(callback, check_time = 5, timeout = None):
 
     elapsed_time = 0
-    while timeout==None or elapsed_time < timeout:
+    while timeout is None or elapsed_time < timeout:
         try:
             out = callback()
         except botocore.exceptions.ClientError as e:
