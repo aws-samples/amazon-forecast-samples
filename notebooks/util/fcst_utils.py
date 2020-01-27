@@ -1,45 +1,49 @@
 import time
-import boto3
 import json
+import gzip
+
+import boto3
+import botocore.exceptions
+
 import pandas as pd
-import logging
 import matplotlib.pyplot as plt
 
-def wait_till_delete(callback, check_time = 5, timeout = 180):
+import util.notebook_utils
+
+
+def wait_till_delete(callback, check_time = 5, timeout = None):
+
     elapsed_time = 0
-    while elapsed_time < timeout:
+    while timeout is None or elapsed_time < timeout:
         try:
             out = callback()
-        except Exception as e:
+        except botocore.exceptions.ClientError as e:
             # When given the resource not found exception, deletion has occured
             if e.response['Error']['Code'] == 'ResourceNotFoundException':
-                logging.info('Successful delete\n')
+                print('Successful delete')
                 return
-            # Fails with other error
-            logging.info(f'Deletion failed: {e}')
-            return(e)
+            else:
+                raise
         time.sleep(check_time)  # units of seconds
         elapsed_time += check_time
 
-def wait(callback, time_interval=30):
-    last_status = callback()['Status']
-    time.sleep(time_interval)
-    elapsed_time = time_interval
-    is_failed = True
+    raise TimeoutError( "Forecast resource deletion timed-out." )
 
-    while (last_status != 'ACTIVE'):
-        last_status = callback()['Status']
-        time.sleep(time_interval)  # units of seconds
-        elapsed_time += time_interval
-        print('.', end='', flush=True)
-        if last_status == 'CREATE_FAILED':
-            break
-    if last_status == "ACTIVE":
-        is_failed = False
-    job_status = "failed" if is_failed else "success"
-    print('')
-    logging.info(f"Finished in {elapsed_time} seconds with status {job_status}")
-    return not is_failed
+
+def wait(callback, time_interval = 10):
+
+    status_indicator = util.notebook_utils.StatusIndicator()
+
+    while True:
+        status = callback()['Status']
+        status_indicator.update(status)
+        if status in ('ACTIVE', 'CREATE_FAILED'): break
+        time.sleep(time_interval)
+
+    status_indicator.end()
+    
+    return (status=="ACTIVE")
+
 
 def load_exact_sol(fname, item_id, is_schema_perm=False):
     exact = pd.read_csv(fname, header = None)
@@ -47,6 +51,7 @@ def load_exact_sol(fname, item_id, is_schema_perm=False):
     if is_schema_perm:
         exact.columns = ['timestamp', 'target', 'item_id']
     return exact.loc[exact['item_id'] == item_id]
+
 
 def get_or_create_role_arn():
     iam = boto3.client("iam")
@@ -71,7 +76,7 @@ def get_or_create_role_arn():
         )
         role_arn = create_role_response["Role"]["Arn"]
     except iam.exceptions.EntityAlreadyExistsException:
-        print("The role " + role_name + "exists, ignore to create it")
+        print("The role " + role_name + " exists, ignore to create it")
         role_arn = boto3.resource('iam').Role(role_name).arn
     policy_arn = "arn:aws:iam::aws:policy/AmazonForecastFullAccess"
     iam.attach_role_policy(
@@ -104,4 +109,16 @@ def plot_forecasts(fcsts, exact, freq = '1H', forecastHorizon=24, time_back = 80
     plt.axvline(x=pd.Timestamp(fcst_start_date, freq)+forecastHorizon-1, linewidth=3, color='g', ls='dashed');
     plt.xticks(rotation=30);
     plt.legend(['Target', 'Forecast'], loc = 'lower left')
+
+
+def extract_gz( src, dst ):
     
+    print( f"Extracting {src} to {dst}" )    
+
+    with open(dst, 'wb') as fd_dst:
+        with gzip.GzipFile( src, 'rb') as fd_src:
+            data = fd_src.read()
+            fd_dst.write(data)
+
+    print("Done.")
+
