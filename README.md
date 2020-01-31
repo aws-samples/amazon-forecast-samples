@@ -85,7 +85,3 @@ _How do I contribute my own example notebook?_
   You can clone or download this repository and run `aws configure add-model --service-model [MODEL_JSON_FILE]`
  on the files in `sdk`, eg `aws configure add-model --service-model file://forecast-2019-07-22.normal.json`
  
- ## Contact us
- Contact the dev team @ forecastpreview-support@amazon.com
-
-
