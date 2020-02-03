@@ -1,43 +1,40 @@
-## Amazon Forecast Samples
+## Outbrain Revenue Forecast
 
-This goal of this repository is to provide a common starting point for learning how to use the various features of [Amazon Forecast](https://aws.amazon.com/forecast/). 
+A POC to forecast Outbrain revenues using [Amazon Forecast](https://aws.amazon.com/forecast/). 
 
-For detailed specifics of any concept mentioned look at the [Forecast developer guide](https://docs.aws.amazon.com/forecast/latest/dg/what-is-forecast.html)
+See the POC Inception [here](https://cnissues.atlassian.net/wiki/spaces/FP/pages/609550359/Algorithmically+optimize+the+position+of+Outbrain+vs+Recs+based+on+RPM+R.A.T.+Inception)
 
-In the Notebooks you will learn to:
+See the [Forecast developer guide](https://docs.aws.amazon.com/forecast/latest/dg/what-is-forecast.html)
 
-1. Prepare a dataset for use with Amazon Forecast.
-1. Build models based on that dataset.
-1. Evaluate a model's performance based on real observations.
-1. How to evaluate the value of a Forecast compared to another.
+Note that this repository is a fork of https://github.com/aws-samples/amazon-forecast-samples.
 
 ## Agenda
 
-The steps below outline the process of building your own time-series prediction models, evaluating them, and then cleaning up all of yuour resources to prevent any unwanted charges. To get started execute the following steps.
+The steps below outline the process of building the time-series prediction models, evaluating them, and then cleaning
+ up the resources. To get started execute the following steps.
 
 1. Deploy the CloudFormation Template below or build a local Jupyter environment with the AWS CLI installed and configured for your IAM account.
-1. `1.Getting_Data_Ready.ipynb` - Guides you through preparing your dataset to be used with Amazon Forecast.
-1. `2.Building_Your_Predictor.ipynb` - Explains how to use the dataset you prepared to build your first model.
-1. `3.Evaluating_Your_Predictor.ipynb` - Takes the model you just created and evaluates its performance against real observed measurements.
+1. `1.Getting_Data_Ready.ipynb` - Guides you through preparing the Outbrain dataset to be used with Amazon Forecast.
+1. `2.Building_Your_Predictor.ipynb` - Explains how to use the dataset prepared to build the models.
+1. `3.Evaluating_Your_Predictor.ipynb` - Takes the models just created and evaluates its performance against real
+ observed measurements.
 
 Each notebook can be found within the `notebooks` folder in this project.
 
-## Prerequisites 
-
-1. An AWS Account
-1. A user in the account with administrative privileges
-
-
 ## Outline
 
-1. First you will deploy a CloudFormation template that will create an S3 bucket for data storage, a SageMaker Notebook Instance where the exercises are executed, IAM policies for the Notebook Instance, and it will clone this repository into the Notebook Instance so you are ready to get started.
-1. Next you will open the `Getting_Data_Ready.ipynb` to get started.
+1. First deploy a CloudFormation template that will create an S3 bucket for data storage, a SageMaker Notebook Instance where the exercises are executed, IAM policies for the Notebook Instance, and it will clone this repository into the Notebook Instance so you are ready to get started.
+1. Next open the `Getting_Data_Ready.ipynb` to get started.
 1. This notebook will guide you through the process of the other notebooks until you have a working and evaluated forecast.
 
+Note that we are using the `CNI-Experimental` AWS account for the POC evaluation. 
 
-## Building Your Environment:
+## Building the Environment:
 
-As mentioned above, the first step is to deploy a CloudFormation template that will perform much of the initial setup work for you. In another browser window or tab, login to your AWS account. Once you have done that, open the link below in a new tab to start the process of deploying the items you need via CloudFormation.
+As mentioned above, the first step is to deploy a CloudFormation template that will perform much of the initial setup work for you. 
+
+In another browser window or tab, login to the AWS account. Once you have done that, open the link below in a new tab
+ to start the process of deploying the items you need via CloudFormation.
 
 [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=ForecastDemo&templateURL=https://chriskingpartnershare.s3.amazonaws.com/ForecastDemo.yaml)
 
@@ -73,19 +70,3 @@ Once it has completed you'll see green text like below indicating that the work 
 Now that you have your environment created, you need to save the name of your S3 bucket for future use, you can find it by clicking on the `Outputs` tab and then looking for the resource `S3Bucket`, once you find it copy and paste it to a text file for the time being.
 
 ![StackWizard5](static/imgs/img8.png)
-
-
-## FAQ
-
-_How do I contribute my own example notebook?_  
- Although we're extremely excited to receive contributions from the community, we're still working on the best mechanism to take in examples from external sources. Please bear with us in the short-term if pull requests take longer than expected or are closed.
- 
- _How do I use control AWS Forecast resources using the aws cli?_
-
-  You can clone or download this repository and run `aws configure add-model --service-model [MODEL_JSON_FILE]`
- on the files in `sdk`, eg `aws configure add-model --service-model file://forecast-2019-07-22.normal.json`
- 
- ## Contact us
- Contact the dev team @ forecastpreview-support@amazon.com
-
-
