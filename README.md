@@ -35,4 +35,20 @@ Note that we are using the `CNI-Experimental` AWS account for the POC evaluation
 
 See the [Amazon Forecast developer guide](https://docs.aws.amazon.com/forecast/latest/dg/what-is-forecast.html)
 
-Note that this repository is a fork of https://github.com/aws-samples/amazon-forecast-samples.
+### Data
+
+- Recreate dataset: `make dataset`  
+
+- Synch data from s3: `make sync_data_from_s3`
+
+- Synch data to s3: `make sync_data_to_s3`
+
+---
+
+<p><small> Note that this repository is a fork of https://github.com/aws-samples/amazon-forecast-samples
+ integrated with the project structure based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter
+ -data-science
+/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+
+
+

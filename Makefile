@@ -5,8 +5,8 @@
 #################################################################################
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-BUCKET = content-intelligence/outbrain/data/outbrain-daily-rev-RPM-2017.csv
-PROFILE = default
+BUCKET = content-intelligence/outbrain-revenue-forecast
+PROFILE = saml
 PROJECT_NAME = outbrain-revenue-forecast
 PYTHON_INTERPRETER = python3
 
@@ -26,7 +26,7 @@ requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 
 ## Make Dataset
-data: requirements
+dataset: requirements
 	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
 
 ## Delete all compiled Python files
