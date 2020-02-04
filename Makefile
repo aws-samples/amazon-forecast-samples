@@ -5,7 +5,7 @@
 #################################################################################
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-BUCKET = content-intelligence/outbrain-revenue-forecast
+BUCKET = content-intelligence
 PROFILE = saml
 PROJECT_NAME = outbrain-revenue-forecast
 PYTHON_INTERPRETER = python3
@@ -41,17 +41,17 @@ lint:
 ## Upload Data to S3
 sync_data_to_s3:
 ifeq (default,$(PROFILE))
-	aws s3 sync data/ s3://$(BUCKET)/data/
+	aws s3 sync data/ s3://$(BUCKET)/outbrain-revenue-forecast/data/
 else
-	aws s3 sync data/ s3://$(BUCKET)/data/ --profile $(PROFILE)
+	aws s3 sync data/ s3://$(BUCKET)/outbrain-revenue-forecast/data/ --profile $(PROFILE)
 endif
 
 ## Download Data from S3
 sync_data_from_s3:
 ifeq (default,$(PROFILE))
-	aws s3 sync s3://$(BUCKET)/data/ data/
+	aws s3 sync s3://$(BUCKET)/outbrain-revenue-forecast/data/ data/
 else
-	aws s3 sync s3://$(BUCKET)/data/ data/ --profile $(PROFILE)
+	aws s3 sync s3://$(BUCKET)/outbrain-revenue-forecast/data/ data/ --profile $(PROFILE)
 endif
 
 ## Set up python interpreter environment
@@ -75,6 +75,16 @@ endif
 ## Test python environment is setup correctly
 test_environment:
 	$(PYTHON_INTERPRETER) test_environment.py
+
+## Publish the cloudformation file so that it can used for creating the aws forecast environment
+copy_cloudformation_to_s3:
+ifeq (default,$(PROFILE))
+	aws s3 cp cloudformation.yaml s3://$(BUCKET)/outbrain-revenue-forecast/amazonforecast/
+	aws s3api put-object-acl --bucket $(BUCKET) --key outbrain-revenue-forecast/amazonforecast/cloudformation.yaml --acl public-read --profile $(PROFILE)
+else
+	aws s3 cp cloudformation.yaml s3://$(BUCKET)/outbrain-revenue-forecast/amazonforecast/ --profile $(PROFILE)
+	aws s3api put-object-acl --bucket $(BUCKET) --key outbrain-revenue-forecast/amazonforecast/cloudformation.yaml --acl public-read --profile $(PROFILE)
+endif
 
 #################################################################################
 # PROJECT RULES                                                                 #

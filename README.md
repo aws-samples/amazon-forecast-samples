@@ -38,9 +38,7 @@ See the [Amazon Forecast developer guide](https://docs.aws.amazon.com/forecast/l
 ### Data
 
 - Recreate dataset: `make dataset`  
-
 - Synch data from s3: `make sync_data_from_s3`
-
 - Synch data to s3: `make sync_data_to_s3`
 
 ---
