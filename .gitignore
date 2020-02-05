@@ -6,5 +6,5 @@ __pycache__
 /notebooks/advanced/Forecast with Cold Start Items/data/test.csv
 /notebooks/advanced/Incorporating_Related_Time_Series_dataset_to_your_Predictor/data/bike_small.csv
 /notebooks/advanced/Incorporating_Related_Time_Series_dataset_to_your_Predictor/data/bike_small_rts.csv
-/notebooks/basic/1_Tutorial/data/item-demand-time-train.csv
-/notebooks/basic/1_Tutorial/data/item-demand-time-validation.csv
+/notebooks/basic/Tutorial/data/item-demand-time-train.csv
+/notebooks/basic/Tutorial/data/item-demand-time-validation.csv
