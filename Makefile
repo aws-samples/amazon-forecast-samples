@@ -76,8 +76,8 @@ endif
 test_environment:
 	$(PYTHON_INTERPRETER) test_environment.py
 
-## Publish the cloudformation file so that it can used for creating the aws forecast environment
-copy_cloudformation_to_s3:
+## Publish the cloudformation file so that it can used for creating the aws forecast environment from https://s3.amazonaws.com/content-intelligence/outbrain-revenue-forecast/amazonforecast/cloudformation.yaml
+publish_cloudformation_template_to_s3:
 ifeq (default,$(PROFILE))
 	aws s3 cp cloudformation.yaml s3://$(BUCKET)/outbrain-revenue-forecast/amazonforecast/
 	aws s3api put-object-acl --bucket $(BUCKET) --key outbrain-revenue-forecast/amazonforecast/cloudformation.yaml --acl public-read --profile $(PROFILE)
