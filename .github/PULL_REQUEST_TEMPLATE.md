@@ -1,6 +1,16 @@
-*Issue #, if available:*
+Please make sure the following tasks are completed before merging a
+pull request.
 
-*Description of changes:*
+- [ ] Acceptance criteria met
+- [ ] Unit tests written and executed
+- [ ] Integration tests passed
+- [ ] Changes documented
+- [ ] PR reviewed and accepted
 
+## Issue
 
-By submitting this pull request, I confirm that you can use, modify, copy, and redistribute this contribution, under the terms of your choice.
+<insert Jira ticket link here>
+
+## Discussion
+
+## Related PRs
