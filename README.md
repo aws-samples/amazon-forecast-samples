@@ -47,7 +47,8 @@ See the [Amazon Forecast developer guide](https://docs.aws.amazon.com/forecast/l
 
 ---
 
-<p><small> Note that this repository is a fork of <a target="_blank" href="https://github.com/aws-samples/amazon-forecast-samples">https://github.com/aws-samples/amazon-forecast-samples</a>integrated with the project structure based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+<p><small> Note that this repository is a fork of <a target="_blank" href="https://github.com/aws-samples/amazon
+-forecast-samples">https://github.com/aws-samples/amazon-forecast-samples</a> integrated with the project structure based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
 
 
 
