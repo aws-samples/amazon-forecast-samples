@@ -82,8 +82,3 @@ Now that you have your environment created, you need to save the name of your S3
 
 A. Although we're extremely excited to receive contributions from the community, we're still working on the best mechanism to take in examples from external sources. Please bear with us in the short-term if pull requests take longer than expected or are closed.
  
-
-**Q. How do I use control AWS Forecast resources using the aws cli?**
-
-A. You can clone or download this repository and run `aws configure add-model --service-model [MODEL_JSON_FILE]` on the files in `sdk`, eg `aws configure add-model --service-model file://forecast-2019-07-22.normal.json`
- 
