@@ -8,3 +8,6 @@ __pycache__
 /notebooks/advanced/Incorporating_Related_Time_Series_dataset_to_your_Predictor/data/bike_small_rts.csv
 /notebooks/basic/Tutorial/data/item-demand-time-train.csv
 /notebooks/basic/Tutorial/data/item-demand-time-validation.csv
+/notebooks/advanced/WhatIf_Analysis/data/rts1.csv
+/notebooks/advanced/WhatIf_Analysis/data/rts2.csv
+/notebooks/advanced/WhatIf_Analysis/data/tts.csv
