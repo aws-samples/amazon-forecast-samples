@@ -69,11 +69,13 @@ def get_or_create_role_arn():
         ]
     }
     role_arn = None
+    need_sleep = False
     try:
         create_role_response = iam.create_role(
             RoleName = role_name,
             AssumeRolePolicyDocument = json.dumps(assume_role_policy_document)
         )
+        need_sleep = True
         role_arn = create_role_response["Role"]["Arn"]
     except iam.exceptions.EntityAlreadyExistsException:
         print("The role " + role_name + " exists, ignore to create it")
@@ -87,7 +89,8 @@ def get_or_create_role_arn():
         PolicyArn='arn:aws:iam::aws:policy/AmazonS3FullAccess',
         RoleName=role_name
     )
-    time.sleep(60) # wait for a minute to allow IAM role policy attachment to propagate
+    if need_sleep:
+        time.sleep(60) # wait for a minute to allow IAM role policy attachment to propagate
     print(role_arn)
     return role_arn
 
