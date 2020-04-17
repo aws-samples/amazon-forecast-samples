@@ -53,9 +53,10 @@ def load_exact_sol(fname, item_id, is_schema_perm=False):
     return exact.loc[exact['item_id'] == item_id]
 
 
-def get_or_create_role_arn():
+def get_or_create_iam_role( role_name ):
+
     iam = boto3.client("iam")
-    role_name = "ForecastRoleDemo"
+
     assume_role_policy_document = {
         "Version": "2012-10-17",
         "Statement": [
@@ -68,31 +69,42 @@ def get_or_create_role_arn():
             }
         ]
     }
-    role_arn = None
-    need_sleep = False
+
     try:
         create_role_response = iam.create_role(
             RoleName = role_name,
             AssumeRolePolicyDocument = json.dumps(assume_role_policy_document)
         )
-        need_sleep = True
         role_arn = create_role_response["Role"]["Arn"]
+        print("Created", role_arn)
     except iam.exceptions.EntityAlreadyExistsException:
         print("The role " + role_name + " exists, ignore to create it")
         role_arn = boto3.resource('iam').Role(role_name).arn
-    policy_arn = "arn:aws:iam::aws:policy/AmazonForecastFullAccess"
+
+    print("Attaching policies")
+
     iam.attach_role_policy(
         RoleName = role_name,
-        PolicyArn = policy_arn
+        PolicyArn = "arn:aws:iam::aws:policy/AmazonForecastFullAccess"
     )
+
     iam.attach_role_policy(
+        RoleName=role_name,
         PolicyArn='arn:aws:iam::aws:policy/AmazonS3FullAccess',
-        RoleName=role_name
     )
-    if need_sleep:
-        time.sleep(60) # wait for a minute to allow IAM role policy attachment to propagate
-    print(role_arn)
+
+    print("Waiting for a minute to allow IAM role policy attachment to propagate")
+    time.sleep(60)
+
+    print("Done.")
     return role_arn
+
+
+def delete_iam_role( role_name ):
+    iam = boto3.client("iam")
+    iam.detach_role_policy( PolicyArn = "arn:aws:iam::aws:policy/AmazonS3FullAccess", RoleName = role_name )
+    iam.detach_role_policy( PolicyArn = "arn:aws:iam::aws:policy/AmazonForecastFullAccess", RoleName = role_name )
+    iam.delete_role(RoleName=role_name)
 
 
 def plot_forecasts(fcsts, exact, freq = '1H', forecastHorizon=24, time_back = 80):
