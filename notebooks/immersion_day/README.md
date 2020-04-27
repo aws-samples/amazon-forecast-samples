@@ -16,8 +16,8 @@ In the Notebooks you will learn to:
 The steps below outline the process of building your own time-series prediction models, evaluating them, and then cleaning up all of yuour resources to prevent any unwanted charges. To get started execute the following steps.
 
 1. Deploy the CloudFormation Template below or build a local Jupyter environment with the AWS CLI installed and configured for your IAM account.
-1. [1.Train_and_Evaluate_Predictors.ipynb](notebooks/Train_and_Evaluate_Predictors.ipynb) - Guides you through preparing your dataset to be used with Amazon Forecast. Explains how to use the dataset you prepared to build your first model. Takes the model you just created and evaluates its performance against real observed measurements.
-1. [2.Cleanup.ipynb](notebooks/Cleanup.ipynb) - Deletes Amazon Forecast resources and IAM role created in above notebooks.
+1. [Train_Evaluate_Predictors.ipynb](notebooks/Train_Evaluate_Predictors.ipynb) - Guides you through preparing your dataset to be used with Amazon Forecast. Explains how to use the dataset you prepared to build your first model. Takes the model you just created and evaluates its performance against real observed measurements.
+1. [Cleanup.ipynb](notebooks/Cleanup.ipynb) - Deletes Amazon Forecast resources and IAM role created in above notebooks.
 
 Each notebook can be found within the `notebooks` folder in this project.
 
