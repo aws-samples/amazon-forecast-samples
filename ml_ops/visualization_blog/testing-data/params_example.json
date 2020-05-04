@@ -1,0 +1,52 @@
+{
+  "ForecastParameters": [
+    {
+      "DatasetGroup": {
+        "DatasetGroupName":"string",
+        "Domain": "'RETAIL'|'CUSTOM'|'INVENTORY_PLANNING'|'EC2_CAPACITY'|'WORK_FORCE'|'WEB_TRAFFIC'|'METRICS',"
+      },
+      "Predictor": {
+        "PredictorName": "PredictorName",
+        "AlgorithmArn": "arn:aws:forecast:::algorithm/ARIMA",
+        "ForecastHorizon": 123,
+        "PerformAutoML": false,
+        "FeaturizationConfig": {
+          "ForecastFrequency": "Y|M|W|D|H|30min|15min|10min|5min|1min",
+          "ForecastDimensions": "store_id"
+        }
+      },
+      "Forecast": {
+        "ForecastName": "ForecastName",
+        "ForecastTypes":[
+          "0.01",
+          "0.50",
+          "0.90"
+        ]
+      }
+    }
+  ],
+  "TimestampFormat": "yyyy-MM-dd",
+  "Datasets": [
+    {
+      "DatasetName": "DatasetName",
+      "Domain": "'RETAIL'|'CUSTOM'|'INVENTORY_PLANNING'|'EC2_CAPACITY'|'WORK_FORCE'|'WEB_TRAFFIC'|'METRICS'",
+      "DatasetType": "'TARGET_TIME_SERIES'|'RELATED_TIME_SERIES|ITEM_METADATA'",
+      "DatasetFrequency": "Y|M|W|D|H|30min|15min|10min|5min|1min",
+      "Schema": {
+        "item_id": "string|datetime|float",
+        "timestamp": "string|datetime|float",
+        "demand": "string|datetime|float"
+      }
+    },{
+      "DatasetName": "DatasetName",
+      "Domain": "'RETAIL'|'CUSTOM'|'INVENTORY_PLANNING'|'EC2_CAPACITY'|'WORK_FORCE'|'WEB_TRAFFIC'|'METRICS'",
+      "DatasetType": "'TARGET_TIME_SERIES'|'RELATED_TIME_SERIES|ITEM_METADATA'",
+      "DatasetFrequency": "Y|M|W|D|H|30min|15min|10min|5min|1min",
+      "Schema": {
+        "item_id": "'string'|'integer'|'float'|'timestamp'",
+        "timestamp": "'string'|'integer'|'float'|'timestamp'",
+        "demand": "'string'|'integer'|'float'|'timestamp'"
+      }
+    }
+  ] 
+}
