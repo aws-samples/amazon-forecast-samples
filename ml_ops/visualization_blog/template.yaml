@@ -1,0 +1,556 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+
+  Automation Step-Functions Stack
+
+Globals:
+  Function:
+    Timeout: 3
+
+Parameters:
+  Email:
+    Type: String
+    Description: Email to notify when step function ends
+    Default: youremail@yourprovider.com
+  ParameterFile:
+    Type: String
+    Description: Parameters file name, which will reside in your S3 parent directory
+    Default: params.json
+
+Resources:
+  # --------- Athena ---------
+  AthenaBucket:
+    Type: AWS::S3::Bucket 
+
+  AthenaWorkGroup:
+    Type: AWS::Athena::WorkGroup
+    Properties: 
+      Description: Forecast queries workgroup 
+      Name: ForecastGroup
+      RecursiveDeleteOption: true
+      State: ENABLED
+      WorkGroupConfiguration: 
+        ResultConfiguration: 
+          OutputLocation: !Sub s3://${AthenaBucket}/
+
+  # --------- Bucket ---------
+  ForecastBucket:
+    Type: AWS::S3::Bucket 
+  
+  S3Lambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/s3lambda/
+      Handler: parse.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt [TriggerRole, Arn]
+      Environment:
+        Variables:
+          STEP_FUNCTIONS_ARN: !Ref DeployStateMachine
+          PARAMS_FILE: !Ref ParameterFile
+      Events:
+        S3Bucket:
+          Type: S3
+          Properties:
+            Bucket: !Ref ForecastBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                - Name: prefix
+                  Value: train/
+                - Name: suffix
+                  Value: .csv
+
+  # --------- SNS Topic ---------
+  NotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: StepsTopic
+      Subscription:
+        - Endpoint: !Ref Email
+          Protocol: email
+
+  # --------- Layers ---------
+  SharedLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: testfolderlayer
+      ContentUri: shared/
+      CompatibleRuntimes:
+        - python3.7
+      RetentionPolicy: Delete
+
+  # --------- Lambdas ---------
+  CreateDataset:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/createdataset/
+      Handler: dataset.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt LambdaRole.Arn
+      Timeout: 30
+      Layers:
+        - !Ref SharedLayer
+  CreateDatasetGroup:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/createdatasetgroup/
+      Handler: datasetgroup.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt [LambdaRole, Arn]
+      Layers:
+        - !Ref SharedLayer
+  CreateDatasetImportJob:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/createdatasetimportjob/
+      Handler: datasetimport.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt [LambdaRole, Arn]
+      Environment:
+        Variables:
+          FORECAST_ROLE: !GetAtt [ForecastRole, Arn]
+      Layers:
+        - !Ref SharedLayer
+  CreatePredictor:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/createpredictor/
+      Handler: predictor.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt [LambdaRole, Arn]
+      Layers:
+        - !Ref SharedLayer
+  CreateForecast:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/createforecast/
+      Handler: forecast.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt [LambdaRole, Arn]
+      Environment:
+        Variables:
+          EXPORT_ROLE: !GetAtt [ForecastRole, Arn]
+      Layers:
+        - !Ref SharedLayer
+      Timeout: 30
+  UpdateResources:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/updateresources/
+      Handler: update.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt [UpdateRole, Arn]
+      Environment:
+        Variables:
+          ATHENA_WORKGROUP: !Ref AthenaWorkGroup
+          ATHENA_BUCKET: !Ref AthenaBucket
+      Layers:
+        - !Ref SharedLayer
+      Timeout: 300
+  NotifyTopic:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/notify/
+      Handler: notify.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt [LambdaRole, Arn]
+      Environment:
+        Variables:
+          SNS_TOPIC_ARN: !Ref NotificationTopic
+  DeleteForecast:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/deleteforecast/
+      Handler: deleteforecast.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt [LambdaRole, Arn]
+      Layers:
+        - !Ref SharedLayer
+  DeletePredictor:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/deletepredictor/
+      Handler: deletepredictor.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt [LambdaRole, Arn]
+      Layers:
+        - !Ref SharedLayer
+  DeleteImportJob:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambdas/deletedatasetimport/
+      Handler: deletedataset.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt [LambdaRole, Arn]
+      Layers:
+        - !Ref SharedLayer
+
+# --------- Necessary Roles ---------
+  LambdaIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+  StatesExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - !Sub states.${AWS::Region}.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: StatesExecutionPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: "*"
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - !Sub lambda.${AWS::Region}.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonForecastFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+      Policies:
+        - PolicyName: LambdaExecutionPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - forecast:*
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - iam:PassRole
+                Resource: !GetAtt [ForecastRole, Arn]
+  TriggerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - !Sub lambda.${AWS::Region}.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+      Policies:
+        - PolicyName: LambdaExecutionPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - "states:*"
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - 's3:*'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+  ForecastRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - forecast.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+  UpdateRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - !Sub lambda.${AWS::Region}.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchFullAccess
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AmazonAthenaFullAccess
+
+  # --------- State Machine ---------
+  DeployStateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      DefinitionString:
+        !Sub
+          - |-
+            {
+              "Comment": "An automation Pipeline for Amazon Forecast",
+              "StartAt": "Create-Dataset",
+              "States": {
+                "Create-Dataset": {
+                  "Type": "Task",
+                  "Resource": "${CreateDatasetArn}",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 1,
+                    "BackoffRate": 1.5
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "ResultPath": "$.serviceError",
+                    "Next": "Failed"
+                  }, {
+                    "ErrorEquals": ["States.ALL"],
+                    "ResultPath": "$.statesError",
+                    "Next": "Failed"
+                  }],
+                  "Next": "Create-DatasetGroup"
+                },
+                "Create-DatasetGroup": {
+                  "Type": "Task",
+                  "Resource": "${CreateDatasetGroupArn}",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 1,
+                    "BackoffRate": 1.5
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "ResultPath": "$.serviceError",
+                    "Next": "Failed"
+                  }, {
+                    "ErrorEquals": ["States.ALL"],
+                    "ResultPath": "$.statesError",
+                    "Next": "Failed"
+                  }],
+                  "Next": "Import-Data"
+                },
+                "Import-Data": {
+                  "Type": "Task",
+                  "Resource": "${ImportDataArn}",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 1,
+                    "BackoffRate": 1.5,
+                    "MaxAttempts": 100
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "ResultPath": "$.serviceError",
+                    "Next": "Failed"
+                  }, {
+                    "ErrorEquals": ["States.ALL"],
+                    "ResultPath": "$.statesError",
+                    "Next": "Failed"
+                  }],
+                  "Next": "Create-Predictor"
+                },
+                "Create-Predictor": {
+                  "Type": "Task",
+                  "Resource": "${CreatePredictorArn}",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 1,
+                    "BackoffRate": 1.5,
+                    "MaxAttempts": 100
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "ResultPath": "$.serviceError",
+                    "Next": "Failed"
+                  }, {
+                    "ErrorEquals": ["States.ALL"],
+                    "ResultPath": "$.statesError",
+                    "Next": "Failed"
+                  }],
+                  "Next": "Create-Forecast"
+                },
+                "Create-Forecast": {
+                  "Type": "Task",
+                  "Resource": "${CreateForecastArn}",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 1,
+                    "BackoffRate": 1.5,
+                    "MaxAttempts": 100
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "ResultPath": "$.serviceError",
+                    "Next": "Failed"
+                  }, {
+                    "ErrorEquals": ["States.ALL"],
+                    "ResultPath": "$.statesError",
+                    "Next": "Failed"
+                  }],
+                  "Next": "Update-Resources"
+                },
+                "Update-Resources": {
+                  "Type": "Task",
+                  "Resource": "${UpdateResourcesArn}",
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 1,
+                    "BackoffRate": 1.5
+                  }],
+                  "Catch": [{
+                    "ErrorEquals": ["ResourceFailed"],
+                    "ResultPath": "$.serviceError",
+                    "Next": "Failed"
+                  }, {
+                    "ErrorEquals": ["States.ALL"],
+                    "ResultPath": "$.statesError",
+                    "Next": "Failed"
+                  }],
+                  "Next": "Notify-Success"
+                },
+                "Notify-Success": {
+                  "Type": "Task",
+                  "Resource": "${NotifyTopicArn}",
+                  "ResultPath": "$.NotifyTopic",
+                  "Next": "Strategy-Choice"
+                },
+                "Strategy-Choice": {
+                  "Type": "Choice",
+                  "Choices": [
+                    {
+                      "Variable": "$.params.PerformDelete",
+                      "BooleanEquals": false,
+                      "Next": "SuccessState"
+                    }
+                  ],
+                "Default": "Delete-Forecast"
+                },
+                "Delete-Forecast": {
+                  "Type": "Task",
+                  "Resource": "${DeleteForecastArn}",
+                  "ResultPath": null,
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 2,
+                    "BackoffRate": 2,
+                    "MaxAttempts": 100
+                  }],
+                  "Next": "Delete-Predictor"
+                },
+                "Delete-Predictor": {
+                  "Type": "Task",
+                  "Resource": "${DeletePredictorArn}",
+                  "ResultPath": null,
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 2,
+                    "BackoffRate": 2.0,
+                    "MaxAttempts": 100
+                  }],
+                  "Next": "Delete-ImportJob"
+                },
+                "Delete-ImportJob": {
+                  "Type": "Task",
+                  "Resource": "${DeleteImportJobArn}",
+                  "ResultPath": null,
+                  "Retry": [{
+                    "ErrorEquals": ["ResourcePending"],
+                    "IntervalSeconds": 2,
+                    "BackoffRate": 2.0,
+                    "MaxAttempts": 100
+                  }],
+                  "End": true
+                },
+                "Failed": {
+                  "Type": "Task",
+                  "Resource": "${NotifyTopicArn}",
+                  "ResultPath": null,
+                  "Next": "Strategy-Choice"
+                },
+                "SuccessState": {
+                  "Type": "Succeed"
+                }
+              }
+            }
+          - CreateDatasetArn: !GetAtt [CreateDataset, Arn]
+            CreateDatasetGroupArn: !GetAtt [CreateDatasetGroup, Arn]
+            ImportDataArn: !GetAtt [CreateDatasetImportJob, Arn]
+            CreatePredictorArn: !GetAtt [CreatePredictor, Arn]
+            CreateForecastArn: !GetAtt [CreateForecast, Arn]
+            UpdateResourcesArn: !GetAtt [UpdateResources, Arn]
+            NotifyTopicArn: !GetAtt [NotifyTopic, Arn]
+            DeleteForecastArn: !GetAtt [DeleteForecast, Arn]
+            DeletePredictorArn: !GetAtt [DeletePredictor, Arn]
+            DeleteImportJobArn: !GetAtt [DeleteImportJob, Arn]
+
+      RoleArn: !GetAtt [StatesExecutionRole, Arn]
+
+Outputs:
+  StepFunctionsName:
+    Description: Step Functions Name
+    Value: !Ref DeployStateMachine
+  ForecastBucketName:
+    Description: Forecast bucket name to drop your files
+    Value: !Ref ForecastBucket
+  AthenaBucketName:
+    Description: Athena bucket name to drop your files
+    Value: !Ref AthenaBucket
+    
