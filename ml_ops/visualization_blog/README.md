@@ -1,4 +1,4 @@
-# Forecast Visualization Automation Blogpost
+# Forecast Visualization Automation Blog
 
 This package contains the source code with a StepFunctions pipeline that is able to perform
 multiple actions within Amazon Forecast, including the following actions:
@@ -20,7 +20,7 @@ The following describes the architecture of the solution:
 The StepFunction workflow is described below:
 ![steps](images/hor.png)
 
-A description of each step functionality can be found on the [AWS Blogpost]().
+A description of each step functionality can be found on the following [AWS Blog Post]().
 
 ## Deployment and Usage
 
