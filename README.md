@@ -8,7 +8,7 @@ This is a place where you will find various examples covering Amazon Forecast be
 
 Open the [notebooks](notebooks/) folder to find a CloudFormation template that will deploy all the resources you need to build your first campaign with Amazon Personalize. The notebooks provided can also serve as a template to building your own models with your own data.
 
-In the Notebooks folder you will learn to:
+In the [*notebooks*](notebooks/) folder you will learn to:
 
 1. Prepare a dataset for use with Amazon Forecast.
 2. Build models based on that dataset.
@@ -21,7 +21,7 @@ This is a place where you will find various examples covering Machine Learning O
 
 To get started navigate to the [ml_ops](ml_ops/) folder and follow the README instructions.
 
-In the MLOps folder you will learn how to:
+In the [*ml_ops*](ml_ops) folder you will learn how to:
 
 1. Deploy an automated end to end pipeline from training to visualization of your Amazon Forecasts in Amazon QuickSight
 
