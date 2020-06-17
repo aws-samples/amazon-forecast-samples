@@ -114,7 +114,7 @@ def get_readings(params, bucket):
             }
 
 
-def transform(s3_object, bucket, key, params):
+def transform(s3_object, bucket, key, params, page):
     # Transform forecast output into input format
     csv_buffer = StringIO()
     schema = SCHEMAS_DEF[params['Datasets'][0]['Domain']]
@@ -139,8 +139,9 @@ def transform(s3_object, bucket, key, params):
                  for field in schema['fields'] + ['type']}
             )
 
-    for entry in get_readings(params, bucket):
-        out.writerow(entry)
+    if page == 0:
+        for entry in get_readings(params, bucket):
+            out.writerow(entry)
 
     S3_CLI.put_object(Body=csv_buffer.getvalue(), Bucket=bucket, Key=key)
 
@@ -159,14 +160,14 @@ def lambda_handler(event, context):
                 destination='history/clean/{}'.format(key.split('/')[1])
             )
     if 'Contents' in new_objects.keys():
-        for key in [obj['Key'] for obj in new_objects['Contents']]:
+        for page, key in enumerate([obj['Key'] for obj in new_objects['Contents']]):
             if re.match('^.*\.(csv|CSV)', key):
-                print(key)
                 transform(
                     bucket.Object(key=key),
                     bucket=event['bucket'],
                     key='format_{}'.format(key),
-                    params=event['params']
+                    params=event['params'],
+                    page=page
                 )
                 move_object(
                     bucket=event['bucket'],
