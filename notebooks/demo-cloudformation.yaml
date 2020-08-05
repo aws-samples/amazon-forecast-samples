@@ -7,13 +7,13 @@ Parameters:
 
   BucketName:
     Type: String
-    Default: forecastdemofirstnamelastname
-    Description: The name of the S3 Bucket to create, use only characters and numbers, no special characters or spaces.
+    Default: ""
+    Description: The (globally unique) name of the S3 Bucket to create, or blank to set a name automatically
 
   NotebookName:
     Type: String
     Default: ForecastDemoLab
-    Description: Enter the name of the SageMaker notebook instance. Deafault is ForecastDemoLab.
+    Description: Enter the name of the SageMaker notebook instance. Default is ForecastDemoLab.
 
   VolumeSize:
     Type: Number
@@ -68,14 +68,15 @@ Metadata:
           - PrivateSubnet
 
 Conditions:
+  ExplicitBucketName: !Not [!Equals [!Ref BucketName, ""]]
   UseOwnVPC: !Equals [!Ref UseVPC, "true"]
   
 Resources:
   # S3 First
   S3Bucket:
-    Type: AWS::S3::Bucket
+    Type: "AWS::S3::Bucket"
     Properties:
-      BucketName: !Ref BucketName
+      BucketName: !If [ ExplicitBucketName, !Ref BucketName, !Ref "AWS::NoValue" ]
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           -
@@ -121,5 +122,5 @@ Resources:
 
 Outputs:
   S3Bucket:
-    Value: !Ref BucketName
+    Value: !Ref S3Bucket
     Description: S3 Bucket for object storage

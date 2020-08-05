@@ -1,19 +1,16 @@
-## Amazon Forecast Samples
+# Amazon Forecast Samples
 
-Notebooks and examples on how to onboard and use various features of Amazon Forecast
+Notebooks and examples on how to onboard and use various features of [Amazon Forecast](https://aws.amazon.com/forecast/).
 
 ## Getting Started Notebooks
 
-This is a place where you will find various examples covering Amazon Forecast best practices
+*Notebooks* provide an interactive environment combining code and documentation, which can be a useful way to first get familiar with Amazon Forecast - as well as when exploring more advanced topics.
 
-Open the [notebooks](notebooks/) folder to find a CloudFormation template that will deploy all the resources you need to build your first campaign with Amazon Personalize. The notebooks provided can also serve as a template to building your own models with your own data.
+Open the [notebooks](notebooks/) folder to find:
 
-In the [*notebooks*](notebooks/) folder you will learn to:
-
-1. Prepare a dataset for use with Amazon Forecast.
-2. Build models based on that dataset.
-3. Evaluate a model's performance based on real observations.
-4. How to evaluate the value of a Forecast compared to another.
+1. A CloudFormation template that will deploy all the resources you need to start exploring Amazon Forecast via notebooks with [Amazon SageMaker](https://docs.aws.amazon.com/sagemaker/latest/dg/nbi.html)
+2. Worked examples for getting started with Amazon Forecast: Preparing your data, and building and evaluating predictors.
+3. More advanced examples covering a range of topics like what-if analysis.
 
 ## MLOps with AWS Step Functions
 
