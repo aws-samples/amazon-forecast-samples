@@ -76,12 +76,12 @@ Once the stack is deployed, navigate to the [Amazon SageMaker Console](https://c
 
 You should see your new Forecast Demo notebook instance in the list: Click on **Open JupyterLab** (or *Open Jupyter*, if you prefer) to open the interface.
 
-In Jupyter/Lab, you'll see this repository has been copied to your instance. Navigate to [notebooks/getting_started](notebooks/getting_started) to run through the tutorial notebooks in order:
+In Jupyter/Lab, you'll see this repository has been copied to your instance. Navigate to [notebooks/getting_started](getting_started/) to run through the tutorial notebooks in order:
 
-1. [1.Getting_Data_Ready.ipynb](notebooks/getting_started/1.Getting_Data_Ready.ipynb) - Guides you through preparing your dataset to be used with Amazon Forecast.
-1. [2.Building_Your_Predictor.ipynb](notebooks/getting_started/2.Building_Your_Predictor.ipynb) - Explains how to use the dataset you prepared to build your first model.
-1. [3.Evaluating_Your_Predictor.ipynb](notebooks/getting_started/3.Evaluating_Your_Predictor.ipynb) - Takes the model you just created and evaluates its performance against real observed measurements.
-1. [4.Cleanup.ipynb](notebooks/getting_started/4.Cleanup.ipynb) - Deletes Amazon Forecast resources and IAM role created in above notebooks.
+1. [1.Getting_Data_Ready.ipynb](getting_started/1.Getting_Data_Ready.ipynb) - Guides you through preparing your dataset to be used with Amazon Forecast.
+1. [2.Building_Your_Predictor.ipynb](getting_started/2.Building_Your_Predictor.ipynb) - Explains how to use the dataset you prepared to build your first model.
+1. [3.Evaluating_Your_Predictor.ipynb](getting_started/3.Evaluating_Your_Predictor.ipynb) - Takes the model you just created and evaluates its performance against real observed measurements.
+1. [4.Cleanup.ipynb](getting_started/4.Cleanup.ipynb) - Deletes Amazon Forecast resources and IAM role created in above notebooks.
 
 
 ## FAQ
