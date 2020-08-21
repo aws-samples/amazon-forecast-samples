@@ -50,7 +50,9 @@ Start by clicking `Next` at the bottom like this:
 
 ![StackWizard](doc/images/img1.png)
 
-In the next page you need to provide a unique S3 bucket name for your file storage, it is recommended to simply add your first name and last name to the end of the default option as shown below, after that update click `Next` again.
+If you choose to provide a S3 bucket name for your file storage in the next page, remember that bucket names must be globally unique: If you enter a bucket name that already exists in any AWS account, your stack will fail to create.
+
+You can instead leave this option blank to create a bucket name automatically, and leave other options as default unless you need to change them. Once you're ready, click Next again.
 
 ![StackWizard2](doc/images/img2.png)
 
