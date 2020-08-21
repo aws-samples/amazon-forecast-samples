@@ -106,12 +106,30 @@ Resources:
         - "arn:aws:iam::aws:policy/AmazonForecastFullAccess"
         - "arn:aws:iam::aws:policy/IAMFullAccess"
 
+  # Lifecycle configuration to automate some extra notebook setup
+  NotebookConfig:
+    Type: "AWS::SageMaker::NotebookInstanceLifecycleConfig"
+    Properties:
+      OnStart:
+        - Content:
+            Fn::Base64: !Sub |
+              #!/bin/bash
+              set -e
+
+              # JupyterLab requires an extension to support interactive widgets used in the NBs:
+              sudo -u ec2-user -i <<'EOF'
+              source /home/ec2-user/anaconda3/bin/activate JupyterSystemEnv
+              jupyter labextension install @jupyter-widgets/jupyterlab-manager
+              source /home/ec2-user/anaconda3/bin/deactivate
+              EOF
+
   # SageMaker notebook
   NotebookInstance:
     Type: "AWS::SageMaker::NotebookInstance"
     Properties:
       InstanceType: "ml.t2.medium"
       NotebookInstanceName: !Ref NotebookName
+      LifecycleConfigName: !GetAtt NotebookConfig.NotebookInstanceLifecycleConfigName
       RoleArn: !GetAtt SageMakerIamRole.Arn
       VolumeSizeInGB: !Ref VolumeSize
       DefaultCodeRepository: https://github.com/aws-samples/amazon-forecast-samples.git
