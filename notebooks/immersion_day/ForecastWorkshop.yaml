@@ -69,3 +69,7 @@ Outputs:
   S3Bucket:
     Value: !Ref BucketName
     Description: S3 Bucket for object storage
+
+  SageMakerIamRole:
+    Value: !GetAtt SageMakerIamRole.Arn
+    Description: ARN of SageMaker role
