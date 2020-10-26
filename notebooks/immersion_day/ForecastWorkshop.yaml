@@ -4,16 +4,14 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Creates an S3 Bucket, IAM Policies, and SageMaker Notebook to work with Amazon Forecast.
 
 Parameters:
-
-  BucketName:
+  EETeamId:
+    Description: "Unique ID of this Team"
     Type: String
-    Default: forecastdemofirstnamelastname
-    Description: The name of the S3 Bucket to create, use only characters and numbers, no special characters or spaces.
 
   NotebookName:
     Type: String
-    Default: ForecastDemoLab
-    Description: Enter the name of the SageMaker notebook instance. Deafault is ForecastDemoLab.
+    Default: ForecastWorkshop
+    Description: Enter the name of the SageMaker notebook instance. Deafault is ForecastWorkshop.
 
   VolumeSize:
     Type: Number
@@ -23,19 +21,12 @@ Parameters:
     ConstraintDescription: Must be an integer between 5 (GB) and 16384 (16 TB).
     Description: Enter the size of the EBS volume in GB.
 
-
-Metadata:
-  AWS::CloudFormation::Interface:
-    ParameterLabels:
-      BucketName:
-        default: S3 Bucket Name
-
 Resources:
   # S3 First
   S3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Ref BucketName
+      BucketName: !Sub forecastworkshop-${EETeamId}
   # SageMaker Execution Role
   SageMakerIamRole:
     Type: "AWS::IAM::Role"
@@ -63,11 +54,11 @@ Resources:
       NotebookInstanceName: !Ref NotebookName
       RoleArn: !GetAtt SageMakerIamRole.Arn
       VolumeSizeInGB: !Ref VolumeSize
-      DefaultCodeRepository: https://github.com/aws-samples/amazon-forecast-samples.git
+      DefaultCodeRepository: https://github.com/frank-tan/amazon-forecast-samples.git
 
 Outputs:
   S3Bucket:
-    Value: !Ref BucketName
+    Value: !Ref S3Bucket
     Description: S3 Bucket for object storage
 
   SageMakerIamRole:
