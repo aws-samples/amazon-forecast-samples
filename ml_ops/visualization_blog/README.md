@@ -102,7 +102,7 @@ Due to how Amazon Forecast works, all strings provided on the Datasets are trans
 To perform visualizations on the forecasted data we recommend using Athena to query the tables
 already created by the Step Functions workflow. You can merge the tables __train__ and __forecast__
 using basic SQL queries to get a unified view over your training and forecasted dataset. Further
-instructions on how to visualize using Amazon QuickSight will be provided in the [AWS Blogpost](https://aws.amazon.com/blogs/machine-learning/).
+instructions on how to visualize using Amazon QuickSight will be provided in the [AWS Blogpost](https://aws.amazon.com/blogs/machine-learning/building-ai-powered-forecasting-automation-with-amazon-forecast-by-applying-mlops/).
 
 ```sql
 SELECT LOWER(forecast.item_id) as item_id,
