@@ -62,7 +62,7 @@ def get_readings(params, bucket):
         )
 
     cursor = connect(
-        s3_staging_dir='s3://{}/stage',
+        s3_staging_dir='s3://{}/stage/ '.format(bucket),
         region_name=environ['AWS_REGION'],
         work_group=environ['ATHENA_WORKGROUP']
     ).cursor()
