@@ -117,7 +117,7 @@ def plot_forecasts(fcsts, exact, freq = '1H', forecastHorizon=24, time_back = 80
     time_int = exact['timestamp'].apply(lambda x: pd.Timestamp(x))
     plt.plot(time_int[-time_back:],exact['target'].values[-time_back:], color = 'r')
     plt.plot(pred_int, p50['Value'].values, color = 'k')
-    plt.fill_between(p50['Timestamp'].values, 
+    plt.fill_between(pred_int, 
                      p10['Value'].values,
                      p90['Value'].values,
                      color='b', alpha=0.3);
