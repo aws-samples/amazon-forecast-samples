@@ -12,7 +12,7 @@ Below is an architecture diagram of components used in this workshop.
 
 ![cloudformationautomation-architecture](cloudformationautomation-architecture.png)
 
-### Prerequisites
+## Prerequisites
 
 Before starting the workshop, make sure you have logged into your AWS account and installed our CloudFormation template:
 
