@@ -10,7 +10,7 @@ The Amazon Forecast CloudFormation stack used in this workshop will:
 
 Below is an architecture diagram of components used in this workshop.
 
-[Image: cloudformationautomation-architecture.png]
+![cloudformationautomation-architecture](cloudformationautomation-architecture.png)
 
 ### Prerequisites
 
@@ -38,17 +38,17 @@ Follow the steps below to deploy the CloudFormation template using the NYC Taxi 
 
 **Step 1**: Accept defaults, click "Next"
 
-[Image: cloudformationautomation-step1.png]
+![cloudformationautomation-step1](cloudformationautomation-step1.png)
 
 **Step 2:** Name your stack "forecast-stack-nyctaxi-demo" and provide an email address for notifications. Click "Next".
 
-[Image: cloudformationautomation-step2.png]
+![cloudformationautomation-step2](cloudformationautomation-step2.png)
 
 **Step 3**: Accept defaults, click "Next"
 
 **Step 4:** Step 4: Click both checkboxes to allow IAM resources to be created and to allow possibly nested stacks. Click “Create Stack”
 
-[Image: cloudformationautomation-step4.png]
+![cloudformationautomation-step4](cloudformationautomation-step4.png)
 
 That’s it! You have deployed a CloudFormation template in Amazon Forecast.
 
