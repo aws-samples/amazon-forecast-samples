@@ -36,12 +36,17 @@ Performing the above steps will deploy a demonstration stack using our [NYC Taxi
 Follow the steps below to deploy the CloudFormation template using the NYC Taxi Dataset.
 
 **Step 1**: Accept defaults, click "Next"
+
 [Image: images/cloudformationautomation-step1.png]
+
 **Step 2:** Name your stack "forecast-stack-nyctaxi-demo" and provide an email address for notifications. Click "Next".
+
 [Image: images/cloudformationautomation-step2.png]
+
 **Step 3**: Accept defaults, click "Next"
 
 **Step 4:** Step 4: Click both checkboxes to allow IAM resources to be created and to allow possibly nested stacks. Click “Create Stack”
+
 [Image: images/cloudformationautomation-step4.png]
 
 That’s it! You have deployed a CloudFormation template in Amazon Forecast.
