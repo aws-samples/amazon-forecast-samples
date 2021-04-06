@@ -1,6 +1,6 @@
 # Amazon Forecast Automation Workshop
 
-In this workshop, you will get hands-on training how to use Amazon Forecast. The Automation stack will automatically launch a forecast pipeline using NYC taxi demo data. But then, we would like you to think how to use your own data to create forecasts.
+In this workshop, you will get hands-on training on how to use Amazon Forecast. The Automation stack will automatically launch a forecast pipeline using NYC taxi demo data. But then, we would like you to think how to use your own data to create forecasts.
 
 The Amazon Forecast CloudFormation stack used in this workshop will:
 
