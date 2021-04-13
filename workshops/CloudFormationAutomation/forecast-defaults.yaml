@@ -1,0 +1,131 @@
+Default:
+  DatasetGroup:
+    Domain: CUSTOM
+
+  Datasets:
+    - Domain: CUSTOM
+      DatasetType: TARGET_TIME_SERIES
+      DataFrequency: D
+      TimestampFormat: yyyy-MM-dd
+      Schema:
+        Attributes:
+          - AttributeName: timestamp
+            AttributeType: timestamp
+          - AttributeName: item_id
+            AttributeType: string
+          - AttributeName: location
+            AttributeType: geolocation
+          - AttributeName: target_value
+            AttributeType: float
+
+  Predictor:
+    AlgorithmArn: arn:aws:forecast:::algorithm/Prophet
+    PerformHPO: False
+    MaxAge: 604800  # one week
+    ForecastHorizon: 30
+    FeaturizationConfig:
+      ForecastFrequency: D
+
+  Forecast:
+    ForecastTypes:
+      - "0.10"
+      - "0.50"
+      - "0.90"
+
+
+nyctaxi_erratic_snap02232020_168H:
+  DatasetGroup:
+    Domain: CUSTOM
+
+  Datasets:
+    - Domain: CUSTOM
+      DatasetType: TARGET_TIME_SERIES
+      DataFrequency: H
+      TimestampFormat: yyyy-MM-dd HH:mm:ss
+      GeolocationFormat: LAT_LONG
+      # UseGeolocationForTimeZone: True
+      TimeZone: "America/New_York"
+      Schema:
+        Attributes:
+          - AttributeName: timestamp
+            AttributeType: timestamp
+          - AttributeName: item_id
+            AttributeType: string
+          - AttributeName: geolocation
+            AttributeType: geolocation
+          - AttributeName: target_value
+            AttributeType: float
+    - Domain: CUSTOM
+      DatasetType: RELATED_TIME_SERIES
+      DataFrequency: H
+      TimestampFormat: yyyy-MM-dd HH:mm:ss
+      Schema:
+        Attributes:
+          - AttributeName: timestamp
+            AttributeType: timestamp
+          - AttributeName: item_id
+            AttributeType: string
+          - AttributeName: geolocation
+            AttributeType: geolocation
+          - AttributeName: day_hour_name
+            AttributeType: string
+    - Domain: CUSTOM
+      DatasetType: ITEM_METADATA
+      Schema:
+        Attributes:
+          - AttributeName: item_id
+            AttributeType: string
+          - AttributeName: pickup_borough
+            AttributeType: string
+          - AttributeName: binned_max_item
+            AttributeType: string
+
+  Predictor:
+    AlgorithmArn: arn:aws:forecast:::algorithm/Deep_AR_Plus
+    # PerformAutoML: True
+    # PerformHPO: True
+    ForecastHorizon: 168
+    FeaturizationConfig:
+      ForecastFrequency: H
+      ForecastDimensions:
+        - "geolocation"
+      Featurizations:
+        - AttributeName: target_value
+          FeaturizationPipeline:
+            - FeaturizationMethodName: filling
+              FeaturizationMethodParameters:
+                aggregation: sum
+                frontfill: none
+                middlefill: zero
+                backfill: zero
+        # - AttributeName: mean_item_weekday
+        #   FeaturizationPipeline:
+        #     - FeaturizationMethodName: filling
+        #       FeaturizationMethodParameters:
+        #         futurefill: median
+        #         middlefill: median
+        #         backfill: median
+    InputDataConfig:
+      SupplementaryFeatures:
+        - Name: holiday
+          Value: US
+        - Name: weather
+          Value: "true"
+    TrainingParameters:
+      context_length: "83"
+      learning_rate: "0.0020831830637229928"
+      # use_item_metadata: ALL
+      # use_related_data: ALL
+    EvaluationParameters:
+      NumberOfBacktestWindows: 5
+      BackTestWindowOffset: 168
+    ForecastTypes:
+      - "0.10"
+      - "0.50"
+      - "0.90"
+
+  Forecast:
+    ForecastTypes:
+      - "0.10"
+      - "0.50"
+      - "0.90"
