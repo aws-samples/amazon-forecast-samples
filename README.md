@@ -29,7 +29,7 @@ In the [*ml_ops*](ml_ops) folder you will learn how to:
 
 In this repository, you will find a tutorial to walk you through an energy consumption use case with two different methods:
 
-1. For the first method, you will only use the service console and this will be 100% no-code: use this [markdown file](no_code_workshop/forecast-with-console.md) to follow along.
+1. For the first method, you will only use the service console and this will be 100% no-code: use this [markdown file](workshops/no_code_workshop/forecast-with-console.md) to follow along.
 2. For the second method, you will fire up a SageMaker Notebook Instance and perform exactly the same process by using the Amazon Forecast API as documented [here](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/forecast.html) (for datasets and models management features) and [here](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/forecastquery.html) (for the query service): run [this notebook](no_code_workshop/forecast-with-api.ipynb) to dive deeper in these APIs.
 
 
