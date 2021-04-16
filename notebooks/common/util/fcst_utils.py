@@ -127,9 +127,10 @@ def create_bucket(bucket_name, region=None):
             try:
                 s3_client.create_bucket(Bucket=bucket_name,
                                         CreateBucketConfiguration=location)
-            except:
+            except Exception as e:
+                print (e)
                 s3_client.create_bucket(Bucket=bucket_name)
-    except ClientError as e:
+    except botocore.exceptions.ClientError as e:
         print(e)
         return False
     return True
