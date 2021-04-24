@@ -47,7 +47,7 @@ Customer to send AWS staff leading the workshop an anonymized sample of data.
 Install the Amazon Forecast solution CloudFormation template in user's  account.  Total install time ~15min.  
 
 - Log into customer's account with Admin account 
-- Instructions here:  install-forecast-solution.md
+- [Follow these instructionse:  install-forecast-solution.md](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/ForecastPipeline_workshop/install-forecast-solution.md)
 - Sign up for QuickSight Enterprise, get the ARN
   - Update CloudFormation nested (main) stack with QuickSight ARN
 - Make a note and verify S3 bucket where customer's POC data is located.
@@ -59,6 +59,8 @@ Install the Amazon Forecast solution CloudFormation template in user's  account.
   - Verify notebook instance starts up and you can see the 2 workshop notebooks 
   - Upload your customized notebook to the notebook instance
   - Make sure your notebook runs completely start-to-finish before the day of training.
+
+
 
 
 
