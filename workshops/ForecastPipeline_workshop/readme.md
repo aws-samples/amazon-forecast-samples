@@ -1,57 +1,82 @@
-# Amazon Forecast Automation Workshop
+# Amazon Forecast pre-POC Workshop - hands-on Bring Your own Data
 
-In this workshop, you will get hands-on training on how to use Amazon Forecast. The Automation stack will automatically launch a forecast pipeline using NYC taxi demo data. But then, we would like you to think how to use your own data to create forecasts.
+In this workshop, you will get hands-on and learn how to use Amazon Forecast with your own data.  We will go through a complete data pipeline.  From raw data input - to training a model on that data - to generating inferences (forecasts) from the model - to exporting and visualizing the forecasts.  The automation pipeline is implemented using AWS service components. 
 
-The Amazon Forecast CloudFormation stack used in this workshop will:
+This workshop is designed to accelerate customers in their process of doing an Amazon Forecast POC.  The components of the automation pipeline can remain in the customer's account after the workshop.  The customer can keep using the tools they learned during this workshop to do the actual POC.  
 
-* Deploy the "[Improving Forecast Accuracy with Machine Learning](https://docs.aws.amazon.com/solutions/latest/improving-forecast-accuracy-with-machine-learning/automated-deployment.html)" solution AWS CloudFormation template.
-* Deploy the NYC taxi demo (target time series, related time series, item metadata) to the solution Forecast Data Amazon S3 Bucket.
-* Automatically trigger the demo NYC taxi forecast pipeline in Amazon Forecast.
+##### Audience
 
-Below is an architecture diagram of components used in this workshop.
+Developers and/or Data Scientists who will be doing the POC work.
 
-![cloudformationautomation-architecture](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-architecture.png)
+##### Cost
 
-## Prerequisites
+Assume 10 students each training their own models all day, with big data $15GB, each student generating 300K forecasts (10*300K forecasts).  Expected cost $31 Forecast + $23 QuickSight + $50 SageMaker + $1 S3 + $1 Glue + $0.20 Athena + free tier Lambda, Step Functions, SNS (assuming everyone shuts down their Notebook end of day after workshop otherwise cost could be a lot more) = $106.20.  
 
-Before starting the workshop, make sure you have logged into your AWS account and installed our CloudFormation template:
+Budget $200 total for the workshop should cover everything.
 
-1. **Log in to your AWS account**. If you do not already have one, [create an AWS account](https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/).
-2. **Install the AWS CloudFormation template.** Choose the Region closest to you:
 
-   * Tokyo: [ap-northeast-1](https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template)
-   * Seoul: [ap-northeast-2](https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template)
-   * Mumbai: [ap-south-1](https://console.aws.amazon.com/cloudformation/home?region=ap-south-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template)
-   * Singapore: [ap-southeast-1](https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template)
-   * Sydney: [ap-southeast-2](https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template)
-   * Frankfurt: [eu-cental-1](https://console.aws.amazon.com/cloudformation/home?region=eu-central-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template)
-   * Ireland: [eu-west-1](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template)
-   * N. Virginia: [us-east-1](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template)
-   * Ohio: [us-east-2](https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template)
-   * Oregon: [us-west-2](https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template)
 
-Performing the above steps will deploy a demonstration stack using our [NYC Taxi Dataset](https://registry.opendata.aws/nyc-tlc-trip-records-pds/).
+### Trainer - Get Ready for the Workshop
 
-## Deploying a CloudFormation template for Amazon Forecast Automation
+**1 month before the workshop**
 
-Follow the steps below to deploy the CloudFormation template using the NYC Taxi Dataset.
+Ask customer to think about creating an AWS sandbox account for running the POC.  Data migration from on-premise might need to be set up.  Customer should put their POC data into an S3 bucket in this AWS sandbox account.  
 
-**Step 1**: Accept defaults, click "Next"
+- Confirm what data customer will use.  
+- Confirm with customer that it is acceptable for AWS staff to temporarily access the sandbox account for purpose of conducting the Pre-POC workshop training.  We won't set up the access yet.
 
-![cloudformationautomation-step1](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-step1.png)
+**2 weeks before the workshop** 
 
-**Step 2:** Name your stack "forecast-stack-nyctaxi-demo" and provide an email address for notifications. Click "Next".
+Customer to send AWS staff leading the workshop an anonymized sample of data.  
 
-![cloudformationautomation-step2](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-step2.png)
+- AWS staff customize the Data Prep template notebooks to the customer's data. 
+  - If data is daily or fine-grained - [use the regular DataPrep template notebook](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/ForecastPipeline_workshop/1.Getting_Data_Ready_nytaxi.ipynb)
+  - If data is weekly or bigger-grained - [use the weekly DataPrep template notebook](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/ForecastPipeline_workshop/1.Getting_Data_Ready_nytaxi_weekly.ipynb)
+- Confirm POC Forecast choices:  
+  - Forecast time unit granularity?  
+    - Choices are Y|M|W|D|H|30min|15min|10min|5min|1min
+  - How many time units (forecast length)?  
+    - For example, if your time unit is H, then if you want to forecast out 1 week, that would be 24*7 = 168 hours, so forecast length = 168.  
+    - Rule: Forecast length cannot be longer than 1/3 of training data.
+  - Data time granularity? 
+    - Usually the same as forecast granularity
+    - Rule: Data granularity can be <= forecast time unit granularity.
 
-**Step 3**: Accept defaults, click "Next"
+**3 days before the workshop** - AWS staff needs access to customer's account
 
-**Step 4:** Click both checkboxes to allow IAM resources to be created and to allow possibly nested stacks. Click “Create Stack”
+Install the Amazon Forecast solution CloudFormation template in user's  account.  Total install time ~15min.  
 
-![cloudformationautomation-step4](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-step4.png)
+- Log into customer's account with Admin account 
+- Instructions here:  install-forecast-solution.md
+- Sign up for QuickSight Enterprise, get the ARN
+  - Update CloudFormation nested (main) stack with QuickSight ARN
+- Make a note and verify S3 bucket where customer's POC data is located.
+- Send customer your finished .ipynb Data Prep template customized to their data
+- Identify the SageMaker notebook instance configured with solution
+  - Edit github repo:  https://github.com/aws-samples/amazon-forecast-samples
+  - Inspect notebook instance IAM policy
+    - Make sure it can access S3 and run Forecast
+  - Verify notebook instance starts up and you can see the 2 workshop notebooks 
+  - Upload your customized notebook to the notebook instance
+  - Make sure your notebook runs completely start-to-finish before the day of training.
 
-That’s it! You have deployed a CloudFormation template in Amazon Forecast.
 
-**Cleaning Up:** Deleting the demo stack will retain the "Improving Forecast Accuracy with Machine Learning Stack". Deleting the "Improving Forecast Accuracy with Machine Learning" stack will leave all S3, Athena, QuickSight, and Forecast data in the customer account.
 
-**Other deployment options**: For more deployment options, see [Automated Deployment](https://docs.aws.amazon.com/solutions/latest/improving-forecast-accuracy-with-machine-learning/automated-deployment.html).  If data is already available, you can deploy the stack without the demo data.
+### Day of workshop.  Typical agenda.
+
+| **Start** | **End** | Who                      | **Activity**                                                 |
+| --------- | ------- | ------------------------ | ------------------------------------------------------------ |
+| 9:00a     | 9:30a   | Customer                 | Introductions, customer's Exec sponsor sets the stage of the exact problem that is to be tackled and what success looks like for the POC engagement. |
+| 9:30a     | 10:00a  | AWS                      | Slides - High-level overview of Amazon Forecast              |
+| 10:00a    | 10:30a  | AWS                      | Demo - Console demo of NYC taxi data. <br /> (Show the DataPrep notebook, Forecast console, DataSet, Predictor, Forecast, Exports, QuickSight Dashboard) |
+| 10:30a    | 10:45a  | All                      | Discussion - mapping customer's data to the Forecast POC problem<br />AWS Trainer TODO just before break: <br />- start up SageMaker notebook instance <br/>- Choose compute ml.t3.2xlarge, see https://aws.amazon.com/sagemaker/pricing/ <br/>- Choose EBS permanent storage 5GB default<br />- Show where the code Repo is specified (github or AWS CodeBuild). |
+| 10:45     | 11:00   | BREAK                    | 15min BREAK                                                  |
+| 11:00a    | 12:00p  | AWS leading the customer | Prepare data - we'll use the template DataPrep notebook <br />- Ask customer to upload the .ipynb you already prepared to the running Notebook instance<br />- Get the S3 location where customer keeps their data<br />- Customize S3 location where notebook data will be saved<br />- You can run pretty quickly through the Notebook<br />- Verify S3 location where notebook data was saved<br />Launch Predictor using just TTS and AutoML using the solution<br />- Edit the .yaml file<br />- Find the training S3 bucket<br />- upload .yaml file in root of S3 bucket; copy customer's S3 data in train/ folder |
+| 12:00p    | 1:00p   | LUNCH                    | 1hr LUNCH<br />AWS Trainer TODO just before lunch break: <br />- check that the predictor launched<br />- check step functions make sure no errors |
+| 1:00p     | 1:30p   | AWS                      | Overview Solution Architecture components                    |
+| 1:30p     | 2pm     | AWS leading customer     | Evaluate Predictor (in console using Query, and in QuickSight) |
+| 2:00p     | 2:30p   | AWS leading customer     | Start Discussion:  Iterate on Dataset and Models <br /<br />- Show customer github link CheatSheet<br />- Show the NYC taxi Quicksight Model Comparison Dashboard |
+| 2:30p     | 2:45p   | AWS                      | Summarize what was learned                                   |
+| 2:45p     | 3:15p   | Customer                 | Summarize to their peers what they learned, accomplished, and possible next steps |
+| 3:15p     | 3:30p   | AWS                      | Answer Questions<br />Ask customer to leave you a Review<br /> |
+| 4:00p End |         | AWS + Customer           | - Remove AWS staff temporary access to the POC sandbox account<br />- IMPORTANT - SHUT DOWN ALL SAGEMAKER NOTEBOOK INSTANCES!! |
