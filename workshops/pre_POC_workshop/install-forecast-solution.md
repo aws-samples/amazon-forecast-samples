@@ -56,7 +56,7 @@ Follow the steps below to deploy the CloudFormation template using the NYC Taxi 
 
 **Step 4:** Click both checkboxes to allow IAM resources to be created and to allow possibly nested stacks. Click “Create Stack”
 
-<img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-step4.pngg" style="zoom:80%;">
+<img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-step4.png" style="zoom:80%;">
 
 **Step 5:** Open your email and confirm subscription to notifications.
 
