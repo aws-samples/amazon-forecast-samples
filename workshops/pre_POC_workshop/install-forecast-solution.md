@@ -10,7 +10,7 @@ By default, the installed components of this solution do not incur any cost when
 
 The CloudFormation template used in this workshop will:
 
-* Deploy the "[Improving Forecast Accuracy with Machine Learning](https://docs.aws.amazon.com/solutions/latest/improving-forecast-accuracy-with-machine-learning/automated-deployment.html)" solution main AWS CloudFormation (nested) template.
+* Deploy the Improving <a href="https://docs.aws.amazon.com/solutions/latest/improving-forecast-accuracy-with-machine-learning/automated-deployment.html" target="_blank">Forecast Accuracy with Machine Learning</a> solution main AWS CloudFormation (nested) template.
 * Deploy the NYC taxi demo data (target time series, related time series, item metadata) into the solution Amazon S3 Bucket.  
 * Automatically launch a demo NYC taxi forecast in Amazon Forecast.
 
@@ -22,10 +22,10 @@ Below is an architecture diagram of components used in this solution.
 
 Before starting the workshop, make sure you have logged into your AWS account and installed our CloudFormation template:
 
-1. **Log in to your AWS account**. If you do not already have one, [create an AWS account](https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/).
+1. **Log in to your AWS account**. If you do not already have one, <a href="https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/" target="_blank">create an AWS account</a>.
 2. **Install the AWS CloudFormation template.** Choose the Region closest to you:
 
-   * Tokyo: <a href="https://us-west-2.console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/create/template?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank"> ap-northeast-1</a>
+   * Tokyo: <a href="https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank"> ap-northeast-1</a>
    * Seoul: <a href="https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">ap-northeast-2</a>
    * Mumbai: <a href="https://console.aws.amazon.com/cloudformation/home?region=ap-south-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">ap-south-1</a>
    * Singapore: <a href="https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">ap-southeast-1</a>
@@ -36,7 +36,7 @@ Before starting the workshop, make sure you have logged into your AWS account an
    * Ohio: <a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">us-east-2</a>
    * Oregon: <a href="https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">us-west-2</a>
 
-Performing the above steps will deploy a demonstration stack using data from the [NYC Taxi Dataset](https://registry.opendata.aws/nyc-tlc-trip-records-pds/).
+Performing the above steps will deploy a demonstration stack using data from the <a href="https://registry.opendata.aws/nyc-tlc-trip-records-pds/" target="_blank">NYC Taxi Dataset</a>.
 
 ## Deploying a CloudFormation template for Amazon Forecast Automation
 
@@ -63,9 +63,9 @@ Follow the steps below to deploy the CloudFormation template using the NYC Taxi 
 <img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-step5.png" style="zoom:80%;">
 
 <br>
-That’s it! You have deployed a CloudFormation template in Amazon Forecast.
+That’s it! You have deployed a CloudFormation template in Amazon Forecast. <br>
 
 **Cleaning Up:** Deleting the demo stack will retain the "Improving Forecast Accuracy with Machine Learning Stack". Deleting the "Improving Forecast Accuracy with Machine Learning" stack will leave all S3, Athena, QuickSight, and Forecast data in the customer account.
 
-**Other deployment options**: For more deployment options, see [Automated Deployment](https://docs.aws.amazon.com/solutions/latest/improving-forecast-accuracy-with-machine-learning/automated-deployment.html).  If data is already available, you can deploy the stack without the demo data.
+**Other deployment options**: For more deployment options, see <a href="https://docs.aws.amazon.com/solutions/latest/improving-forecast-accuracy-with-machine-learning/automated-deployment.html" target="_blank">Automated Deployment</a>.  If data is already available, you can deploy the stack without the demo data.
 
