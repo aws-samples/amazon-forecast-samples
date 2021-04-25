@@ -44,13 +44,13 @@ Follow the steps below to deploy the CloudFormation template using the NYC Taxi 
 
 **Step 1**: Accept defaults, click "Next"
 
-<img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-step1.png" alt="cloudformationautomation-step1" style="zoom:80%;" />
+<img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-step1.png" style="zoom:80%;" />
 
 
 
 **Step 2:** Name your stack "forecast-stack-nyctaxi-demo" and provide an email address for notifications. Click "Next".
 
-<img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-step2.png" alt="cloudformationautomation-step2" style="zoom:80%;" />
+<img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-step2.png" style="zoom:80%;" />
 
 **Step 3**: Accept defaults, click "Next"
 
