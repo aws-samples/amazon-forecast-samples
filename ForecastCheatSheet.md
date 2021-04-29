@@ -3,7 +3,7 @@
 ##### Table of Contents  
 [Intro:  Is Amazon Forecast a Good Fit?](#intro)  
 [Getting Started Best Practices](#bestpractice)  
-[Iterating Models / What-if Best Practices](#iteratebestpractice)
+[Iterating Models, What-if Best Practices](#iteratebestpractice)
 [Getting Started Tutorial](#tutorial)
 [Example Notebooks](#notebooks)
 [Demos/Workshops](#workshops)
