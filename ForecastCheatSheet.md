@@ -1,6 +1,14 @@
 # Amazon Forecast Cheat Sheet
 
-[TOC]
+##### Table of Contents  
+[Intro:  Is Amazon Forecast a Good Fit?](#Intro:  Is Amazon Forecast a Good Fit?)  
+[Getting Started Best Practices](#Getting Started Best Practices)  
+[Iterating Models / What-if Best Practices](#Iterating Models / What-if Best Practices)
+[Getting Started Tutorial](#Getting Started Tutorial)
+[Example Notebooks](#Example Notebooks)
+[Demos/Workshops](#Demos/Workshops)
+[More Resources](#More Resources)
+
 
 Amazon Forecast offers as a product, the same deep learning probabilistic forecast technology developed at Amazon (which offers over 400million different products and ships Billions of packages in 185 different countries every day).  Amazon Forecast addresses the challenge of more accurate forecasting as a fully managed service.  Users do not need to be machine learning experts in order to achieve accuracy levels that used to take months of engineering.
 
