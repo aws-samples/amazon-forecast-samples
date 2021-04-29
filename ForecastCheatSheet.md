@@ -40,8 +40,8 @@ All of this is summarized in the following table:
 | Small dataset (regular or sparse) with 1-100's of time series, where majority of time series have fewer than 300 data points. | The data is too small for Amazon Forecast. Try ETS in Excel or the traditional statistical models ARIMA, Prophet instead. |
 
 
-<a name="bestpractice"/>
-## Getting Started Best Practices
+
+## Getting Started Best Practices<a name="bestpractice"/>
 
 Following are Best Practices.  Make sure you know how success is measured, i.e. metric that matters.  Start simple with historical sales data only (TTS) and AutoML feature, to learn which algorithm works best on your data.  This way you'll have a baseline, and be able to iterate more efficiently.   
 
@@ -88,8 +88,8 @@ AutoML will automatically run through all 6 algorithms, (the DL algos will run w
 11. Keep track, maybe in Excel, of your first Predictor's performance metrics.  This will make it easier to be able to tell what is working.  
 
 
-<a name="iteratebp"/>
-## Iterating Models What-if Best Practices
+
+## Iterating Models What-if Best Practices<a name="iteratebp"/>
 
 Some typical next iterations, in order of easiest-to-hardest and most-to-least expected incremental accuracy improvements: 
 
@@ -109,10 +109,9 @@ Some typical next iterations, in order of easiest-to-hardest and most-to-least e
   - To iterate on IM and RTS, it's possible to change the data and perform inference-only.  See Running an experiment without re-training by API call:  https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/WhatIf_Analysis/WhatIf_Analysis.ipynb
 
 
-<a name="tutorial"/>
-## Getting Started Tutorial
 
-1. 1. 
+## Getting Started Tutorial<a name="tutorial"/>
+
 
 1. **If you haven't already, create an AWS account**
    https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/
@@ -229,8 +228,8 @@ Some typical next iterations, in order of easiest-to-hardest and most-to-least e
 - Avg over all wQLs – use this to compare experiments (unless you have different success metric)
 
 
-<a name="notebooks"/>
-## Example Notebooks
+
+## Example Notebooks<a name="notebooks"/>
 
 1. Getting started with API calls:  https://github.com/aws-samples/amazon-forecast-samples/tree/master/notebooks/basic/Tutorial
 2. Adding Related data by API call:  https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/Incorporating_Related_Time_Series_dataset_to_your_Predictor/Incorporating_Related_Time_Series_dataset_to_your_Predictor.ipynb
@@ -240,8 +239,8 @@ Some typical next iterations, in order of easiest-to-hardest and most-to-least e
 6. Adding built-in AWS-hosted weather data by API call:  https://github.com/aws-samples/amazon-forecast-samples/tree/master/notebooks/advanced/Weather_index
 
 
-<a name="workshops"/>
-## Demos/Workshops
+
+## Demos/Workshops<a name="workshops"/>
 
 - Hands-on leave-in-place tools (and demo) for accelering a Forecast POC:  https://github.com/aws-samples/amazon-forecast-samples/tree/master/workshops/pre_POC_workshop
 - Demo of console:  https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/no_code_workshop/forecast-with-console.md
@@ -250,8 +249,8 @@ Some typical next iterations, in order of easiest-to-hardest and most-to-least e
   - https://github.com/aws-samples/amazon-forecast-samples/tree/master/workshops/immersion_day
 
 
-<a name="moreresources"/>
-## More Resources
+
+## More Resources<a name="moreresources"/>
 
 - Links for Amazon Forecast
 
