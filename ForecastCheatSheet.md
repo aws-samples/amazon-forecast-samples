@@ -15,8 +15,7 @@ Amazon Forecast offers as a product, the same deep learning probabilistic foreca
 You can also refer to our documentation: https://docs.aws.amazon.com/forecast/latest/dg/getting-started.html 
 
 
-<a name="intro"/>
-## Intro:  Is Amazon Forecast a Good Fit?
+## Intro:  Is Amazon Forecast a Good Fit?<a name="intro"/>
 
 Not all machine learning problems are forecasting problems.  The first question to ask is "Are time series involved?"  For example, do you need a particular value only at a particular time and date in the future?  Forecasting is not a good fit for general, static (where the particular date/time does not matter) problems, such as fraud detection or recommended movie titles to users.  There are much quicker solutions to static problems.  
 
