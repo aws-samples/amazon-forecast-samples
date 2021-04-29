@@ -1,13 +1,13 @@
 # Amazon Forecast Cheat Sheet
 
 ##### Table of Contents  
-[Intro:  Is Amazon Forecast a Good Fit?](#Intro:  Is Amazon Forecast a Good Fit?)  
-[Getting Started Best Practices](#Getting Started Best Practices)  
-[Iterating Models / What-if Best Practices](#Iterating Models / What-if Best Practices)
-[Getting Started Tutorial](#Getting Started Tutorial)
-[Example Notebooks](#Example Notebooks)
-[Demos/Workshops](#Demos/Workshops)
-[More Resources](#More Resources)
+[Intro:  Is Amazon Forecast a Good Fit?](#intro)  
+[Getting Started Best Practices](#bestpractice)  
+[Iterating Models / What-if Best Practices](#iteratebestpractice)
+[Getting Started Tutorial](#tutorial)
+[Example Notebooks](#notebooks)
+[Demos/Workshops](#workshops)
+[More Resources](#moreresources)
 
 
 Amazon Forecast offers as a product, the same deep learning probabilistic forecast technology developed at Amazon (which offers over 400million different products and ships Billions of packages in 185 different countries every day).  Amazon Forecast addresses the challenge of more accurate forecasting as a fully managed service.  Users do not need to be machine learning experts in order to achieve accuracy levels that used to take months of engineering.
@@ -15,7 +15,7 @@ Amazon Forecast offers as a product, the same deep learning probabilistic foreca
 You can also refer to our documentation: https://docs.aws.amazon.com/forecast/latest/dg/getting-started.html 
 
 
-
+<a name="intro"/>
 ## Intro:  Is Amazon Forecast a Good Fit?
 
 Not all machine learning problems are forecasting problems.  The first question to ask is "Are time series involved?"  For example, do you need a particular value only at a particular time and date in the future?  Forecasting is not a good fit for general, static (where the particular date/time does not matter) problems, such as fraud detection or recommended movie titles to users.  There are much quicker solutions to static problems.  
@@ -41,7 +41,7 @@ All of this is summarized in the following table:
 | Small dataset (regular or sparse) with 1-100's of time series, where majority of time series have fewer than 300 data points. | The data is too small for Amazon Forecast. Try ETS in Excel or the traditional statistical models ARIMA, Prophet instead. |
 
 
-
+<a name="bestpractice"/>
 ## Getting Started Best Practices
 
 Following are Best Practices.  Make sure you know how success is measured, i.e. metric that matters.  Start simple with historical sales data only (TTS) and AutoML feature, to learn which algorithm works best on your data.  This way you'll have a baseline, and be able to iterate more efficiently.   
@@ -89,8 +89,8 @@ AutoML will automatically run through all 6 algorithms, (the DL algos will run w
 11. Keep track, maybe in Excel, of your first Predictor's performance metrics.  This will make it easier to be able to tell what is working.  
 
 
-
-## Iterating Models / What-if Best Practices
+<a name="iteratebestpractice"/>
+## Iterating Models, What-if Best Practices
 
 Some typical next iterations, in order of easiest-to-hardest and most-to-least expected incremental accuracy improvements: 
 
@@ -110,7 +110,7 @@ Some typical next iterations, in order of easiest-to-hardest and most-to-least e
   - To iterate on IM and RTS, it's possible to change the data and perform inference-only.  See Running an experiment without re-training by API call:  https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/WhatIf_Analysis/WhatIf_Analysis.ipynb
 
 
-
+<a name="tutorial"/>
 ## Getting Started Tutorial
 
 1. 1. 
@@ -230,7 +230,7 @@ Some typical next iterations, in order of easiest-to-hardest and most-to-least e
 - Avg over all wQLs – use this to compare experiments (unless you have different success metric)
 
 
-
+<a name="notebooks"/>
 ## Example Notebooks
 
 1. Getting started with API calls:  https://github.com/aws-samples/amazon-forecast-samples/tree/master/notebooks/basic/Tutorial
@@ -241,7 +241,7 @@ Some typical next iterations, in order of easiest-to-hardest and most-to-least e
 6. Adding built-in AWS-hosted weather data by API call:  https://github.com/aws-samples/amazon-forecast-samples/tree/master/notebooks/advanced/Weather_index
 
 
-
+<a name="workshops"/>
 ## Demos/Workshops
 
 - Hands-on leave-in-place tools (and demo) for accelering a Forecast POC:  https://github.com/aws-samples/amazon-forecast-samples/tree/master/workshops/pre_POC_workshop
@@ -251,7 +251,7 @@ Some typical next iterations, in order of easiest-to-hardest and most-to-least e
   - https://github.com/aws-samples/amazon-forecast-samples/tree/master/workshops/immersion_day
 
 
-
+<a name="moreresources"/>
 ## More Resources
 
 - Links for Amazon Forecast
