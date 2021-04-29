@@ -1,13 +1,13 @@
 # Amazon Forecast Cheat Sheet
 
 ##### Table of Contents  
-[Intro:  Is Amazon Forecast a Good Fit?](#intro)  
-[Getting Started Best Practices](#bestpractice)  
-[Iterating Models What-if Best Practices](#iteratebestpractice)
-[Getting Started Tutorial](#tutorial)
-[Example Notebooks](#notebooks)
-[Demos/Workshops](#workshops)
-[More Resources](#moreresources)
+* [Intro: Is Amazon Forecast a Good Fit?](#intro)  
+* [Getting Started Best Practices](#bestpractice)  
+* [Iterating Models What-if Best Practices](#iteratebp)
+* [Getting Started Tutorial](#tutorial)
+* [Example Notebooks](#notebooks)
+* [Demos/Workshops](#workshops)
+* [More Resources](#moreresources)
 
 
 Amazon Forecast offers as a product, the same deep learning probabilistic forecast technology developed at Amazon (which offers over 400million different products and ships Billions of packages in 185 different countries every day).  Amazon Forecast addresses the challenge of more accurate forecasting as a fully managed service.  Users do not need to be machine learning experts in order to achieve accuracy levels that used to take months of engineering.
@@ -89,7 +89,7 @@ AutoML will automatically run through all 6 algorithms, (the DL algos will run w
 11. Keep track, maybe in Excel, of your first Predictor's performance metrics.  This will make it easier to be able to tell what is working.  
 
 
-<a name="iteratebestpractice"/>
+<a name="iteratebp"/>
 ## Iterating Models What-if Best Practices
 
 Some typical next iterations, in order of easiest-to-hardest and most-to-least expected incremental accuracy improvements: 
