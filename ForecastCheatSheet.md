@@ -3,7 +3,7 @@
 ##### Table of Contents  
 [Intro:  Is Amazon Forecast a Good Fit?](#intro)  
 [Getting Started Best Practices](#bestpractice)  
-[Iterating Models, What-if Best Practices](#iteratebestpractice)
+[Iterating Models What-if Best Practices](#iteratebestpractice)
 [Getting Started Tutorial](#tutorial)
 [Example Notebooks](#notebooks)
 [Demos/Workshops](#workshops)
@@ -90,7 +90,7 @@ AutoML will automatically run through all 6 algorithms, (the DL algos will run w
 
 
 <a name="iteratebestpractice"/>
-## Iterating Models, What-if Best Practices
+## Iterating Models What-if Best Practices
 
 Some typical next iterations, in order of easiest-to-hardest and most-to-least expected incremental accuracy improvements: 
 
