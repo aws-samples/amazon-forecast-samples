@@ -15,7 +15,7 @@ By default, the installed AWS service components do not incur any cost when not 
 | **Start** | **End** | Who                      | **Activity**                                                 |
 | --------- | ------- | ------------------------ | ------------------------------------------------------------ |
 | 9:00a     | 9:30a   | Customer                 | Introductions, customer's Exec sponsor set the stage of the exact problem that is to be tackled and what success looks like for the POC engagement. |
-| 9:30a     | 10:00a  | AWS                      | High-level overview of Amazon Forecast<br />[See Intro section of Amazon Forecast Cheat Sheet](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#intro) |
+| 9:30a     | 10:00a  | AWS                      | High-level overview of Amazon Forecast<br />[See Amazon Forecast Introduction](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#intro) |
 | 10:00a    | 10:30a  | AWS                      | Demo - Console demo of NYC taxi data. <br /> TODO: link 5min video |
 | 10:30a    | 10:45a  | All                      | Discussion - mapping customer's data to the Forecast POC problem.  <br />[See Getting Started Best Practices](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice) |
 | 10:45     | 11:00   | BREAK                    | 15min BREAK                                                  |
