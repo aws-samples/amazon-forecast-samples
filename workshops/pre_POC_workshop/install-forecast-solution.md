@@ -40,11 +40,7 @@ Before starting the workshop, log into your AWS account and install our CloudFor
    * Ohio: <a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">us-east-2</a>
    * Oregon: <a href="https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">us-west-2</a>
 
-Performing the above steps will deploy a demonstration stack using data from the <a href="https://registry.opendata.aws/nyc-tlc-trip-records-pds/" target="_blank">NYC Taxi Dataset</a>.
-
-## Deploying a CloudFormation template for Amazon Forecast Automation
-
-Follow the steps below to deploy the CloudFormation template using the NYC Taxi Dataset.
+## Next, follow these directions for the screens that will pop up:
 
 **Step 1**: Accept defaults, click "Next"
 
@@ -68,6 +64,7 @@ Follow the steps below to deploy the CloudFormation template using the NYC Taxi 
 
 <br>
 That’s it! You have deployed a CloudFormation template in Amazon Forecast. <br>
+Performing the above steps will deploy a demonstration stack using data from the <a href="https://registry.opendata.aws/nyc-tlc-trip-records-pds/" target="_blank">NYC Taxi Dataset</a>.  The main stack called "forecast-stack" will be a nested stack.
 
 **Cleaning Up:** Deleting the demo stack will retain the "Improving Forecast Accuracy with Machine Learning Stack". Deleting the "Improving Forecast Accuracy with Machine Learning" stack will leave all S3, Athena, QuickSight, and Forecast data in the customer account.
 
