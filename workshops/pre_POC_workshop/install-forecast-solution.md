@@ -63,9 +63,8 @@ Before starting the workshop, log into your AWS account and install our CloudFor
 <img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-step5.png" style="zoom:60%;">
 
 <br>
-That’s it! You have deployed a CloudFormation template in Amazon Forecast. <br>
-<br>
-Performing the above steps will deploy a demonstration stack using data from the <a href="https://registry.opendata.aws/nyc-tlc-trip-records-pds/" target="_blank">NYC Taxi Dataset</a>.  The main stack called "forecast-stack" will be a nested stack. <br>
+That’s it! You have deployed a CloudFormation template in Amazon Forecast. 
+Performing the above steps will deploy a demonstration stack using data from the <a href="https://registry.opendata.aws/nyc-tlc-trip-records-pds/" target="_blank">NYC Taxi Dataset</a>.  The main stack called "forecast-stack" will be a nested stack. <br><br>
 
 **Cleaning Up:** Deleting the demo stack will retain the "Improving Forecast Accuracy with Machine Learning Stack". Deleting the "Improving Forecast Accuracy with Machine Learning" stack will leave all S3, Athena, QuickSight, and Forecast data in the customer account.
 
