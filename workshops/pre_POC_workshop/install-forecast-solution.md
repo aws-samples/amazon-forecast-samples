@@ -26,7 +26,7 @@ Also showing how the architecture is used in Production Mode.
 
 Before starting the workshop, log into your AWS account and install our CloudFormation template:
 
-1. **Log in to your AWS account**. If you do not already have one, <a href="https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/" target="_blank">create an AWS account</a>.
+1. **Log in to AWS using an Admin account**. If you do not already have one, <a href="https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/" target="_blank">create an AWS account</a>.
 2. **Install the AWS CloudFormation template.** Choose the Region closest to you:
 
    * Tokyo: <a href="https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank"> ap-northeast-1</a>
@@ -62,9 +62,49 @@ Before starting the workshop, log into your AWS account and install our CloudFor
 
 <img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-step5.png" style="zoom:60%;">
 
-<br>
 That’s it! You have deployed a CloudFormation template in Amazon Forecast. 
-Performing the above steps will deploy a demonstration stack using data from the <a href="https://registry.opendata.aws/nyc-tlc-trip-records-pds/" target="_blank">NYC Taxi Dataset</a>.  The main stack called "forecast-stack" will be a nested stack. <br><br>
+
+Performing the above steps deployed a demonstration stack called "forecast-stack" using data from the <a href="https://registry.opendata.aws/nyc-tlc-trip-records-pds/" target="_blank">NYC Taxi Dataset</a>.  The main stack called "forecast-stack-ForecastStack-xxxx" will be a nested stack. <br><br>
+
+**Optional steps for QuickSight visualization:**
+1. Sign up for [QuickSight Enterprise](https://aws.amazon.com/quicksight/pricing/).  Per user cost is $5/month which should be enough if everyone is logging in using "Admin" account.
+2. Click on "Admin" in top-right corner of QuickSight.  Get your QuickSight ARN.  Note "ARN" means Amazon Resource Number, think of it as an AWS-specialized URL.   Construct ARN following this pattern: <br> 
+"arn:aws:quicksight:<region>:<account ID>::user/default/<Username>" <br>
+ Example: arn:aws:quicksight:us-east-1:12345678901:user/default/Admin/myusername
+3. Copy QuickSight ARN somewhere locally, and copy to your clipboard. <br>
+<br>
+Next, we need to configure where QuickSight is allowed to read data.
+4. Quicksight > top right Admin > Change region > US-east-1 N.VA. Due to a quirk in QuickSight, configuration tasks only work in us-east-1.
+5. Quicksight > top right Admin > Manage Quicksight 
+6. Quicksight > left-side-menu > Security & permissions > Main screen > Access to AWS Services > click “Add or Remove” button
+[TODO image here]
+<br>
+Configure permission to read from S3 buckets<br>
+7. Click S3 Details
+8. Click forecast-stack-athenabucket-xxx + click RHS “write” checkbox
+9. Click forecast-stack-data-bucket-xxx + click RHS “write” checkbox + click Finish
+10. Click S3 RHS checkbox (If you do not have any S3 buckets, you will be prompted to create a S3 bucket before you can enable it)
+11. Click Finish
+[TODO image here]
+<br>
+Configure permission to read from Athena<br>
+12. Click Athena RHS checkbox
+13. Scroll to bottom of screen > click “Update” box
+[TODO image here]
+<br>
+Now edit the CloudFormation nested (main) stack called "forecast-stack-xxxx" and add your QuickSight ARN <br>
+14. Click button next to the nested stack and click menu action “Update”
+[TODO image here]
+<br>
+15. Click "Update nested stack"
+[TODO image here]
+16. Choose “Use current template” > “Next”
+[TODO image here]
+17. Edit fields.  
+    1. Change “Email” if it's not already set.
+    2. Change “Visualization Options” > paste your QuickSight arn <br>
+
+<br>
 
 **Cleaning Up:** Deleting the demo stack will retain the "Improving Forecast Accuracy with Machine Learning Stack". Deleting the "Improving Forecast Accuracy with Machine Learning" stack will leave all S3, Athena, QuickSight, and Forecast data in the customer account.
 
