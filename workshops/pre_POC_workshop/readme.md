@@ -4,6 +4,11 @@ In this workshop, you will get hands-on and learn how to use Amazon Forecast wit
 
 This workshop is designed to accelerate customers doing an Amazon Forecast POC.  The architecture components will make experimentation and iteration of Forecast models easier for your POC project.  The components installed during the workshop can remain in your account after the workshop, so you can keep using these tools to perform experimentation with Forecast models.
 
+## 3 days before workshop, install AWS CloudFormation template  
+Install the Amazon Forecast solution CloudFormation template in your aws account where you will run the Forecast POC. Total install time ~15min.
+1. Log in to AWS account with Admin account
+2. Follow these instructionse: install-forecast-solution.md
+
 By default, the installed AWS service components do not incur any cost when not in use.  
 
 - [ ] Warning:  SageMaker is the only AWS service in this solution you need to take extra precautions about when not in use.  As installed, the Forecast solution will not incur cost.  However, if you do open a SageMaker Notebook, make sure to shut down all Notebook instances when not in use, otherwise SageMaker will keep charging, even when not in use.
