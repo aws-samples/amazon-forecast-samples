@@ -73,7 +73,7 @@ AutoML will automatically run through all 6 algorithms, (the DL algos will run w
 
 4. Possibly, but not required right away, identify other data you think in future might help inform forecasts – example Prices, Promotions, Stock-out dates, Holidays.
 
-5. **Check for uniqueness.**  When you groupby timestamp (at identified time unit from Step 2.3) and item_id, you should see only 1 target_value. If you see more than 1 target value per timestamp/item_id combination, that means your dimensions aren’t unique for your data. Maybe you have another dimension such as sales location?
+5. **Check for uniqueness.**  When you groupby timestamp (at identified time unit from Step 2.3 above) and item_id, you should see only 1 target_value. If you see more than 1 target value per timestamp/item_id combination, that means your dimensions aren’t unique for your data. Maybe you have another dimension such as sales location?
 
 6. **Check your timestamp format**, https://docs.aws.amazon.com/forecast/latest/dg/API_CreatePredictor.html 
 
@@ -123,9 +123,9 @@ Some typical next iterations, in order of easiest-to-hardest and most-to-least e
    1. On the Forecast console, click Create dataset group
    2. Give your Dataset Group a name, and choose Custom “domain” or another vocabulary that is convenient for you. The domain is for convenience, it makes no difference to forecast algorithms whether you call your target value “demand” or “target_value”, the column headers will be dropped anyway. 
    3. Click Next
-   4. Give your TTS dataset a name, choose data frequency, e.g. “D”. This should match Step 2.3 above.
-   5. Use the default schema builder to drag columns in the same order as your TTS data from Step 2.6. 
-   6. Make sure the schema timestamp format matches your choice from Step 2.4
+   4. Give your TTS dataset a name, choose data frequency, e.g. “D”. This should match [Step 2.4 above](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice).
+   5. Use the default schema builder to drag columns in the same order as your TTS data from [Step 9 above](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice). 
+   6. Make sure the schema timestamp format matches your choice from [Step 6 above](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice)
    7. On Dataset import details:
    8. Click Start
 
@@ -141,9 +141,9 @@ Some typical next iterations, in order of easiest-to-hardest and most-to-least e
 
    2. Give your predictor a name. 
 
-   3. Choose Forecast horizon from Step 2.2. 
+   3. Choose Forecast horizon [from Step 2.2](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice). 
 
-   4. Choose Forecast frequency from Step 2.1.
+   4. Choose Forecast frequency [from Step 2.1](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice).
 
    5. Under Predictor details > Algorithm > Select radio button for Automatic (AutoML) 
 
