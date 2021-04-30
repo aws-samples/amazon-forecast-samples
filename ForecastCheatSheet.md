@@ -10,9 +10,9 @@
 * [More Resources](#moreresources)
 
 <a name="intro"/>
-Amazon Forecast offers as a product, the same deep learning probabilistic forecast technology developed at Amazon (which offers over 400million different products and ships Billions of packages in 185 different countries every day).  Amazon Forecast addresses the challenge of more accurate forecasting as a fully managed service.  Users do not need to be machine learning experts in order to achieve accuracy levels that used to take months of engineering.
+Amazon Forecast offers as a product, the same deep learning probabilistic forecast technology developed at Amazon (which offers over 400million different products and ships Billions of packages in 185 different countries every day).  Amazon Forecast addresses the challenge of more accurate forecasting as a fully managed service.  Users do not need to be machine learning experts in order to achieve accuracy levels that used to take months of engineering. <br>
 
-You can also refer to our documentation: https://docs.aws.amazon.com/forecast/latest/dg/getting-started.html 
+For more information, our documentation: https://docs.aws.amazon.com/forecast/latest/dg/getting-started.html 
 
 
 ## Intro:  Is Amazon Forecast a Good Fit?
