@@ -22,7 +22,7 @@ Also showing how the architecture is used in Production Mode.
 
 ![cloudformationautomation-architecture](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/architectureProdMode.png)
 
-## Prerequisites
+## Instructions
 
 Before starting the workshop, make sure you have logged into your AWS account and installed our CloudFormation template:
 
