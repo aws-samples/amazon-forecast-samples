@@ -14,9 +14,13 @@ The CloudFormation template used in this workshop will:
 * Deploy the NYC taxi demo data (target time series, related time series, item metadata) into the solution Amazon S3 Bucket.  
 * Automatically launch a demo NYC taxi forecast in Amazon Forecast.
 
-Below is an architecture diagram of components used in this solution.
+Below is an architecture diagram of components used in this solution, showing how it is used in Development Mode.
 
-![cloudformationautomation-architecture](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-architecture.png)
+![cloudformationautomation-architecture](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/architectureDevMode.png)
+
+Also showing how the architecture is used in Production Mode. 
+
+![cloudformationautomation-architecture](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/architectureProdMode.png)
 
 ## Prerequisites
 
