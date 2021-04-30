@@ -2,12 +2,14 @@
 
 In this workshop, you will get hands-on and learn how to use Amazon Forecast with your own data.  We will go through a complete data pipeline.  From raw data input - to training a model on that data - to generating inferences (forecasts) from the model - to exporting and visualizing the forecasts.  
 
-This workshop is designed to accelerate customers doing an Amazon Forecast POC.  The architecture components will make experimentation and iteration of Forecast models easier for your POC project.  The components installed during the workshop can remain in your account after the workshop, so you can keep using these tools to perform experimentation with Forecast models.
+This workshop is designed to accelerate customers doing an Amazon Forecast POC.  The architecture components will make experimentation and iteration of Forecast models easier for your POC project.  The components installed during the workshop can remain in your account after the workshop, so you can keep using these tools to perform experimentation with Forecast models. <br>
+
 
 ### 3 days before workshop, install AWS CloudFormation template  
-Install the Amazon Forecast solution CloudFormation template in your aws account where you will run the Forecast POC. Total install time ~15min.
-1. Log in to AWS with Admin account:  console.aws.amazon.com
-2. Follow these instructionse: install-forecast-solution.md
+Install the Amazon Forecast solution CloudFormation template in your aws account where you will run the Forecast POC. <br>
+Total install time ~15min.
+1. Log in to AWS with Admin account:  [console.aws.amazon.com](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/console.aws.amazon.com)
+2. Follow these instructionse: [install-forecast-solution.md](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/install-forecast-solution.md)
 
 By default, the installed AWS service components do not incur any cost when not in use.  
 
