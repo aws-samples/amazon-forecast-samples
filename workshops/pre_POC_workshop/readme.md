@@ -26,5 +26,5 @@ By default, the installed AWS service components do not incur any cost when not 
 | 2:00p     | 2:30p   | AWS leading customer     | Start Discussion:  Iterate on Dataset and Models <br /<br />[See Iterating Models / What-if Best Practices](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#iteratebp)<br /> |
 | 2:30p     | 2:45p   | AWS                      | Summarize what was learned                                   |
 | 2:45p     | 3:15p   | Customer                 | Presentation to Exec Sponsor what they learned, accomplished, and possible next steps |
-| 3:15p     | 3:30p   | END WORKSHOP             | Answer Questions                                             |
+| 3:15p     | 3:30p   | END WORKSHOP             | Answer Questions <br>[Additional Resources](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#notebooks)                                           |
 
