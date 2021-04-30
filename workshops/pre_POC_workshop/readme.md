@@ -6,7 +6,7 @@ This workshop is designed to accelerate customers doing an Amazon Forecast POC. 
 
 ### 3 days before workshop, install AWS CloudFormation template  
 Install the Amazon Forecast solution CloudFormation template in your aws account where you will run the Forecast POC. Total install time ~15min.
-1. Log in to AWS account with Admin account
+1. Log in to AWS with Admin account:  console.aws.amazon.com
 2. Follow these instructionse: install-forecast-solution.md
 
 By default, the installed AWS service components do not incur any cost when not in use.  
