@@ -4,7 +4,7 @@ In this workshop, you will get hands-on and learn how to use Amazon Forecast wit
 
 This workshop is designed to accelerate customers doing an Amazon Forecast POC.  The architecture components will make experimentation and iteration of Forecast models easier for your POC project.  The components installed during the workshop can remain in your account after the workshop, so you can keep using these tools to perform experimentation with Forecast models.
 
-## 3 days before workshop, install AWS CloudFormation template  
+### 3 days before workshop, install AWS CloudFormation template  
 Install the Amazon Forecast solution CloudFormation template in your aws account where you will run the Forecast POC. Total install time ~15min.
 1. Log in to AWS account with Admin account
 2. Follow these instructionse: install-forecast-solution.md
