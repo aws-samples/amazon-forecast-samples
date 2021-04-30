@@ -24,7 +24,7 @@ Also showing how the architecture is used in Production Mode.
 
 ## Instructions
 
-Before starting the workshop, make sure you have logged into your AWS account and installed our CloudFormation template:
+Before starting the workshop, log into your AWS account and install our CloudFormation template:
 
 1. **Log in to your AWS account**. If you do not already have one, <a href="https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/" target="_blank">create an AWS account</a>.
 2. **Install the AWS CloudFormation template.** Choose the Region closest to you:
