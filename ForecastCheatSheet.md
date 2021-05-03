@@ -37,9 +37,9 @@ This is summarized in the following table:
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | Large dataset with up to 1 million time series with similar underlying patterns + seasonal effects + related data. Each time series should have a long history, ideally more than 2 years if hoping to capture annual events, and each time series more than 300, ideally at least 1K data points. | Amazon Forecast's proprietary deep learning DeepAR+, CNN-QR  |
 | Small dataset with 1-100's of time series, where majority of time series have more than 300 data points + seasonal effects + related data. | Prophet                                                      |
-| Small dataset with 1-100's of time series, where majority of time series have more than 300 data points + seasonal effects. | ETS, ARIMA                                                   |
-| Intermittent (sparse containing many 0s) with 1-100's of time series, where majority of time series have more than 300 data points. | Amazon Forecast's proprietary NPTS                           |
-| Small dataset (regular or sparse) with 1-100's of time series, where majority of time series have fewer than 300 data points. | The data is too small for Amazon Forecast. Try ETS in Excel or the traditional statistical models ARIMA, Prophet instead. |
+| Small dataset with 1-10's of time series, where majority of time series have more than 300 data points + seasonal effects. | ETS, ARIMA                                                   |
+| Intermittent (sparse containing many 0s) with 1-10's of time series, where majority of time series have more than 300 data points. | Amazon Forecast's proprietary NPTS                           |
+| Small dataset (regular or sparse) with 1-10's of time series, where majority of time series have fewer than 300 data points. | The data is too small for Amazon Forecast. Try ETS in Excel or the traditional statistical models ARIMA, Prophet instead. |
 
 
 
@@ -99,9 +99,14 @@ Think of a neural network that trains best with many different weights as inputs
 
 ​			Rule: Data granularity can be <= forecast granularity.
 
-4) **Identify columns in your data that you will map to: timestamp, item_id, target_value**.  The item_id should identify unique time series.  Typically item_id is a product ID.  Target_value is often a sales quantity.  The combination of timestamp, item_id, target_value should describe the historical sales for a particular product.
+> Note:  Forecast can import data that isn't aligned with the collection frequency specified in the [CreateDataset](https://docs.aws.amazon.com/forecast/latest/dg/API_CreateDataset.html) operation. For example, you can import data for which the collection frequency is hourly and some of the data isn't timestamped at the top of the hour (02:20, 02:45). Forecast aggregates the data to match the aligned value. 
+> 
 
-5) **Check for uniqueness.**  When you groupby timestamp (at identified time unit from Step 3.3) and item_id, you should see only 1 target_value. Maybe you have another dimension such as sales location?  
+4) **Identify columns in your data that you will map to: timestamp, item_id, target_value**.  The item_id should identify unique time series.  Typically item_id is a product ID.  Target_value is often a sales quantity.  The combination of timestamp, item_id, target_value should describe the historical sales for a particular product. [See documentation for more details.](https://docs.aws.amazon.com/forecast/latest/dg/howitworks-datasets-groups.html)
+
+5) **Check for uniqueness.**  Each column in your Forecast dataset represents either a forecast *dimension* or *feature*. Forecast dimensions uniquely identify things you want to forecast, such item, store, or location. Features include any parameters in your data that vary across time (except the timestamp which is a dimension), such as 'sales_quantity'.
+
+When you groupby timestamp and forecast dimensions, you should see only 1 'sales_quantity'. If you see more than 1, maybe you have another dimension such as sales location?  
 
 Adjust your definition of "timestamp" and "item_id" such that at your chosen aggregation level, per time series, per timestamp, the count of unique "target_value" should only be 1. 
 
@@ -134,12 +139,21 @@ Best Practices are continued inside this tutorial.
 
 13. **Create a Dataset Group and Target Time Series data**
     1. On the Forecast console, click Create dataset group
+
     2. Give your Dataset Group a name, and choose Custom “domain” or another vocabulary that is convenient for you. The domain is for convenience, it makes no difference to forecast algorithms whether you call your target value “demand” or “target_value”, the column headers will be dropped anyway. 
+
     3. Click Next
+
     4. Give your TTS dataset a name, choose data frequency, e.g. “D”. This should match [Step 3.3 above](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice).
+
     5. Use the default schema builder to drag columns in the same order as your TTS data from [Step 10 above](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice). 
+
     6. Make sure the schema timestamp format matches your choice from [Step 7 above](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice)
+
     7. On Dataset import details, paste the S3 URI location of TTS.csv from [Step 10 above](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice). 
+
+       > Alternatively, you can [use our taxi demo data](https://amazon-forecast-samples.s3.amazonaws.com/automation_solution/demo-nyctaxi/nyctaxi_weather_auto.csv).  Download it locally, upload to S3, copy the S3 URI.
+
     8. Click Start
 
 14. **Wait the specified time, then check your Dataset import field statistics.** 
@@ -195,7 +209,7 @@ Best Practices are continued inside this tutorial.
        - If you want to change middlefill=”nan” because 0’s aren’t really 0’s and backfill=”nan” because you know you have some products with end-of-life, paste the sample JSON below.
 
          ```json
-       [
+         [
          	{
        		"AttributeName": "target_value",
          		"FeaturizationPipeline": [
@@ -245,12 +259,11 @@ Best Practices are continued inside this tutorial.
         - Each quantile’s weighted quantile error (lower is better).  Up to 5 quantiles.
         - WAPE (measured at mean, which may be different from p50 quantile). 
   - RMSE (measured at mean, which may be different from p50 quantile).
-      
+    
       - As [explained in Step 15](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#tutorial), Amazon Forecast generates a forecast at a particular quantile. Weighted quantile loss is the accuracy metric or “wQL”. Machine learning models work by minimizing (or maximizing) an objective function, in this case loss or prediction error. The weighted quantile loss function is weighted to penalize forecast values at kth percentile that are higher than actuals more when k < 0.5 and the reverse when k > 0.5. So, p10 quantile predictions that are higher than actuals will get 0.9 weightings; whereas p90 quantile predictions that are lower than actual will get 0.9 weighting. The full formula is:
-  ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/Formula_wql.png)
+    ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/Formula_wql.png)
       
     [See documentation for more details.](https://docs.aws.amazon.com/forecast/latest/dg/metrics.html.)
-    
 21. **Save a record of your experiments in Excel (or some place local):**  
 
     This will make it easier to compare future experiments to be able to tell what is working.  
