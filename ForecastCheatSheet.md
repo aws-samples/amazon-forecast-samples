@@ -1,35 +1,37 @@
 # Amazon Forecast Cheat Sheet
 
 ##### Table of Contents  
-* [Intro: Is Amazon Forecast a Good Fit?](#intro)  
-* [Getting Started Best Practices](#bestpractice)  
-* [Iterating Models What-if Best Practices](#iteratebp)
+* [Amazon Forecast Introduction](#intro)  
+  * [Mapping your data into time series](#mapping)
+  * [Data Prep Best Practices](#dataprep)
+* [Getting Started with Amazon Forecast Best Practices](#bestpractice)  
 * [Getting Started Tutorial](#tutorial)
+* [Iterating Models What-if Best Practices](#iteratebp)
+* [Generating Forecasts](#forecastinference)
 * [Example Notebooks](#notebooks)
 * [Demos/Workshops](#workshops)
 * [More Resources](#moreresources)
 
 <a name="intro"/>
-Amazon Forecast offers as a product, the same deep learning probabilistic forecast technology developed at Amazon (which offers over 400million different products and ships Billions of packages in 185 different countries every day).  Amazon Forecast addresses the challenge of more accurate forecasting as a fully managed service.  Users do not need to be machine learning experts in order to achieve accuracy levels that used to take months of engineering. <br>
+
+
+## Amazon Forecast Introduction
+
+Amazon Forecast is a fully-managed AWS service, using the same deep learning probabilistic forecast technology developed at Amazon (which offers over 400million different products and ships Billions of packages in 185 different countries every day).  Amazon Forecast addresses the challenge of more accurate forecasting.  Users do not need to be machine learning experts in order to achieve accuracy levels that used to take months of engineering. <br>
 <br>
-For more information, see our documentation: https://docs.aws.amazon.com/forecast/latest/dg/getting-started.html
-
-
-## Intro:  Is Amazon Forecast a Good Fit?
-
-Not all machine learning problems are forecasting problems.  The first question to ask is "Are time series involved?"  For example, do you need a particular value only at a particular time and date in the future?  Forecasting is not a good fit for general, static (where the particular date/time does not matter) problems, such as fraud detection or recommended movie titles to users.  There are much quicker solutions to static problems.  
-
-If you are a developer or line of business person reading this, you are our target audience!  However, a small amount of "Data Thinking" or Data Science is required.  Machine learning models are only as good as the data put into them.  For this reason, we have a whole section dedicated to Data Prep and the reasoning behind that.  Common things to watch out for are missing timestamps or missing "item IDs", having 0's when in fact those values are missing, uniqueness of sales by item by timestamp (aggregation level), and extreme values.  "Dirty data" can affect the accuracy of Forecast models.
-
-In terms of data, Forecasting works best on "dense" data. When, per timestamp and "item" to forecast, there is almost always a data point.  Examples of dense data include high-volume transactional consumer demand, call center demand, IT infrastructure demand, location-based service needs, electricity use.  "Sparse" data is when per timestamp and item very few sales happen.  Examples of sparse data are when the SKU is so targeted that it does not sell frequently, sales order data, or financial revenue numbers that are summarized per month.  Sparse data is difficult to forecast because as a time series there is not enough of it to establish a pattern.  Time series patterns are used to predict when and with what amplitude a particular "item target value" will occur in the future.  
+For more information, [see our documentation](https://docs.aws.amazon.com/forecast/latest/dg/getting-started.html).
 
 Amazon Forecast's strength is its deep learning algorithms.  Traditional statistical methods, sometimes called "local models", are able to learn one time series at a time.  That means if you have 20K items to forecast, then 20K traditional models are required; each model unable to learn from other models.  Traditional statistical algorithms include:  Exponential Smoothing (ETS), ARIMA, NPTS, and Prophet.  These traditional algorithms are included in Amazon Forecast.
 
 Deep learning algorithms, sometimes called "global models", are able to learn using more than 1 time series at a time.  That means if you have 20K items to forecast, and they have interrelationships between them such as item-affinity or cannibalism, such behaviors can be learned by inputting them all into a single model.  Amazon Forecast's proprietary deep learning algorithms include:  DeepAR+ (an LSTM version of RNN) and CNN-QR (a quantile regression version of CNN, a neural network topology typically used in computer vision). 
 
-The historical sales data is called the Target Time Series (TTS).  This is the minimum data required to do forecasting.  In addition to historical sales data, sometimes other data is known per item at exactly the same time as every sale.  This is called Related Time Series (RTS) data.  Related data can sometimes give more clues to what future predictions could look like.  The best related data is also known in the future.  For example Prices, Promotions, Economic indicators, Holidays, sometimes even Weather.
+### Is Amazon Forecast a Good Fit?
 
-All of this is summarized in the following table:
+Not all machine learning problems are forecasting problems.  The first question to ask is "Does my business problem include time series in its statement?"  For example, do you need a particular value only at a particular time and date in the future?  Forecasting is not a good fit for general, static (where the particular date/time does not matter) problems, such as fraud detection or recommended movie titles to users.  There are much quicker solutions to static problems.  
+
+In addition to having time series data, the data itself should be "dense" and with long histories.
+
+This is summarized in the following table:
 
 | Criteria                                                     | Amazon Forecast Algorithm class                              |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -41,212 +43,325 @@ All of this is summarized in the following table:
 
 
 
-## Getting Started Best Practices<a name="bestpractice"/>
+<a name="mapping"/>
 
-Following are Best Practices.  Make sure you know how success is measured, i.e. metric that matters.  Start simple with historical sales data only (TTS) and AutoML feature, to learn which algorithm works best on your data.  This way you'll have a baseline, and be able to iterate more efficiently.   
+### Mapping your data into time series
 
-AutoML will automatically run through all 6 algorithms, (the DL algos will run with HPO turned on), to learn which algorithm works best on your data. This will take a long time. But, you will get understanding which algorithm fits best to your data.  See https://docs.aws.amazon.com/forecast/latest/dg/aws-forecast-choosing-recipes.html. AutoML calculates the average of the weighted P10, P50 and P90 quantile losses (or your own quantiles instead of default quantiles), and returns the algorithm with the lowest averaged value https://docs.aws.amazon.com/forecast/latest/dg/howitworks-predictor.html
+- Historical sales data is called the **Target Time Series (TTS)**.  This is the minimum data required to do forecasting.  It consists of 
+  - An **"item_id", or some unique identifier, for the things you want to forecas**t.  The unique identifier is sometimes a concatenation of item_id and location_id.  Or sometimes it is even more fields concatenated together to form a unique time series identifier.
+  - Also a **"timestamp" when the sale occurred**
+  - And a **"target_value" or sales quantity**
+- In addition to historical sales data, **sometimes other data is known per item at exactly the same time as every sale.  This is called the Related Time Series (RTS)**.  Related data can sometimes give more clues to what future predictions could look like.  The best related data is also known in the future.  For example Prices, Promotions, Economic indicators, Holidays, sometimes even Weather.
+- Especially for cold-starts, or new product introductions, it is important to have Item Metadata (IM).  **Item Metadata is static information with respect to time, it varies only per fixed "item_id"**.  
 
-1. **Pre-segmentation of data, call this your sample data.** For example, most data follows approx 80/20 rule, where 20% of the items are top-selling; the rest 80% of items are low-volume long-tail. **A good first sample is the 20% dense time series sample.**
 
-2. **Decisions:**
 
-   2.1 **What is your forecast time unit granularity?** For example, if you want to predict with weekly granularity, answer = “W”.
+### Data Prep Best Practices<a name="dataprep"/>
 
-   ​	Choices are: Y|M|W|D|H|30min|15min|10min|5min|1min
+If you are a developer or line of business person reading this, you are our target audience!  However, a small amount of "Data Thinking" or Data Science is required.  Machine learning models are only as good as the data put into them.  For this reason, we have a whole section dedicated to Data Prep and the reasoning behind that.  Common things to watch out for are missing timestamps or missing "item IDs", having 0's when in fact those values are missing, uniqueness of sales by item by timestamp (aggregation level), and extreme values.  "Dirty data" can affect the accuracy of Forecast models.
 
-   2.2 **How many time units do you want to forecast? Call this forecast length.** For example, if your time unit is Hour, then if you want to forecast out 1 week, that would be 24*7 = 168 hours, so forecast length = 168.
+In terms of data, Forecasting works best on "dense" data. When, per timestamp and "item" to forecast, there is almost always a data point.  Examples of dense data include high-volume transactional consumer demand, call center demand, IT infrastructure demand, location-based service needs, electricity use.  "Sparse" data is when per timestamp and item very few sales happen.  Examples of sparse data are when the SKU is so targeted that it does not sell frequently, sales order data, or financial revenue numbers that are summarized per month.  Sparse data is difficult to forecast because as a time series there is not enough of it to establish a pattern.  Time series patterns are used to predict when and with what amplitude a particular "item target value" will occur in the future.  
 
-   ​	Rule: Forecast length cannot be longer than 1/3 of training data 
+**Developers:**  [Use AWS Glue DataBrew](https://aws.amazon.com/glue/features/databrew/), a data preparation UI tool, to clean data and save TTS to S3.  TODO link 5min video<br />
 
-   2.3 **What is the time granularity for your data?**. For example, if your time unit is Hour, answer = "H".  
+**Data Scientists:** We have DataPrep Jupyter notebook templates.  We have included common data prep steps we have noticed in customers' data.  
 
-   ​	Choices are: Y|M|W|D|H|30min|15min|10min|5min|1min
+- If data is Hourly or below - [use the regular DataPrep notebook](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/1.Getting_Data_Ready_nytaxi.ipynb)
+- If data is Daily or Weekly - [use the weekly DataPrep notebook](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/1.Getting_Data_Ready_nytaxi_weekly.ipynb) <br />
 
-   ​	Usually the same as forecast granularity. 
 
-   ​	**Rule: Data granularity can be <= forecast granularity.**
 
-   2.4 **Identify unique dimensions of what you want to forecast (time series). Adjust your aggregation and timestamps if necessary.**
+## Getting Started with Amazon Forecast Best Practices and Tutorial<a name="bestpractice"/>
 
-3. **Identify columns in your data that you will map to: timestamp, item_id, target_value**
+Following are Best Practices for developing the most accurate Amazon Forecast models (or Predictors).  
+1) **Make sure you know how success is measured**, i.e. metric that matters for the business problem.  
 
-4. Possibly, but not required right away, identify other data you think in future might help inform forecasts – example Prices, Promotions, Stock-out dates, Holidays.
+2) **Pre-segmentation of data, call this your sample data.** For example, most data follows approx 80/20 rule, where 20% of the items are top-selling; the rest 80% of items are low-volume, long-tail.  Not all items have business value to merit the effort of forecasting.  **A good first sample is the 20% dense time series sample.** 
 
-5. **Check for uniqueness.**  When you groupby timestamp (at identified time unit from Step 2.3 above) and item_id, you should see only 1 target_value. If you see more than 1 target value per timestamp/item_id combination, that means your dimensions aren’t unique for your data. Maybe you have another dimension such as sales location?
+One beginner mistake to avoid, is the thinking that small data is "better for testing".  Amazon Forecast processing steps are built for large data, they do not linearly scale with data size.  So, a very small sample of data will take just as long to run as a large sample.  Also, a small sample of data will very likely get poor results.
 
-6. **Check your timestamp format**, https://docs.aws.amazon.com/forecast/latest/dg/API_CreatePredictor.html 
+Think of a neural network that trains best with many different weights as inputs.  If you decide to "test" with only 1-10 time series, this will often cause poor results, since there won't be enough inputs to train a global model.  Instead, Amazon Forecast will be forced to use Traditional Statistical local models.   
 
-   e.g. “yyyy-MM-dd” if DataFrequency is Daily or higher, see
+3) **Decisions:**
 
-7. **Pay special attention to gaps or 0’s in your data.** Pro tip: convert all 0’s to nulls, then let Amazon Forecast do automatic null-filling through its Featurization settings.  https://docs.aws.amazon.com/forecast/latest/dg/howitworks-missing-values.html
+​	3.1) **What is your forecast time unit granularity?** For example, if you want to predict with 
+​	weekly granularity, answer = “W”.
 
-8. **Create training subset of sample data, with hold-out of 1 forecast length.** So training data is all sample data except last data points in time series of length forecast length. Reserve the hold-out data for forecast evaluation.
+​			Choices are: Y|M|W|D|H|30min|15min|10min|5min|1min
 
-9. **Create just historical sales part of training data (TTS).** Subset out just the timestamp, item_id, target_value columns.  Save this TTS subset of training data on S3, example as TTS.csvCopy the S3 path to TTS.csv
-10. Follow tutorial below to get your first Predictor
-11. Keep track, maybe in Excel, of your first Predictor's performance metrics.  This will make it easier to be able to tell what is working.  
+​	3.2) **How many time units do you want to forecast? Call this forecast length.** For example, if your time unit is Hour, then if you want to forecast out 1 week, that would be 24*7 = 168 hours, so forecast length = 168.
 
+​			Rule: Forecast length cannot be longer than 1/3 of training data 
 
+​	3.3) **What is the time granularity for your data?**. For example, if your time unit is Hour, answer = "H".  
 
-## Iterating Models What-if Best Practices<a name="iteratebp"/>
+​			Choices are: Y|M|W|D|H|30min|15min|10min|5min|1min
 
-Some typical next iterations, in order of easiest-to-hardest and most-to-least expected incremental accuracy improvements: 
+​			Rule: Data granularity can be <= forecast granularity.
 
-- Try different null-value featurizations.  Easiest.  You can do this on same dataset, just train new Predictor.
+4) **Identify columns in your data that you will map to: timestamp, item_id, target_value**.  The item_id should identify unique time series.  Typically item_id is a product ID.  Target_value is often a sales quantity.  The combination of timestamp, item_id, target_value should describe the historical sales for a particular product.
 
-- Use our built-in, AWS-hosted data enrichments: Holidays and Weather.  Both of these variables can help predict sales.  Weather requires hourly or finer time granularity of data and forecast horizon 14 days or less.  Weather also requires locations to be more than just string names, to have actual geolocations.  Geolocations can be 2-digit country code + "_" + 5-digit zip or actual latitude_longitude.  
+5) **Check for uniqueness.**  When you groupby timestamp (at identified time unit from Step 3.3) and item_id, you should see only 1 target_value. Maybe you have another dimension such as sales location?  Adjust your definition of "timestamp" and "item_id" such that at your chosen aggregation level, per time series, per timestamp, the count of unique "target_value" should only be 1. 
 
-- Subset data and try training a separate model per subset.  Harder - you'll have to import each dataset separately, train a Predictor per data subset.  Compare identical item accuracies across subset model vs global all-in model.
+6) Possibly, but not required right away, identify other data you think in future might help inform forecasts – example Prices, Promotions, Stock-out dates, Holidays.
 
-  For example Python functions to split data by top-moving or erratic-only, [see our example DataPrep notebook](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/1.Getting_Data_Ready_nytaxi.ipynb)
+7) **Check your timestamp format**.  Should be dates only for daily or higher data time frequency (value in Step 3.3) .  The timestamp should have HH:mm:ss if data time frequency is hourly or lower.
 
-  Below is an example Amazon QuickSight visualization, comparing the same random items across 3 models:  1) top row is global all-in model that was trained on all data at once; 2) 2nd row is same items from model trained on subset only "top-moving" items; 3) 3rd row is same items from model trained on subset only "erratic time series"  items.  We can see below that items from the Erratic-only model have highest accuracy.  On the other hand, we expect the subset of items that are not-erratic or not-top-moving, which are harder to forecast, will have better accuracy when taken from the top, all-in model.
-  <img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/quicksight-example-model-iterations.png" alt="Compare models created on different data subsets" style="zoom:70%;" />
+​		 “yyyy-MM-dd” if DataFrequency is Daily or higher, see [documentation](https://docs.aws.amazon.com/forecast/latest/dg/API_CreatePredictor.html)
 
-- Add Item Metadata (IM) and/or Related (RTS) data.  Hardest - first time you'll have to figure out the best featurization and import the data.  Recommended to train a new Predictor using AutoML so you can tell if the new data gets picked up or not.
+8) **Pay special attention to gaps or 0’s in your data. Pro tip: convert all 0’s to nulls,** then let Amazon Forecast do automatic null-filling through its Featurization settings.  See [the null-filling syntax](https://docs.aws.amazon.com/forecast/latest/dg/howitworks-missing-values.html).
 
-  - To iterate on IM and RTS, it's possible to change the data and perform inference-only.  See Running an experiment without re-training by API call:  https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/WhatIf_Analysis/WhatIf_Analysis.ipynb
+9) **Create training subset of sample data, with hold-out of 1 forecast length.** So training data is all sample data except last data points in time series of length forecast length. Reserve the hold-out data for forecast evaluation.
 
+**Note: special consideration for cold-start or new product introductions**.  For best results, do not include new items in your training data.  Do include new items in your hold-out or test data.  If fewer than 5 data points exist per new item, be sure to fill missing values explicitly in the new items with "NaN"; otherwise the cold-start items will be silently dropped.
 
+10) **Create just historical sales part of training data (TTS).** Subset out just the timestamp, item_id, target_value columns.  Save this TTS subset of training data on S3, example as TTS.csv.  
 
-## Getting Started Tutorial<a name="tutorial"/>
+Copy the "S3 URI" to TTS.csv
 
+<a name="tutorial"/>
 
-1. **If you haven't already, create an AWS account**
-   https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/
+## Follow tutorial below to get your first Predictor.  
 
-2. **Login to your AWS account and navigate to Forecast**
-   console.aws.amazon.com > Type forecast in the search bar > click on Amazon Forecast
+Best Practices are continued inside this tutorial.
 
-3. **Create a Dataset Group and Target Time Series data**
-   1. On the Forecast console, click Create dataset group
-   2. Give your Dataset Group a name, and choose Custom “domain” or another vocabulary that is convenient for you. The domain is for convenience, it makes no difference to forecast algorithms whether you call your target value “demand” or “target_value”, the column headers will be dropped anyway. 
-   3. Click Next
-   4. Give your TTS dataset a name, choose data frequency, e.g. “D”. This should match [Step 2.4 above](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice).
-   5. Use the default schema builder to drag columns in the same order as your TTS data from [Step 9 above](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice). 
-   6. Make sure the schema timestamp format matches your choice from [Step 6 above](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice)
-   7. On Dataset import details:
-   8. Click Start
+11. **If you haven't already, [create an AWS account](https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/)**
 
-4. **Wait the specified time, then check your Dataset import field statistics.** 
-   - Make sure the data import statistics look right.
-   - \# of expected items, # locations, time range, other fields all look correct?
+12. **Login to your AWS account and navigate to Forecast**
+    console.aws.amazon.com > Type forecast in the search bar > click on Amazon Forecast
 
-5. In the navigation pane, under your dataset group, choose **Predictors**.
+13. **Create a Dataset Group and Target Time Series data**
+    1. On the Forecast console, click Create dataset group
+    2. Give your Dataset Group a name, and choose Custom “domain” or another vocabulary that is convenient for you. The domain is for convenience, it makes no difference to forecast algorithms whether you call your target value “demand” or “target_value”, the column headers will be dropped anyway. 
+    3. Click Next
+    4. Give your TTS dataset a name, choose data frequency, e.g. “D”. This should match [Step 3.3 above](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice).
+    5. Use the default schema builder to drag columns in the same order as your TTS data from [Step 10 above](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice). 
+    6. Make sure the schema timestamp format matches your choice from [Step 7 above](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice)
+    7. On Dataset import details, paste the S3 URI location of TTS.csv from [Step 10 above](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice). 
+    8. Click Start
 
-6. Choose **Train** **predictor**.  Train using AutoML
+14. **Wait the specified time, then check your Dataset import field statistics.** 
+    1. Make sure the data import statistics look right.
+    2. \# of expected items, # locations, time range, other fields all look correct?
+    3. If any of above does not look right, [return to Data Prep best practices and try again](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice).
 
-   1. Click Train new predictor
+15. **Choose probabilistic quantiles that fit your business goals.**  The optimal choice of quantile reflects the average proportion between marginal profit and the production and inventory holding costs.  In other words, the quantile choice should be based on the lost opportunity cost of under-forecasting and the cost of over-producing and holding over-forecasted items.  
 
-   2. Give your predictor a name. 
+    For example, a p90 forecast is useful when you have something like milk or toilet paper, that you never want to run out of at a grocery store and you don’t mind always having some remaining on the shelves. On the other hand, suppose you have an expensive machine, then a p10 forecast would be more useful since you don’t want to carry such expensive inventory costs and your customers probably aren’t expecting that machine to just be sitting around in stock anyway. As an extreme example, Amazon Redshift uses Forecast at p99 levels, because they never want to run out of virtual resources. [See documentation for more details on metrics.](https://docs.aws.amazon.com/forecast/latest/dg/metrics.html)
 
-   3. Choose Forecast horizon [from Step 2.2](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice). 
+    **If you don't know your business costs of under- vs over- forecasting, or maybe such costs are equal, use the default values for AutoML which are p10, p50, p90.**  
 
-   4. Choose Forecast frequency [from Step 2.1](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice).
+    Typically forecasters choose 3 quantiles.  For example, generating 3 forecasts at p10, p50, p90 results in an 80% confidence interval around the p50 forecast.  When making charts, typically the region between p10 and p90 is shaded to indicate the 80% confidence interval.
 
-   5. Under Predictor details > Algorithm > Select radio button for Automatic (AutoML) 
+    Note:  In the predictor output, errors for each quantile forecast are called "wQL" or weighted quantile loss, which is the error of that quantile forecast. 
 
-   6. Choose number of backtest windows = 3
+    > Technical details:  The formal definition of a quantile forecast is Pr(actual value <= forecast at quantile q) = q.  Technically a quantile is a percentile/100.  Statisticians tend to say ”p90 quantile-level“, since that is easier to say than "“quantile 0.9”. For example, a p90 quantile-level forecast means the actual value can be expected to be less than the forecast 90% of the time.  Specifically if at time=t1 and quantile-level=0.9, the predicted value = 30, that means the actual value at time= t1, if you had 1000 simulations, would be expected to be less than 30 for 900 simulations, and for the remaining 100 simulations, the actual value is expected to be over 30.
 
-   7. **Expand the “Advanced configurations” section**
+16. **Training Strategy: Start simple with historical sales data only (TTS) and AutoML.  Iterate just on this data before adding Meta- and Related data.**  This will give you a baseline, so you will be able to determine which data and/or training iterations are working to improving accuracy.  
 
-      - See https://docs.aws.amazon.com/forecast/latest/dg/howitworks-missing-values.html. Pay attention to the syntax.  Terminology:
+    AutoML will automatically run through all 6 algorithms, (the DL algos will run with HPO turned on), to learn which algorithm works best on your data. This will take a long time the very first time. But, you will get understanding which algorithm fits best to your data.  [See algorithms section of documentation](https://docs.aws.amazon.com/forecast/latest/dg/aws-forecast-choosing-recipes.html). 
 
-        - "frontfill" - refers to cold-start items and how you want to treat nulls before the item begins to have any history
-        - "middlefill" - refers to nulls in the middle of time series values
-        - "backfill" - refers to end-of-life items and how you want to treat nulls after an item has stopped selling
+    AutoML calculates the average of the weighted P10, P50 and P90 quantile losses (or your own quantiles instead of default quantiles), and [will return the algorithm with the lowest averaged value](https://docs.aws.amazon.com/forecast/latest/dg/howitworks-predictor.html).
 
-      - If the default filling looks fine, you don’t need to do anything
+17. In the navigation pane, under your dataset group, choose **Predictors**.
 
-      - If you want to change middlefill=”nan” because 0’s aren’t really 0’s and backfill=”nan” because you know you have some products with end-of-life, paste the sample JSON below.
+18. Choose **Train** **predictor**.  Train using AutoML
 
-        `[{`
+    1. Click Train new predictor
 
-         `"AttributeName": "target_value",`
+    2. Give your predictor a name. 
 
-         `"FeaturizationPipeline": [`
+    3. Choose Forecast horizon [from Step 3.2](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice). 
 
-          `{`
+    4. Choose Forecast frequency [from Step 3.1](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice).
 
-          `"FeaturizationMethodName": "filling",`
+    5. Under Predictor details > Algorithm > Select radio button for Automatic (AutoML) 
 
-          `"FeaturizationMethodParameters": {`
+    6. Choose number of backtest windows = 3
 
-           `"aggregation": "sum",`
+    7. **Expand the “Advanced configurations” section**
+       ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/understandNullFilling.png)
 
-           `"frontfill": "none",`
+       - [Folllow the syntax](https://docs.aws.amazon.com/forecast/latest/dg/howitworks-missing-values.html).  Terminology:
 
-           `"middlefill": "nan",`
+         - "frontfill" - refers to cold-start items and how you want to treat nulls before the item begins to have any history
+         - "middlefill" - refers to nulls in the middle of time series values
+         - "backfill" - refers to end-of-life items and how you want to treat nulls after an item has stopped selling
 
-           `"backfill": "nan"`
+       - If the default filling looks fine, you don’t need to do anything
 
-          `}`
+       - If you want to change middlefill=”nan” because 0’s aren’t really 0’s and backfill=”nan” because you know you have some products with end-of-life, paste the sample JSON below.
 
-          `}`
+         `[{`
 
-         `]`
+          `"AttributeName": "target_value",`
 
-        `}]`
+          `"FeaturizationPipeline": [`
 
-   8. Click Start
+           `{`
 
-   9. - - 
+           `"FeaturizationMethodName": "filling",`
 
-7. **Wait the specified time, then check each AutoML predictor for error messages**
+           `"FeaturizationMethodParameters": {`
 
-8. Choose your predictor on the **Predictors** page to view the details.
-   - Check each predictor from AutoML, look if any errors
-     - Check the “Items” column. Is that the full # time series? If not, why? 
-     - Do you have enough history to support the desired forecast length? 
-       - If not, you’ll get an error message. 
-       - **Rule: Amazon Forecast requires length of forecast to be shorter of 500 data points or 1/3 of training data.**
-     - Do you have enough data per time series? 
-       - If not, you’ll get error message. E.g. Very low # of observations (found 238 observations in 3 time series). 
-       - **Rule: Deep Learning algorithms require at least 300 observations in the majority of time series.**
-       - One way to fix this error is aggregate at higher levels of granularity:
-         - Can you aggregate to higher time dimension? E.g. Instead of Hourly, try Daily?  
-         - Can you aggregate to higher item/location dimension? E.g. Instead of SKU, try product group level? 
-         - Return to Best Practice Data Prep for suggestions
-     - Repeat all steps up to here until you pass all error-checks
-9. **Choose your AutoML winning predictor on the Predictors page to view the details.**
-   - Check the **Predictor metrics** section.  
-     - Top row is average of below rows. 
-       - Each row below is metrics per backtest window 
-       - Each row below is metrics per backtest window 
-     - Columns are: type, start, end 
-       - #Items found per backtest window 
-       - Each quantile’s weighted quantile error (lower is better).  Up to 5 quantiles.
-       - WAPE (measured at mean, which may be different from p50 quantile). 
-       - RMSE (measured at mean, which may be different from p50 quantile).
+            `"aggregation": "sum",`
 
-10. **Save a record of your experiments in Excel (or someplace local):**
+            `"frontfill": "none",`
 
-- wQLs (up to 5 quantiles)
-- RMSE
-- WAPE
-- Avg over all wQLs – use this to compare experiments (unless you have different success metric)
+            `"middlefill": "nan",`
 
+            `"backfill": "nan"`
 
+           `}`
+
+           `}`
+
+          `]`
+
+         `}]`
+
+    8. Click Start
+
+19. **Wait the specified time, then check each AutoML predictor results**
+
+    - Choose your predictor on the **Predictors** page to view the details.
+
+    - **Check each predictor from AutoML, look if any errors**
+      - Check the “Items” column. Is that the full # time series? If not, why? 
+      - Do you have enough history to support the desired forecast length? 
+        - If not, you’ll get an error message. 
+        - **Rule: Amazon Forecast requires length of forecast to be shorter of 500 data points or 1/3 of training data.**
+      - Do you have enough data per time series? 
+        - If not, you’ll get error message. E.g. Very low # of observations (found 238 observations in 3 time series). 
+        - **Rule: Deep Learning algorithms require at least 300 observations in the majority of time series.**
+        - One way to fix this error is aggregate at higher levels of granularity:
+          - Can you aggregate to higher time dimension? E.g. Instead of Hourly, try Daily?  
+          - Can you aggregate to higher item/location dimension? E.g. Instead of SKU, try product group level? 
+          - Return to Best Practice Data Prep for suggestions
+      - Repeat all steps up to here until you pass all error-checks
+
+20. **Choose your AutoML winning predictor on the Predictors page to view the details.**
+    ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/understandPredictorResults.png)
+
+    - Check the **Predictor metrics** section.  
+      - Top row is average of below rows. 
+        - Each row below is metrics per backtest window 
+        
+      - Columns are: type, start, end , #Items found per backtest window, and metrics including:
+        - Each quantile’s weighted quantile error (lower is better).  Up to 5 quantiles.
+        - WAPE (measured at mean, which may be different from p50 quantile). 
+        - RMSE (measured at mean, which may be different from p50 quantile).
+
+      - As [explained in Step 15](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#tutorial), Amazon Forecast generates a forecast at a particular quantile. Weighted quantile loss is the accuracy metric or “wQL”. Machine learning models work by minimizing (or maximizing) an objective function, in this case loss or prediction error. The weighted quantile loss function is weighted to penalize forecast values at kth percentile that are higher than actuals more when k < 0.5 and the reverse when k > 0.5. So, p10 quantile predictions that are higher than actuals will get 0.9 weightings; whereas p90 quantile predictions that are lower than actual will get 0.9 weighting. The full formula is:
+        ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/Formula_wql.png)
+
+        [See documentation for more details.](https://docs.aws.amazon.com/forecast/latest/dg/metrics.html.)
+
+21. **Save a record of your experiments in Excel (or some place local):**  
+
+    This will make it easier to compare future experiments to be able to tell what is working.  
+    ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/Experiments_excel.png)
+
+<br>
+
+## Iterating Models and What-if Best Practices<a name="iteratebp"/>
+
+23. **Sequentially experiment.**  It may be tempting to run as many experiments as you can at the same time.   But this will prevent you from learning from previous jobs, and in the process, you may miss an experiment that would have worked. 
+
+    **As you experiment, it is best if you can keep the same Quantile choices.**  This is why it is crucial to clarify the Business Requirements up front.  Determine winning experiments by:
+
+    	1. Lowest average over all wQLs.  If tie, then:
+     	2. Lowest WAPE.  If tie, then: 
+     	3. Lowest RMSE.
+
+    Alternatively to above, your business may have its own Success metrics.  It is possible to calculate these from item-level backtest metrics.  [See our example Item-level accuracy notebook.](https://github.com/aws-samples/amazon-forecast-samples/tree/master/notebooks/advanced/Item_Level_Accuracy)  
+
+    As a developer or Business leader, here you need to think a little bit like a Data Scientist.  A good model, quite often, does not happen on the first try.   Machine learning models are only as good as the data put into them, so the data itself very likely may need improvement.  
+
+24. As [mentioned in Step 16](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#tutorial), **the best strategy is to:** 
+    1. **start simple with just historical data (TTS) and AutoML.**  From there, you will find out which is the best algorithm for your data.  
+    2. **For all future experiments, stick to this same algorithm, then use HPO=True.**  AutoML mode did a light HPO, to verify which algorithm is best, but the parameter optimization is not as deep as explicitly setting HPO toggled on for a single algorithm.
+    3. Finally, when you have finished iterating,  **use the fixed algorithm and fixed Training Parameters from the last HPO Predictor.**
+
+25. **Iterating and scaling to value.**  Unlike Machine Learning Competitions, real life POCs are not about "highest accuracy at any cost".  In real life, there is often a balance to think about:  Accuracy, Scaleability, Effort.  Since human time is expensive, there might be other activities of more value than trying to get the tiniest extra amounts of accuracy out of Forecast models.
+
+Keeping this in mind, some typical next iterations, in order of easiest-to-hardest and most-to-least expected incremental accuracy improvements: 
+<br>
+
+26. **Try different null-value featurizations.**  Easy if you followed our Pro tip in Best Practices, and converted all 0’s to nulls.  You can do this on same dataset, just train new Predictor with different featurization choices. [See documentation for syntax](https://docs.aws.amazon.com/forecast/latest/dg/howitworks-missing-values.html).
+
+27. **Subset data in different ways and try training a separate model per subset.**  Difficult - you'll have to import each dataset separately, train a Predictor per data subset.  Compare identical item accuracies across subset model vs global all-in model.
+
+    For example Python functions to split data by top-moving, dense-only, or erratic-only,  [see our example DataPrep notebook](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/1.Getting_Data_Ready_nytaxi.ipynb)
+
+    Below is an example Amazon QuickSight visualization, comparing the same random items across 3 models:  1) top row is global all-in model that was trained on all data at once; 2) 2nd row is same items from model trained on subset only "top-moving" items; 3) 3rd row is same items from model trained on subset only "erratic time series"  items.  We can see below that items from the Erratic-only model have highest accuracy.  On the other hand, we expect the subset of items that are not-erratic or not-top-moving, which are harder to forecast, will have better accuracy when taken from the top, all-in model.
+    <img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/quicksight-example-model-iterations.png" alt="Compare models created on different data subsets" style="zoom:70%;" />
+
+28. **Use the built-in, AWS-hosted data enrichments: Holidays and Weather.  Easy.**  Both of these variables can help more accurately predict sales.  Weather requires hourly time granularity of data and forecast horizon 14 days or less.  Weather also requires locations to be more than just string names, that is, to have actual geolocations.  Geolocations can be 2-digit country code + "_" + 5-digit zip or actual latitude_longitude.  https://docs.aws.amazon.com/forecast/latest/dg/weather.html
+
+    - When you train a Predictor with either Holidays and/or Weather features enabled, use HPO=True**, or Hyperparameter Optimization toggled on, so you get the best tuned Predictor.  Make sure you do this before making inferences (or forecasts).
+
+29. **Add Item Metadata (IM) and/or Related (RTS) data.  Difficult.**  For RTS, the first time you'll have to figure out the best featurization and import the data.  Recommended to train a new Predictor using AutoML so you can tell if the new data gets picked up or not.
+
+    - **If you are trying to forecast "cold-starts" or new products, Item Metadata is required.**  Provide item group names to tie together new products with existing products with longer histories.
+    - To iterate on IM and RTS, it is possible to change the data and perform inference-only.  See Running an experiment without re-training by API call:  https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/WhatIf_Analysis/WhatIf_Analysis.ipynb. At the moment, forecast metrics are not automatically calculated, so this approach takes a lot more effort, and may not end up saving you time between iterations.  
+    - **To get the best accuracy, once you have finalized the IM and RTS fields, train with HPO=True**, or Hyperparameter Optimization toggled on, so you get the best tuned Predictor.  Make sure you do this before making inferences (or forecasts).  At the moment, since Predictor metrics are automatically calculated, re-training each experiment with HPO=True, might be the most efficient approach, since your time is not completely occupied and can be spent somewhere else during training times.
+
+<br>
+
+## Generating Forecasts<a name="forecastinference"/>
+
+- Use Hold-out Data or Generate new data.  
+
+  - Import the new data into DataSet Group to which your final Predictor belongs.
+
+  - Cold start items can now be included.  Notice that there is a system constraint such that at least 5 data points need to exist per time series. Therefore, for the item that has less than 5 observations, be sure to encode target_value as Float and fill explicitly with "NaN".  
+
+    Note: Cold-start forecasting only works if new items are tied to items with longer histories through Item Metadata.  
+
+  - Create a new Forecast
+
+    - Choose Predictor (will automatically use latest imported data in DataSet Group to which Predictor belongs)
+
+  - Export the forecast to copy it to yourown S3 location.  Note: any kind of Amazon Forecast Delete action - Hierarchical delete, or any individual delete action will not delete your exported, saved forecast copy.
+
+  - Note: In the forecast output, you'll see the "p90 quantile-level forecast" as a forecast column named "p90".
+
+  
 
 ## Example Notebooks<a name="notebooks"/>
 
 1. Getting started with API calls:  https://github.com/aws-samples/amazon-forecast-samples/tree/master/notebooks/basic/Tutorial
-2. Adding Related data by API call:  https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/Incorporating_Related_Time_Series_dataset_to_your_Predictor/Incorporating_Related_Time_Series_dataset_to_your_Predictor.ipynb
-3. Adding Metadata by API call:  https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/Incorporating_Item_Metadata_Dataset_to_your_Predictor/Incorporating_Item_Metadata_Dataset_to_your_Predictor.ipynb
 4. Evaluating your predictor using backtest item-level forecasts by API call:  https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/Item_Level_Accuracy/Item_Level_Accuracy_Using_Bike_Example.ipynb
 5. Running an experiment without re-training by API call:  https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/WhatIf_Analysis/WhatIf_Analysis.ipynb
 6. Adding built-in AWS-hosted weather data by API call:  https://github.com/aws-samples/amazon-forecast-samples/tree/master/notebooks/advanced/Weather_index
+5. Adding Related data by API call:  https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/Incorporating_Related_Time_Series_dataset_to_your_Predictor/Incorporating_Related_Time_Series_dataset_to_your_Predictor.ipynb
+6. Adding Metadata by API call:  https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/Incorporating_Item_Metadata_Dataset_to_your_Predictor/Incorporating_Item_Metadata_Dataset_to_your_Predictor.ipynb
+7. Forecasting "cold-start" or new product introductions by generating test data explicitly filled with "NaN" for new items and running Forecast-only (that is inference only) using already trained predictor by API call:  https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/Forecast%20with%20Cold%20Start%20Items/Forecast%20with%20Cold%20Start%20Items.ipynb
 
-
+<br>
 
 ## Demos/Workshops<a name="workshops"/>
 
-- Hands-on leave-in-place tools (and demo) for accelering a Forecast POC:  https://github.com/aws-samples/amazon-forecast-samples/tree/master/workshops/pre_POC_workshop
-- Demo of console:  https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/no_code_workshop/forecast-with-console.md
-- Demo of API calls:  
-  - https://github.com/aws-samples/amazon-forecast-samples/tree/master/workshops/no_code_workshop
-  - https://github.com/aws-samples/amazon-forecast-samples/tree/master/workshops/immersion_day
+- **[Pre-POC workshop](https://github.com/aws-samples/amazon-forecast-samples/tree/master/workshops/pre_POC_workshop)** is a hands-on, leave-in-place, guided learning (and demo) that is meant to accelerate a Forecast POC.  The workshop covers Best Practices for working with Amazon Forecast.  Targeted to Developers, Line-of-business, and Data Scientists who will be doing the execution work of a Forecast POC.  
+  - Data used:  NYC Taxi
+  - Tools used:  
+    - [Getting Started Guide and Best Practices Cheat Sheet Tutorial](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md)
+    - [Improving Forecast Accuracy with Machine Learning Solution](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/install-forecast-solution.md)
+- **No code workshop** can be used in 2 ways:
+  - [**Introduction demo**](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/no_code_workshop/forecast-with-console.md).  Developers and Line-of-business folks can follow-along this markdown file to learn start-to-finish how to create forecasts.  100% no-code, through UI screens using console only.  
+  - **[Notebook using Amazon Forecast Python SDK](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/no_code_workshop/forecast-with-api-completed.ipynb)** to make API calls to perform exactly the same tasks as the 100% no-code demo.  Targeted at Integration Partners, MLOps Engineers, and Developers responsible for putting forecasts into production.
+  - Data used:  Energy consumption
+- Immersion Day Workshop is an older version of the No code workshop notebook portion.
+
+
+
+## Videos<a name="videos">
+
+- High-level intro to Amazon Forecast (minutes 1-8), demo (minutes 8-18), and customer story (minutes 20-34): https://www.youtube.com/watch?v=K7MaDbn8_l0
+- Demo how to prepare data for Amazon Forecast using AWS Glue DataBrew (5min) : 
+- Demo how to train a predictor using Amazon Forecast screens for NYC taxi data (5min):
+- Demo how to train a predictor using Improving Accuracy Forecast Solution CloudTemplate stack (5min):
 
 
 
