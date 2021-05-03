@@ -10,21 +10,21 @@ By default, the installed components of this solution do not incur any cost when
 
 The CloudFormation template used in this workshop will:
 
-* Deploy the Improving <a href="https://docs.aws.amazon.com/solutions/latest/improving-forecast-accuracy-with-machine-learning/automated-deployment.html" target="_blank">Forecast Accuracy with Machine Learning</a> solution main AWS CloudFormation (nested) template.
-* Deploy the NYC taxi demo data (target time series, related time series, item metadata) into the solution Amazon S3 Bucket.  
-* Automatically launch a demo NYC taxi forecast in Amazon Forecast.
+* Deploy the Improving <a href="https://docs.aws.amazon.com/solutions/latest/improving-forecast-accuracy-with-machine-learning/automated-deployment.html" target="_blank">Improving Forecast Accuracy with Machine Learning Solution</a>, components shown in architecture diagram below.  The main stack called "forecast-stack-ForecastStack-xxxx" will be a nested stack.
+* Deploy a demonstration stack called "forecast-stack" using data from the <a href="https://registry.opendata.aws/nyc-tlc-trip-records-pds/" target="_blank">NYC Taxi Dataset</a>, will automatically run by itself, so you can see a demo of Amazon Forecast completely through.  
+* In order to visualize using Amazon QuickSight, follow the additional steps after the CloudFormation instructions.
 
-Below is an architecture diagram of components used in this solution, showing how it is used in Development Mode.
+Below is an architecture diagram of components used in this solution, showing how it is used in Development and Production Modes.
 
 ![cloudformationautomation-architecture](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/architectureDevMode.png)
 
-Also showing how the architecture is used in Production Mode. 
+
 
 ![cloudformationautomation-architecture](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/architectureProdMode.png)
 
 ## Instructions
 
-Before starting the workshop, log into your AWS account and install our CloudFormation template:
+A few days before starting the workshop, log into your AWS account and install our CloudFormation template:
 
 1. **Log in to AWS using an Admin account**. If you do not already have one, <a href="https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/" target="_blank">create an AWS account</a>.
 2. **Install the AWS CloudFormation template.** Choose the Region closest to you:
@@ -62,51 +62,102 @@ Before starting the workshop, log into your AWS account and install our CloudFor
 
 <img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-step5.png" style="zoom:60%;">
 
-That’s it! You have deployed a CloudFormation template in Amazon Forecast. 
 
-Performing the above steps deployed a demonstration stack called "forecast-stack" using data from the <a href="https://registry.opendata.aws/nyc-tlc-trip-records-pds/" target="_blank">NYC Taxi Dataset</a>.  The main stack called "forecast-stack-ForecastStack-xxxx" will be a nested stack. <br><br>
 
-**Optional steps for QuickSight visualization:**
-1. Sign up for [QuickSight Enterprise](https://aws.amazon.com/quicksight/pricing/).  Per user cost is $5/month which should be enough if everyone is logging in using "Admin" account.
-2. Click on "Admin" in top-right corner of QuickSight.  Get your QuickSight ARN.  Note "ARN" means Amazon Resource Number, think of it as an AWS-specialized URL.   Construct ARN following this pattern: <br> 
-"arn:aws:quicksight:<region>:<account ID>::user/default/<Username>" <br>
- Example: arn:aws:quicksight:us-east-1:12345678901:user/default/Admin/myusername
-3. Copy QuickSight ARN somewhere locally, and copy to your clipboard. <br>
+**That’s it!  Congratulations**! You have deployed a CloudFormation template in Amazon Forecast. 
+
+
+
+## **Optional steps for QuickSight visualization:**
+
+**Step 1**: Sign up for [QuickSight Enterprise](https://aws.amazon.com/quicksight/pricing/).  QuickSight is a BI visualization tool, similar to Tableau.  QuickSight Enterprise per user cost is $5/month (at time of writing this) which should be enough if everyone is logging in using "Admin" account.
+
+**Step 2**: Login to AWS using Admin account.  [console.aws.amazon.com](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightConfig.png)
+
+After you login, copy your Account ID and save somewhere convenient. 
+
+![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightGetAccountID.png)
+
+**Step 3**: In search box type "quicksight" to navigate to QuickSight
+
+Next we need to get your QuickSight Username.
+
+**Step 4**:  Click on "Admin" in top-right corner of QuickSight.  Copy your QuickSight Username and save somewhere convenient.
+
+![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightGetUsername.png)
+
+**Step 5**:  Construct the QuickSight ARN (Note "ARN" means "Amazon Resource Number", think of it as an AWS-specialized URL) following this pattern: <br> 
+"**arn:aws:quicksight:<region>:<account ID>::user/default/<QuickSight username>**" , where
+
+- region = name of region where you installed the CloudFormation template, e.g. "us-west-2"
+- account ID = number from Step 2
+- QuickSight username = "Admin/username" from Step 4
+
+Example: arn:aws:quicksight:us-east-1:12345678901:user/default/Admin/myusername
+
+Copy and save your QuickSight ARN somewhere convenient and to your clipboard. 
+
+
+
+#### Configure from where QuickSight is allowed to read data.
+
+**Step 1**: From QuickSight, click  top right "Admin".  Click change region.  Choose US-east-1 N.Virginia.  (QuickSight configuration tasks only work in us-east-1).
+
+**Step 2**: From QuickSight, click topright "Admin".  Click "Manage Quicksight".
+
+![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightConfig.png)
+
+**Step 3**:  From QuickSight, click left-side-menu.  On the main screen, under "Security & permissions", under "QuickSight access to AWS Services", click “Add or Remove”. 
+
+![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightConfigSecurity.png)
+
+Next, you will configure which S3 buckets QuickSight can read from.
+
+**Step 4**: Click S3 Details.  
+
+![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightConfigS3-main.png)
+
+**Step 5**: Choose forecast-stack-athenabucket and forecast-stack-data-bucket.  Click "Finish".
+
+![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightConfigS3.png)
+
+<br>Next, allow QuickSight to read from both S3 and Athena.
+
+**Step 6**: Click "Amazon S3" and "Amazon Athena" checkboxes.  Click “Update”.
+![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightConfigAthena.png)
 <br>
-Next, we need to configure where QuickSight is allowed to read data.
-4. Quicksight > top right Admin > Change region > US-east-1 N.VA. Due to a quirk in QuickSight, configuration tasks only work in us-east-1.
-5. Quicksight > top right Admin > Manage Quicksight 
-6. Quicksight > left-side-menu > Security & permissions > Main screen > Access to AWS Services > click “Add or Remove” button
-[TODO image here]
+
+#### Update the CloudFormation nested (main) stack called "forecast-stack-ForecastStack-xxxx" and add your QuickSight ARN.
+
+**Step 7**: Open AWS console again.  [console.aws.amazon.com](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightConfig.png)
+
+**Step 8**: In search box type "cloud formation" to navigate to CloudFormation templates.
+
+Click button next to the nested stack and click menu action “Update”
+![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-1QuickSight.png)
 <br>
-Configure permission to read from S3 buckets<br>
-7. Click S3 Details
-8. Click forecast-stack-athenabucket-xxx + click RHS “write” checkbox
-9. Click forecast-stack-data-bucket-xxx + click RHS “write” checkbox + click Finish
-10. Click S3 RHS checkbox (If you do not have any S3 buckets, you will be prompted to create a S3 bucket before you can enable it)
-11. Click Finish
-[TODO image here]
-<br>
-Configure permission to read from Athena<br>
-12. Click Athena RHS checkbox
-13. Scroll to bottom of screen > click “Update” box
-[TODO image here]
-<br>
-Now edit the CloudFormation nested (main) stack called "forecast-stack-xxxx" and add your QuickSight ARN <br>
-14. Click button next to the nested stack and click menu action “Update”
-[TODO image here]
-<br>
-15. Click "Update nested stack"
-[TODO image here]
-16. Choose “Use current template” > “Next”
-[TODO image here]
-17. Edit fields.  
-    1. Change “Email” if it's not already set.
-    2. Change “Visualization Options” > paste your QuickSight arn <br>
+
+**Step 9**: Click "Use current template" and click "Next".
+![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-2QuickSight.png)
+
+**Step 10**:  Edit "Email" if it's not already set.  Paste your QuickSight ARN in the "Visualization Options" field.  Click "Next".
+![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-3QuickSight.png)
+
+**Step 11**:  On final Review page, scroll down to the bottom of page.  Click the 2 checkboxes to allow IAM resources to be created and auto_expand to make the requested changes.  Click "Update stack".
+
+![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-4QuickSight.png)
 
 <br>
 
-**Cleaning Up:** Deleting the demo stack will retain the "Improving Forecast Accuracy with Machine Learning Stack". Deleting the "Improving Forecast Accuracy with Machine Learning" stack will leave all S3, Athena, QuickSight, and Forecast data in the customer account.
+**Congratulations!!**  You have installed a CloudFormation template in Amazon Forecast and configured Forecast visualization output into QuickSight.
 
-**Other deployment options**: For more deployment options, see <a href="https://docs.aws.amazon.com/solutions/latest/improving-forecast-accuracy-with-machine-learning/automated-deployment.html" target="_blank">Automated Deployment</a>.  If data is already available, you can deploy the stack without the demo data.
+<br>
+
+**Deleting the stack:** 
+
+1) Deleting the "forecast-stack" demo stack will retain the nested main "forecast-stack-ForecastStack-xxxx" "Improving Forecast Accuracy with Machine Learning Stack". 
+
+2) Deleting the nested main "forecast-stack-ForecastStack-xxxx" "Improving Forecast Accuracy with Machine Learning" stack will leave all S3, Athena, QuickSight, and Forecast data in the account.
+
+**Other deployment options**: For more deployment options, see <a href="https://docs.aws.amazon.com/solutions/latest/improving-forecast-accuracy-with-machine-learning/automated-deployment.html" target="_blank">Automated Deployment</a>. 
 
