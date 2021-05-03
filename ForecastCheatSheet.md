@@ -1,4 +1,4 @@
-# Amazon Forecast Cheat Sheet
+# Amazon Forecast Introduction, Best Practices, and Cheat Sheet Tutorial
 
 ##### Table of Contents  
 * [Amazon Forecast Introduction](#intro)  
@@ -101,7 +101,9 @@ Think of a neural network that trains best with many different weights as inputs
 
 4) **Identify columns in your data that you will map to: timestamp, item_id, target_value**.  The item_id should identify unique time series.  Typically item_id is a product ID.  Target_value is often a sales quantity.  The combination of timestamp, item_id, target_value should describe the historical sales for a particular product.
 
-5) **Check for uniqueness.**  When you groupby timestamp (at identified time unit from Step 3.3) and item_id, you should see only 1 target_value. Maybe you have another dimension such as sales location?  Adjust your definition of "timestamp" and "item_id" such that at your chosen aggregation level, per time series, per timestamp, the count of unique "target_value" should only be 1. 
+5) **Check for uniqueness.**  When you groupby timestamp (at identified time unit from Step 3.3) and item_id, you should see only 1 target_value. Maybe you have another dimension such as sales location?  
+
+Adjust your definition of "timestamp" and "item_id" such that at your chosen aggregation level, per time series, per timestamp, the count of unique "target_value" should only be 1. 
 
 6) Possibly, but not required right away, identify other data you think in future might help inform forecasts – example Prices, Promotions, Stock-out dates, Holidays.
 
@@ -113,7 +115,7 @@ Think of a neural network that trains best with many different weights as inputs
 
 9) **Create training subset of sample data, with hold-out of 1 forecast length.** So training data is all sample data except last data points in time series of length forecast length. Reserve the hold-out data for forecast evaluation.
 
-**Note: special consideration for cold-start or new product introductions**.  For best results, do not include new items in your training data.  Do include new items in your hold-out or test data.  If fewer than 5 data points exist per new item, be sure to fill missing values explicitly in the new items with "NaN"; otherwise the cold-start items will be silently dropped.
+**Note: special consideration for cold-start or new product introductions**.  For best results, do not include new items in your training data.  Do include new items in the inference data.  If fewer than 5 data points exist per new item, be sure to fill missing values explicitly in the new items with "NaN"; otherwise the cold-start items will be silently dropped.
 
 10) **Create just historical sales part of training data (TTS).** Subset out just the timestamp, item_id, target_value columns.  Save this TTS subset of training data on S3, example as TTS.csv.  
 
@@ -192,33 +194,24 @@ Best Practices are continued inside this tutorial.
 
        - If you want to change middlefill=”nan” because 0’s aren’t really 0’s and backfill=”nan” because you know you have some products with end-of-life, paste the sample JSON below.
 
-         `[{`
-
-          `"AttributeName": "target_value",`
-
-          `"FeaturizationPipeline": [`
-
-           `{`
-
-           `"FeaturizationMethodName": "filling",`
-
-           `"FeaturizationMethodParameters": {`
-
-            `"aggregation": "sum",`
-
-            `"frontfill": "none",`
-
-            `"middlefill": "nan",`
-
-            `"backfill": "nan"`
-
-           `}`
-
-           `}`
-
-          `]`
-
-         `}]`
+         ```
+       [
+         	{
+       		"AttributeName": "target_value",
+         		"FeaturizationPipeline": [
+       			{
+         				"FeaturizationMethodName": "filling",
+       				"FeaturizationMethodParameters": {
+         					"aggregation": "sum",
+       					"frontfill": "none",
+         					"middlefill": "nan",
+       					"backfill": "nan"
+         				}
+       			}
+         		]
+       	}
+         ]
+       ```
 
     8. Click Start
 
@@ -266,9 +259,9 @@ Best Practices are continued inside this tutorial.
 
 ## Iterating Models and What-if Best Practices<a name="iteratebp"/>
 
-23. **Sequentially experiment.**  It may be tempting to run as many experiments as you can at the same time.   But this will prevent you from learning from previous jobs, and in the process, you may miss an experiment that would have worked. 
+23. **Sequentially experiment.**  It may be tempting to run many experiments in parallel at the same time.   But this will prevent you from learning from previous jobs, and in the process, you may miss an experiment that would have worked. 
 
-    **As you experiment, it is best if you can keep the same Quantile choices.**  This is why it is crucial to clarify the Business Requirements up front.  Determine winning experiments by:
+    **As you experiment, it is best to keep the same Quantile choices.**  This is why it is crucial to clarify the Business Requirements up front.  Recommended metrics to determine winning experiments are:
 
     	1. Lowest average over all wQLs.  If tie, then:
      	2. Lowest WAPE.  If tie, then: 
@@ -311,23 +304,50 @@ Keeping this in mind, some typical next iterations, in order of easiest-to-harde
 
 ## Generating Forecasts<a name="forecastinference"/>
 
-- Use Hold-out Data or Generate new data.  
+Choose whether to generate forecast using the same train data or whether to update data.  
 
-  - Import the new data into DataSet Group to which your final Predictor belongs.
+- If using same data used for training, then the forecast will be generated past the end of the train data, extending one forecast horizon out into the future.  If you kept a hold-out, this data can be used to manually verify the generated forecast after you export it and save it to S3 (as in Step 31).
 
-  - Cold start items can now be included.  Notice that there is a system constraint such that at least 5 data points need to exist per time series. Therefore, for the item that has less than 5 observations, be sure to encode target_value as Float and fill explicitly with "NaN".  
+- It is also possible to import updated data into the DataSet Group to which your final Predictor belongs.  This would happen typically when re-training is not required, but new inferences are needed.
+
+  - Example:  Company A generates weekly forecasts, but models only need to be retrained seasonally, once per quarter.  This means each week, company A imports new data, bringing in the latest data available, before generating a new forecast.  The first week of each quarter, Company A would perform a complete retraining of their forecast model, before generating that week's forecast.
+
+  - Note:  Cold start items must be included as updated data.  Notice that there is a system constraint such that at least 5 data points need to exist per time series. Therefore, for the item that has less than 5 observations, be sure to encode target_value as Float and fill explicitly with "NaN".  
 
     Note: Cold-start forecasting only works if new items are tied to items with longer histories through Item Metadata.  
 
-  - Create a new Forecast
+30. **Create a Forecast**
 
-    - Choose Predictor (will automatically use latest imported data in DataSet Group to which Predictor belongs)
+1. **Select a Predictor** (will automatically use latest imported data in DataSet Group to which Predictor belongs)
+2. **Choose forecast types (quantiles)**.
+   Note: Only DeepAR+ allows different quantiles in the Forecast step than were used to train the Predictor.  All other algorithms require the same quantiles to be used in both the Predictor and the Forecast.
+3. Click Start.
 
-  - Export the forecast to copy it to yourown S3 location.  Note: any kind of Amazon Forecast Delete action - Hierarchical delete, or any individual delete action will not delete your exported, saved forecast copy.
+31. **Export a Forecast**
 
-  - Note: In the forecast output, you'll see the "p90 quantile-level forecast" as a forecast column named "p90".
+1. Under the **Exports** section, **click Create forecast export**
 
-  
+2. Give the export a name
+
+3. In the S3 forecast export location, paste an S3 path to your own location to save.
+
+   Note: any kind of Amazon Forecast Delete action - Hierarchical delete, or any individual delete action will not delete your exported, saved forecast copy.
+
+   Note: In the downloaded forecast .csv file, probabilistic quantile-level forecasts are indicated by named column, for example "p90"  for the  "p90 quantile-level forecast".
+
+32. **Query a Forecast**
+
+    1. **Wait the specified time, then select Forecast lookup**
+
+    2. Pro-tip:  Look at you Dataset Import page to recall the last possible time stamp of the end of the forecast horizon.  **Enter this as "End date".** 
+
+       Forecast service reserves a fixed amount of memory, so the "Start date" varies depending on your particular data size.  **Work backward from End date to figure out the best "Start date".**
+
+    1. **Per time series dimension, add them using "Add forecast key"**
+    2. **Enter value for an item you want to look up.** Add values per forecast dimension if you have extra dimensions.
+    3. **Click "Get Forecast"**
+
+
 
 ## Example Notebooks<a name="notebooks"/>
 
