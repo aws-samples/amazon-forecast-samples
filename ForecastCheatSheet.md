@@ -184,17 +184,17 @@ Best Practices are continued inside this tutorial.
     7. **Expand the “Advanced configurations” section**
        ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/understandNullFilling.png)
 
-       - [Folllow the syntax](https://docs.aws.amazon.com/forecast/latest/dg/howitworks-missing-values.html).  Terminology:
+       - [Terminology and syntax](https://docs.aws.amazon.com/forecast/latest/dg/howitworks-missing-values.html):
 
          - "frontfill" - refers to cold-start items and how you want to treat nulls before the item begins to have any history
          - "middlefill" - refers to nulls in the middle of time series values
          - "backfill" - refers to end-of-life items and how you want to treat nulls after an item has stopped selling
 
-       - If the default filling looks fine, you don’t need to do anything
+       - **If the default filling looks fine, you don’t need to do anything**
 
        - If you want to change middlefill=”nan” because 0’s aren’t really 0’s and backfill=”nan” because you know you have some products with end-of-life, paste the sample JSON below.
 
-         ```
+         ```json
        [
          	{
        		"AttributeName": "target_value",
@@ -211,9 +211,9 @@ Best Practices are continued inside this tutorial.
          		]
        	}
          ]
-       ```
+         ```
 
-    8. Click Start
+    8. **Click Start**
 
 19. **Wait the specified time, then check each AutoML predictor results**
 
@@ -238,18 +238,19 @@ Best Practices are continued inside this tutorial.
 
     - Check the **Predictor metrics** section.  
       - Top row is average of below rows. 
+        
         - Each row below is metrics per backtest window 
         
       - Columns are: type, start, end , #Items found per backtest window, and metrics including:
         - Each quantile’s weighted quantile error (lower is better).  Up to 5 quantiles.
         - WAPE (measured at mean, which may be different from p50 quantile). 
-        - RMSE (measured at mean, which may be different from p50 quantile).
-
+  - RMSE (measured at mean, which may be different from p50 quantile).
+      
       - As [explained in Step 15](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#tutorial), Amazon Forecast generates a forecast at a particular quantile. Weighted quantile loss is the accuracy metric or “wQL”. Machine learning models work by minimizing (or maximizing) an objective function, in this case loss or prediction error. The weighted quantile loss function is weighted to penalize forecast values at kth percentile that are higher than actuals more when k < 0.5 and the reverse when k > 0.5. So, p10 quantile predictions that are higher than actuals will get 0.9 weightings; whereas p90 quantile predictions that are lower than actual will get 0.9 weighting. The full formula is:
-        ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/Formula_wql.png)
-
-        [See documentation for more details.](https://docs.aws.amazon.com/forecast/latest/dg/metrics.html.)
-
+  ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/Formula_wql.png)
+      
+    [See documentation for more details.](https://docs.aws.amazon.com/forecast/latest/dg/metrics.html.)
+    
 21. **Save a record of your experiments in Excel (or some place local):**  
 
     This will make it easier to compare future experiments to be able to tell what is working.  
@@ -264,8 +265,8 @@ Best Practices are continued inside this tutorial.
     **As you experiment, it is best to keep the same Quantile choices.**  This is why it is crucial to clarify the Business Requirements up front.  Recommended metrics to determine winning experiments are:
 
     	1. Lowest average over all wQLs.  If tie, then:
-     	2. Lowest WAPE.  If tie, then: 
-     	3. Lowest RMSE.
+    	2. Lowest WAPE.  If tie, then: 
+    	3. Lowest RMSE.
 
     Alternatively to above, your business may have its own Success metrics.  It is possible to calculate these from item-level backtest metrics.  [See our example Item-level accuracy notebook.](https://github.com/aws-samples/amazon-forecast-samples/tree/master/notebooks/advanced/Item_Level_Accuracy)  
 
