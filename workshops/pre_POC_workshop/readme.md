@@ -8,12 +8,13 @@ This workshop is designed to accelerate customers doing an Amazon Forecast POC. 
 
 
 ### 3 days before workshop, install AWS CloudFormation template  
-Install the [Improving Forecast Accuracy With Machine Learning Solution](https://aws.amazon.com/solutions/implementations/improving-forecast-accuracy-with-machine-learning/) AWS CloudFormation template in your AWS account where you will run the Forecast POC. <br>
+Install the [Improving Forecast Accuracy With Machine Learning Solution](https://aws.amazon.com/solutions/implementations/improving-forecast-accuracy-with-machine-learning/) AWS CloudFormation template in your AWS account where you will run the Forecast POC.  This best practice AWS solution streamlines the process of ingesting, modeling, and forecasting using Amazon Forecast by providing AWS CloudFormation templates and a workflow around the Amazon Forecast service.<br>
 
 Total install time ~15min.
 
 1. Log in to AWS with Admin account:  [console.aws.amazon.com](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/console.aws.amazon.com)
 2. [Follow these instructions](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/install-forecast-solution.md)
+3. Read the [Blog using this Solution for Electric Load Forecasting](https://aws.amazon.com/blogs/industries/short-term-electric-load-forecasting-with-amazon-forecast/)
 
 By default, the installed AWS service components do not incur any cost when not in use.  
 

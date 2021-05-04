@@ -74,13 +74,24 @@ In terms of data, Forecasting works best on "dense" data. When, per timestamp an
 ## Getting Started with Amazon Forecast Best Practices and Tutorial<a name="bestpractice"/>
 
 Following are Best Practices for developing the most accurate Amazon Forecast models (or Predictors).  
-1) **Make sure you know how success is measured**, i.e. metric that matters for the business problem.  
+1) **Make sure you know how success is measured**, i.e. metrics that matter for the business problem.  **Amazon Forecast automatically calculates for you the wQL, WAPE, and RMSE from the Predictor backtests.**  For probabilistic forecasts, we think wQL is the best error measure.
+
+- Custom metrics can be calculated from Predictor backtest exports and from the Forecast export using hold-out data.
+
+- Improving forecast accuracy for specific items—such as those with higher prices or higher costs—is often more important than optimizing for all items.  By exporting the Predictor backtest exports, item-level accuracy can be calculate for specific items or groups of items, without needing a hold-out data set.  
+- For retailers specifically, not all SKUs are treated equally. Usually 80% of revenue is driven by 20% of SKUs, and retailers look to optimize forecasting accuracy for those top 20% SKUs.  Evaluating how the model, which is trained on all the SKUs, performs against those top 20% SKUs provides more meaningful insights on how a better forecasting model can have a direct impact on business objectives.
+- Alternatively, you may look instead to optimize your forecasting models for specific departments. For example, for an electronic manufacturer, the departments selling the primary products may be more important than the departments selling accessory products, encouraging the manufacturer to optimize accuracy for the primary departments. 
 
 2) **Pre-segmentation of data, call this your sample data.** For example, most data follows approx 80/20 rule, where 20% of the items are top-selling; the rest 80% of items are low-volume, long-tail.  Not all items have business value to merit the effort of forecasting.  **A good first sample is the 20% dense time series sample.** 
 
-One beginner mistake to avoid, is the thinking that small data is "better for testing".  Amazon Forecast processing steps are built for large data, they do not linearly scale with data size.  So, a very small sample of data will take just as long to run as a large sample.  Also, a small sample of data will very likely get poor results.
+- One beginner mistake to avoid, is the thinking that small data is "better for testing".  Amazon Forecast processing steps are built for large data, they do not linearly scale with data size.  So, a very small sample of data will take just as long to run as a large sample.  Also, a small sample of data will very likely get poor results.
 
-Think of a neural network that trains best with many different weights as inputs.  If you decide to "test" with only 1-10 time series, this will often cause poor results, since there won't be enough inputs to train a global model.  Instead, Amazon Forecast will be forced to use Traditional Statistical local models.   
+- Think of a neural network that trains best with many different weights as inputs.  If you decide to "test" with only 1-10 time series, this will often cause poor results, since there won't be enough inputs to train a global model.  Instead, Amazon Forecast will be forced to use Traditional Statistical local models.   
+- When it comes to sparse datasets, you will need to do some experimentation. Some ideas:
+  - Try NPTS algorithm in Amazon Forecast, which works better for intermittent demand patterns, or 
+  - Aggregate your data at a higher frequency (Weekly instead of Daily)
+  - Group sparse items at a higher product-group level.
+  - Often the sparse items benefit from being trained in a Deep Learning global model.  That global model may have lousy accuracy, but the the sparse items in the model could have higher accuracy than if they were trained by themselves.
 
 3) **Decisions:**
 
@@ -110,7 +121,7 @@ When you groupby timestamp and forecast dimensions, you should see only 1 'sales
 
 Adjust your definition of "timestamp" and "item_id" such that at your chosen aggregation level, per time series, per timestamp, the count of unique "target_value" should only be 1. 
 
-6) Possibly, but not required right away, identify other data you think in future might help inform forecasts – example Prices, Promotions, Stock-out dates, Holidays.
+6) **Possibly, but not required right away, identify other data you think in future might help inform forecasts** – example Prices, Promotions, Stock-out dates, Holidays.
 
 7) **Check your timestamp format**.  Should be dates only for daily or higher data time frequency (value in Step 3.3) .  The timestamp should have HH:mm:ss if data time frequency is hourly or lower.
 
@@ -118,7 +129,12 @@ Adjust your definition of "timestamp" and "item_id" such that at your chosen agg
 
 8) **Pay special attention to gaps or 0’s in your data. Pro tip: convert all 0’s to nulls,** then let Amazon Forecast do automatic null-filling through its Featurization settings.  See [the null-filling syntax](https://docs.aws.amazon.com/forecast/latest/dg/howitworks-missing-values.html).
 
+- If you're forecasting product demand for a retail store and an item is sold out or unavailable, there would be no sales data to record while that item is out of stock. We recommend that you fill the gaps in the historic sales data or target time series with NaN instead of 0. Filling with 0, the model might learn wrongly to bias forecasts toward 0. 
+- **Differentiate between out of stock and end of life**.  You may want to either fill missing values differently or have separate related time series for end of life products/dates and stock-outs by products/dates. 
+
 9) **Create training subset of sample data, with hold-out of 1 forecast length.** So training data is all sample data except last data points in time series of length forecast length. Reserve the hold-out data for forecast evaluation.
+
+Note: the forecast hold-out data is for developing custom error/accuracy metrics that can be calculated on exported forecasts, if desired.  If no custom metrics are required, there is no need for the hold-out, all the data can be used for training.  [Errors/accuracy are automatically calculated by Amazon Forecast system on forecasts using the "backtest technique".](Errors/accuracy are automatically calculated by Amazon Forecast system on forecasts using the "backtest technique". )  
 
 **Note: special consideration for cold-start or new product introductions**.  For best results, do not include new items in your training data.  Do include new items in the inference data.  If fewer than 5 data points exist per new item, be sure to fill missing values explicitly in the new items with "NaN"; otherwise the cold-start items will be silently dropped.
 
@@ -128,7 +144,7 @@ Copy the "S3 URI" to TTS.csv
 
 <a name="tutorial"/>
 
-## Follow tutorial below to get your first Predictor.  
+## Tutorial to get your first Predictor  
 
 Best Practices are continued inside this tutorial.
 
@@ -163,13 +179,16 @@ Best Practices are continued inside this tutorial.
 
 15. **Choose probabilistic quantiles that fit your business goals.**  The optimal choice of quantile reflects the average proportion between marginal profit and the production and inventory holding costs.  In other words, the quantile choice should be based on the lost opportunity cost of under-forecasting and the cost of over-producing and holding over-forecasted items.  
 
-    For example, a p90 forecast is useful when you have something like milk or toilet paper, that you never want to run out of at a grocery store and you don’t mind always having some remaining on the shelves. On the other hand, suppose you have an expensive machine, then a p10 forecast would be more useful since you don’t want to carry such expensive inventory costs and your customers probably aren’t expecting that machine to just be sitting around in stock anyway. As an extreme example, Amazon Redshift uses Forecast at p99 levels, because they never want to run out of virtual resources. [See documentation for more details on metrics.](https://docs.aws.amazon.com/forecast/latest/dg/metrics.html)
+    - The risk tolerance for certain SKUs might be higher than others. For long shelf life items, you may prefer to overstock because you can easily store excess inventory. For items with a short shelf life, you may prefer a lower stocking level to reduce waste. **It’s ideal to train one model but assess forecasting accuracy for different SKUs at different stocking levels.**
+    - For some items the opportunity cost dictates decisions.  For example, a p90 forecast is useful when you have something like milk or toilet paper, that a grocery store never wnats to run out of and doesn't mind always having some remaining on the shelves. On the other hand, for an expensive machine, a p10 forecast would be more useful since you don’t want to carry such expensive inventory costs and customers probably aren’t expecting that machine to just be sitting around in stock anyway. As an extreme example, Amazon Redshift uses Forecast at p99 levels, because they never want to run out of virtual resources. [See documentation for more details on metrics.](https://docs.aws.amazon.com/forecast/latest/dg/metrics.html)
 
-    **If you don't know your business costs of under- vs over- forecasting, or maybe such costs are equal, use the default values for AutoML which are p10, p50, p90.**  
+    > **If you don't know your business costs of under- vs over- forecasting, or maybe such costs are equal, use the default values for AutoML which are p10, p50, p90.**  
 
-    Typically forecasters choose 3 quantiles.  For example, generating 3 forecasts at p10, p50, p90 results in an 80% confidence interval around the p50 forecast.  When making charts, typically the region between p10 and p90 is shaded to indicate the 80% confidence interval.
+    - Typically forecasters choose 3 quantiles.  For example, generating 3 forecasts at p10, p50, p90 results in an 80% confidence interval around the p50 forecast.  When making charts, typically the region between p10 and p90 is shaded to indicate the 80% confidence interval.
 
-    Note:  In the predictor output, errors for each quantile forecast are called "wQL" or weighted quantile loss, which is the error of that quantile forecast. 
+
+    - Note:  In the predictor output, errors for each quantile forecast are called "wQL" or weighted quantile loss, which is the error of that quantile forecast. 
+
 
     > Technical details:  The formal definition of a quantile forecast is Pr(actual value <= forecast at quantile q) = q.  Technically a quantile is a percentile/100.  Statisticians tend to say ”p90 quantile-level“, since that is easier to say than "“quantile 0.9”. For example, a p90 quantile-level forecast means the actual value can be expected to be less than the forecast 90% of the time.  Specifically if at time=t1 and quantile-level=0.9, the predicted value = 30, that means the actual value at time= t1, if you had 1000 simulations, would be expected to be less than 30 for 900 simulations, and for the remaining 100 simulations, the actual value is expected to be over 30.
 
@@ -193,39 +212,57 @@ Best Practices are continued inside this tutorial.
 
     5. Under Predictor details > Algorithm > Select radio button for Automatic (AutoML) 
 
-    6. Choose number of backtest windows = 3
+    6. Choose number of backtest windows = 3.  Max number: 5.  
 
-    7. **Expand the “Advanced configurations” section**
-       ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/understandNullFilling.png)
+       **Best practice:  always choose more than 1 backtest window.**  
 
-       - [Terminology and syntax](https://docs.aws.amazon.com/forecast/latest/dg/howitworks-missing-values.html):
+       
 
-         - "frontfill" - refers to cold-start items and how you want to treat nulls before the item begins to have any history
-         - "middlefill" - refers to nulls in the middle of time series values
-         - "backfill" - refers to end-of-life items and how you want to treat nulls after an item has stopped selling
+       ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/backtest_windows.png)
 
-       - **If the default filling looks fine, you don’t need to do anything**
+       
 
-       - If you want to change middlefill=”nan” because 0’s aren’t really 0’s and backfill=”nan” because you know you have some products with end-of-life, paste the sample JSON below.
+       - [Forecast uses backtesting](https://docs.aws.amazon.com/forecast/latest/dg/metrics.html) to tune predictors and produce accuracy metrics. To perform backtesting, Forecast automatically splits your time-series datasets into two sets: training and testing. The training set is used to train your model, and the testing set to evaluate the model’s predictive accuracy. We recommend choosing more than one backtest window to minimize selection bias that may make one window more or less accurate by chance. Assessing the overall model accuracy from multiple backtest windows provides a better measure of the strength of the model and reduces the chance of overfitting. 
 
-         ```json
-         [
-         	{
-       		"AttributeName": "target_value",
-         		"FeaturizationPipeline": [
-       			{
-         				"FeaturizationMethodName": "filling",
-       				"FeaturizationMethodParameters": {
-         					"aggregation": "sum",
-       					"frontfill": "none",
-         					"middlefill": "nan",
-       					"backfill": "nan"
-         				}
-       			}
-         		]
-       	}
-         ]
-         ```
+       
+
+    7. **Expand the “Advanced configurations” and scroll down to the "Featurizations"** section to view null-filling options.
+
+    ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/understandNullFilling.png)
+
+    - **Pro-tip: convert all 0's to nulls and let Amazon Forecast do the heavy lifting of automatically imputing missing values**.  Amazon Forecast will automatically detect whether the missing values occur due to new product introduction (cold-starts) or end-of-life products.  
+
+    - You can use several missing value logics including value, median, min, max, zero, mean, and nan (target time series only), depending on the specific use case. 
+
+    - [Null-filling featurization terminology and syntax](https://docs.aws.amazon.com/forecast/latest/dg/howitworks-missing-values.html):
+
+      - "**frontfill**" - (TTS only) refers to cold-start items and how you want to treat nulls before the item begins to have any history
+      - "**middlefill**" - refers to nulls in the middle of time series values
+      - "**backfill**" - refers to end-of-life items and how you want to treat nulls after an item has stopped selling
+      - "**futurefill**" - (RTS only) refers to nulls that occur after the end of training data
+
+    - **If the default filling looks fine, you don’t need to do anything**
+
+    - If you want to change middlefill=”nan” because 0’s aren’t really 0’s and backfill=”nan” because you know you have some products with end-of-life, paste the sample JSON below.
+
+      ```json
+      [
+      	{
+    		"AttributeName": "target_value",
+      		"FeaturizationPipeline": [
+    			{
+      				"FeaturizationMethodName": "filling",
+    				"FeaturizationMethodParameters": {
+      					"aggregation": "sum",
+    					"frontfill": "none",
+      					"middlefill": "nan",
+    					"backfill": "nan"
+      				}
+    			}
+      		]
+    	}
+      ]
+      ```
 
     8. **Click Start**
 
@@ -269,6 +306,10 @@ Best Practices are continued inside this tutorial.
     This will make it easier to compare future experiments to be able to tell what is working.  
     ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/Experiments_excel.png)
 
+
+
+22. Remember,  [from Step 1 from Best Practice](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#bestpractice), Improving forecast accuracy for specific items—such as those with higher prices or higher costs—is often more important than optimizing for all items.  By exporting the Predictor backtest exports, item-level accuracy can be calculate for specific items or groups of items, without needing a hold-out data set.  [See our notebook for an example of custom item-level metrics from Predictor backtest exports](https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/Item_Level_Accuracy/Item_Level_Accuracy_Using_Bike_Example.ipynb).
+
 <br>
 
 ## Iterating Models and What-if Best Practices<a name="iteratebp"/>
@@ -279,9 +320,7 @@ Best Practices are continued inside this tutorial.
 
     	1. Lowest average over all wQLs.  If tie, then:
     	2. Lowest WAPE.  If tie, then: 
-    	3. Lowest RMSE.
-
-    Alternatively to above, your business may have its own Success metrics.  It is possible to calculate these from item-level backtest metrics.  [See our example Item-level accuracy notebook.](https://github.com/aws-samples/amazon-forecast-samples/tree/master/notebooks/advanced/Item_Level_Accuracy)  
+    	3. Lowest RMSE. 
 
     As a developer or Business leader, here you need to think a little bit like a Data Scientist.  A good model, quite often, does not happen on the first try.   Machine learning models are only as good as the data put into them, so the data itself very likely may need improvement.  
 
@@ -290,7 +329,7 @@ Best Practices are continued inside this tutorial.
     2. **For all future experiments, stick to this same algorithm, then use HPO=True.**  AutoML mode did a light HPO, to verify which algorithm is best, but the parameter optimization is not as deep as explicitly setting HPO toggled on for a single algorithm.
     3. Finally, when you have finished iterating,  **use the fixed algorithm and fixed Training Parameters from the last HPO Predictor.**
 
-25. **Iterating and scaling to value.**  Unlike Machine Learning Competitions, real life POCs are not about "highest accuracy at any cost".  In real life, there is often a balance to think about:  Accuracy, Scaleability, Effort.  Since human time is expensive, there might be other activities of more value than trying to get the tiniest extra amounts of accuracy out of Forecast models.
+25. **Iterating and scaling to value.**  Unlike Machine Learning Competitions, real life POCs are not about "highest accuracy at any cost".  In real life, there is often a balance to think about:  Accuracy, Scaleability, Effort.  Since human time is expensive, there might be other activities of more value than trying to get the utmost extra amounts of accuracy out of Forecast models.
 
 Keeping this in mind, some typical next iterations, in order of easiest-to-hardest and most-to-least expected incremental accuracy improvements: 
 <br>
@@ -308,11 +347,32 @@ Keeping this in mind, some typical next iterations, in order of easiest-to-harde
 
     - When you train a Predictor with either Holidays and/or Weather features enabled, use HPO=True**, or Hyperparameter Optimization toggled on, so you get the best tuned Predictor.  Make sure you do this before making inferences (or forecasts).
 
-29. **Add Item Metadata (IM) and/or Related (RTS) data.  Difficult.**  For RTS, the first time you'll have to figure out the best featurization and import the data.  Recommended to train a new Predictor using AutoML so you can tell if the new data gets picked up or not.
+29. **Add Item Metadata (IM) and/or Related (RTS) data.  Difficult.**  For RTS, the first time you'll have to figure out the best featurization and import the data.  To decide which data to use as a related time series start with:
 
-    - **If you are trying to forecast "cold-starts" or new products, Item Metadata is required.**  Provide item group names to tie together new products with existing products with longer histories.
+    - Discuss with your business users to build an intuition of what factors might impact your product demand. 
+    - Visualize the data by overlaying it with your target time series to see patterns. 
+    - Assess correlation between the target_value and the related variable
+    - Try transformations - e.g. log(price) instead of abs(price)
+    - Try related time series one at a time and trying in different combinations. Sometimes you might have to transform your related time series data to see if the accuracy increases. 
+
+    - **Pro-tip:  Train a new Predictor using just CNN-QR**, if possible, so you can tell from the Predictor parameters if the new data gets picked up or not.  You want to see: 
+
+      ```json
+      "use_related_data": "ALL",
+      "use_item_metadata": "ALL",
+      ```
+
+    - If CNN-QR is not using all your IM and RTS, it means your data was not found to be useful.  Time to iterate on the data.
+
+    - Prophet is the only statistical algorithm that can use RTS; it cannot use Item Metadata.
+
+    - To use both IM and RTS, you will need to use a Deep Learning Algorithm
+
+    - **If you are trying to forecast "cold-starts" or new products, Item Metadata is required.**  Provide item group names to tie together new products with existing products with longer histories.  Forecasting cold-starts can only be done using Deep Learning algorithms.
+
     - To iterate on IM and RTS, it is possible to change the data and perform inference-only.  See Running an experiment without re-training by API call:  https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/WhatIf_Analysis/WhatIf_Analysis.ipynb. At the moment, forecast metrics are not automatically calculated, so this approach takes a lot more effort, and may not end up saving you time between iterations.  
-    - **To get the best accuracy, once you have finalized the IM and RTS fields, train with HPO=True**, or Hyperparameter Optimization toggled on, so you get the best tuned Predictor.  Make sure you do this before making inferences (or forecasts).  At the moment, since Predictor metrics are automatically calculated, re-training each experiment with HPO=True, might be the most efficient approach, since your time is not completely occupied and can be spent somewhere else during training times.
+
+30. **To get the best accuracy, once you have finalized the IM and RTS fields, train with HPO=True**, or Hyperparameter Optimization toggled on, so you get the best tuned Predictor.  Make sure you do this before making inferences (or forecasts).  At the moment, since Predictor metrics are automatically calculated, re-training each experiment with HPO=True, might be the most efficient approach, since your time is not completely occupied and can be spent somewhere else during training times.
 
 <br>
 
