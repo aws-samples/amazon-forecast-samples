@@ -354,10 +354,16 @@ Keeping this in mind, some typical next iterations, in order of easiest-to-harde
 29. **Add Item Metadata (IM) and/or Related (RTS) data.  Difficult.**  For RTS, the first time you'll have to figure out the best featurization and import the data.  To decide which data to use as a related time series start with:
 
     - Discuss with your business users to build an intuition of what factors might impact your product demand. 
-    - Visualize the data by overlaying it with your target time series to see patterns
-      <img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/visualize_related_weekend.png" style="zoom:60%;" />
+
+    - Visualize the data by overlaying it with your target time series to see patterns.   
+
+      - For example below, we visualize a candidate "weekend" related time series feature by overlaying the 0-1 variable (red) with actual values.
+        <img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/visualize_related_weekend.png" style="zoom:50%;" />
+
     - Assess correlation between the target_value and the related variable
+
     - Try transformations - e.g. log(price) instead of abs(price)
+
     - Try related time series one at a time and trying in different combinations. Sometimes you might have to transform your related time series data to see if the accuracy increases. 
 
     - **Pro-tip:  Train a new Predictor using just CNN-QR**, if possible, so you can tell from the Predictor parameters if the new data gets picked up or not.  You want to see: 
