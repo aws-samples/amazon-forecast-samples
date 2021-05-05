@@ -12,6 +12,10 @@
 * [Demos/Workshops](#workshops)
 * [More Resources](#moreresources)
 
+
+
+![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/forecast_overview.png)
+
 <a name="intro"/>
 
 
@@ -35,7 +39,7 @@ This is summarized in the following table:
 
 | Criteria                                                     | Amazon Forecast Algorithm class                              |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Large dataset with up to 1 million time series with similar underlying patterns + seasonal effects + related data. Each time series should have a long history, ideally more than 2 years if hoping to capture annual events, and each time series more than 300, ideally at least 1K data points. | Amazon Forecast's proprietary deep learning DeepAR+, CNN-QR  |
+| Large dataset with up to 1 million time series with similar underlying patterns + seasonal effects + related data. Each time series should have a long history, ideally more than 2 years if trying to capture annual events, and each time series more than 300, ideally at least 1K data points. | Amazon Forecast's proprietary deep learning DeepAR+, CNN-QR  |
 | Small dataset with 1-100's of time series, where majority of time series have more than 300 data points + seasonal effects + related data. | Prophet                                                      |
 | Small dataset with 1-10's of time series, where majority of time series have more than 300 data points + seasonal effects. | ETS, ARIMA                                                   |
 | Intermittent (sparse containing many 0s) with 1-10's of time series, where majority of time series have more than 300 data points. | Amazon Forecast's proprietary NPTS                           |
@@ -51,8 +55,8 @@ This is summarized in the following table:
   - An **"item_id", or some unique identifier, for the things you want to forecas**t.  The unique identifier is sometimes a concatenation of item_id and location_id.  Or sometimes it is even more fields concatenated together to form a unique time series identifier.
   - Also a **"timestamp" when the sale occurred**
   - And a **"target_value" or sales quantity**
-- In addition to historical sales data, **sometimes other data is known per item at exactly the same time as every sale.  This is called the Related Time Series (RTS)**.  Related data can sometimes give more clues to what future predictions could look like.  The best related data is also known in the future.  For example Prices, Promotions, Economic indicators, Holidays, sometimes even Weather.
-- Especially for cold-starts, or new product introductions, it is important to have Item Metadata (IM).  **Item Metadata is static information with respect to time, it varies only per fixed "item_id"**.  
+- In addition to historical sales data, **sometimes other data is known per item at exactly the same time as every sale.  This is called the Related Time Series (RTS)**.  Related data can give more clues to what future predictions could look like.  The best related data is also known in the future.  For example Prices, Promotions, Economic indicators, Holidays, sometimes even Weather.
+- Especially for cold-starts, or new product introductions, it is important to have Item Metadata (IM).  **Item Metadata is static information with respect to time, it varies only per fixed "item_id"**.  Examples of metadata are type of item, product group, genre, color, class.
 
 
 
@@ -111,7 +115,6 @@ Following are Best Practices for developing the most accurate Amazon Forecast mo
 ​			Rule: Data granularity can be <= forecast granularity.
 
 > Note:  Forecast can import data that isn't aligned with the collection frequency specified in the [CreateDataset](https://docs.aws.amazon.com/forecast/latest/dg/API_CreateDataset.html) operation. For example, you can import data for which the collection frequency is hourly and some of the data isn't timestamped at the top of the hour (02:20, 02:45). Forecast aggregates the data to match the aligned value. 
-> 
 
 4) **Identify columns in your data that you will map to: timestamp, item_id, target_value**.  The item_id should identify unique time series.  Typically item_id is a product ID.  Target_value is often a sales quantity.  The combination of timestamp, item_id, target_value should describe the historical sales for a particular product. [See documentation for more details.](https://docs.aws.amazon.com/forecast/latest/dg/howitworks-datasets-groups.html)
 
@@ -298,8 +301,8 @@ Best Practices are continued inside this tutorial.
   - RMSE (measured at mean, which may be different from p50 quantile).
     
       - As [explained in Step 15](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#tutorial), Amazon Forecast generates a forecast at a particular quantile. Weighted quantile loss is the accuracy metric or “wQL”. Machine learning models work by minimizing (or maximizing) an objective function, in this case loss or prediction error. The weighted quantile loss function is weighted to penalize forecast values at kth percentile that are higher than actuals more when k < 0.5 and the reverse when k > 0.5. So, p10 quantile predictions that are higher than actuals will get 0.9 weightings; whereas p90 quantile predictions that are lower than actual will get 0.9 weighting. The full formula is:
-    ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/Formula_wql.png)
-      
+    ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/Formula_wql.png) 
+    
     [See documentation for more details.](https://docs.aws.amazon.com/forecast/latest/dg/metrics.html.)
 21. **Save a record of your experiments in Excel (or some place local):**  
 
@@ -338,7 +341,8 @@ Keeping this in mind, some typical next iterations, in order of easiest-to-harde
 
 27. **Subset data in different ways and try training a separate model per subset.**  Difficult - you'll have to import each dataset separately, train a Predictor per data subset.  Compare identical item accuracies across subset model vs global all-in model.
 
-    For example Python functions to split data by top-moving, dense-only, or erratic-only,  [see our example DataPrep notebook](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/1.Getting_Data_Ready_nytaxi.ipynb)
+    - For example Python functions to split data by top-moving, dense-only, or erratic-only,  [see our example DataPrep notebook](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/1.Getting_Data_Ready_nytaxi.ipynb)
+    - For example Python functions to calculate item-level metrics for subset groups of items using the Predictor backtest export, [see our example Item_Level_Accuracy notebook](https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/Item_Level_Accuracy/Item_Level_Accuracy_Using_Bike_Example.ipynb). 
 
     Below is an example Amazon QuickSight visualization, comparing the same random items across 3 models:  1) top row is global all-in model that was trained on all data at once; 2) 2nd row is same items from model trained on subset only "top-moving" items; 3) 3rd row is same items from model trained on subset only "erratic time series"  items.  We can see below that items from the Erratic-only model have highest accuracy.  On the other hand, we expect the subset of items that are not-erratic or not-top-moving, which are harder to forecast, will have better accuracy when taken from the top, all-in model.
     <img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/quicksight-example-model-iterations.png" alt="Compare models created on different data subsets" style="zoom:70%;" />
@@ -350,7 +354,8 @@ Keeping this in mind, some typical next iterations, in order of easiest-to-harde
 29. **Add Item Metadata (IM) and/or Related (RTS) data.  Difficult.**  For RTS, the first time you'll have to figure out the best featurization and import the data.  To decide which data to use as a related time series start with:
 
     - Discuss with your business users to build an intuition of what factors might impact your product demand. 
-    - Visualize the data by overlaying it with your target time series to see patterns. 
+    - Visualize the data by overlaying it with your target time series to see patterns
+      <img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/visualize_related_weekend.png" style="zoom:60%;" />
     - Assess correlation between the target_value and the related variable
     - Try transformations - e.g. log(price) instead of abs(price)
     - Try related time series one at a time and trying in different combinations. Sometimes you might have to transform your related time series data to see if the accuracy increases. 
@@ -452,7 +457,7 @@ Choose whether to generate forecast using the same train data or whether to upda
 
 ## Videos<a name="videos">
 
-- High-level intro to Amazon Forecast (minutes 1-8), demo (minutes 8-18), and customer story (minutes 20-34): https://www.youtube.com/watch?v=K7MaDbn8_l0
+- High-level intro to Amazon Forecast (minutes 1-8), demo (minutes 8-18), and customer story in retail (minutes 20-34): https://www.youtube.com/watch?v=K7MaDbn8_l0
 - Demo how to prepare data for Amazon Forecast using AWS Glue DataBrew (5min) : 
 - Demo how to train a predictor using Amazon Forecast screens for NYC taxi data (5min):
 - Demo how to train a predictor using Improving Accuracy Forecast Solution CloudTemplate stack (5min):
