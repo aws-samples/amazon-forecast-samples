@@ -137,7 +137,7 @@ Adjust your definition of "timestamp" and "item_id" such that at your chosen agg
 
 9) **Create training subset of sample data, with hold-out of 1 forecast length.** So training data is all sample data except last data points in time series of length forecast length. Reserve the hold-out data for forecast evaluation.
 
-Note: the forecast hold-out data is for developing custom error/accuracy metrics that can be calculated on exported forecasts, if desired.  If no custom metrics are required, there is no need for the hold-out, all the data can be used for training.  [Errors/accuracy are automatically calculated by Amazon Forecast system on forecasts using the "backtest technique".](Errors/accuracy are automatically calculated by Amazon Forecast system on forecasts using the "backtest technique". )  
+Note: the forecast hold-out data is for developing custom error/accuracy metrics that can be calculated on exported forecasts, if desired.  If no custom metrics are required, there is no need for the hold-out, all the data can be used for training.  [Errors/accuracy are automatically calculated by Amazon Forecast system on forecasts using the "backtest technique".](https://docs.aws.amazon.com/forecast/latest/dg/metrics.html)  
 
 **Note: special consideration for cold-start or new product introductions**.  For best results, do not include new items in your training data.  Do include new items in the inference data.  If fewer than 5 data points exist per new item, be sure to fill missing values explicitly in the new items with "NaN"; otherwise the cold-start items will be silently dropped.
 
@@ -337,53 +337,67 @@ Best Practices are continued inside this tutorial.
 Keeping this in mind, some typical next iterations, in order of easiest-to-hardest and most-to-least expected incremental accuracy improvements: 
 <br>
 
-26. **Try different null-value featurizations.**  Easy if you followed our Pro tip in Best Practices, and converted all 0’s to nulls.  You can do this on same dataset, just train new Predictor with different featurization choices. [See documentation for syntax](https://docs.aws.amazon.com/forecast/latest/dg/howitworks-missing-values.html).
+- **Try different null-value featurizations.**  Easy if you followed our Pro tip in Best Practices, and converted all 0’s to nulls.  You can do this on same dataset, just train new Predictor with different featurization choices. [See documentation for syntax](https://docs.aws.amazon.com/forecast/latest/dg/howitworks-missing-values.html).
 
-27. **Subset data in different ways and try training a separate model per subset.**  Difficult - you'll have to import each dataset separately, train a Predictor per data subset.  Compare identical item accuracies across subset model vs global all-in model.
+- **Subset data in different ways and try training a separate model per subset.**  Difficult - you'll have to import each dataset separately, train a Predictor per data subset.  Compare identical item accuracies across subset model vs global all-in model.
 
-    - For example Python functions to split data by top-moving, dense-only, or erratic-only,  [see our example DataPrep notebook](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/1.Getting_Data_Ready_nytaxi.ipynb)
-    - For example Python functions to calculate item-level metrics for subset groups of items using the Predictor backtest export, [see our example Item_Level_Accuracy notebook](https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/Item_Level_Accuracy/Item_Level_Accuracy_Using_Bike_Example.ipynb). 
+  - For example Python functions to split data by top-moving, dense-only, or erratic-only,  [see our example DataPrep notebook](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/1.Getting_Data_Ready_nytaxi.ipynb)
+  - For example Python functions to calculate item-level metrics for subset groups of items using the Predictor backtest export, [see our example Item_Level_Accuracy notebook](https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/Item_Level_Accuracy/Item_Level_Accuracy_Using_Bike_Example.ipynb). 
 
-    Below is an example Amazon QuickSight visualization, comparing the same random items across 3 models:  1) top row is global all-in model that was trained on all data at once; 2) 2nd row is same items from model trained on subset only "top-moving" items; 3) 3rd row is same items from model trained on subset only "erratic time series"  items.  We can see below that items from the Erratic-only model have highest accuracy.  On the other hand, we expect the subset of items that are not-erratic or not-top-moving, which are harder to forecast, will have better accuracy when taken from the top, all-in model.
-    <img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/quicksight-example-model-iterations.png" alt="Compare models created on different data subsets" style="zoom:70%;" />
+  Below is an example Amazon QuickSight visualization, comparing the same random items across 3 models:  1) top row is global all-in model that was trained on all data at once; 2) 2nd row is same items from model trained on subset only "top-moving" items; 3) 3rd row is same items from model trained on subset only "erratic time series"  items.  We can see below that items from the Erratic-only model have highest accuracy.  On the other hand, we expect the subset of items that are not-erratic or not-top-moving, which are harder to forecast, will have better accuracy when taken from the top, all-in model.
+  <img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/quicksight-example-model-iterations.png" alt="Compare models created on different data subsets" style="zoom:70%;" />
 
-28. **Use the built-in, AWS-hosted data enrichments: Holidays and Weather.  Easy.**  Both of these variables can help more accurately predict sales.  Weather requires hourly time granularity of data and forecast horizon 14 days or less.  Weather also requires locations to be more than just string names, that is, to have actual geolocations.  Geolocations can be 2-digit country code + "_" + 5-digit zip or actual latitude_longitude.  https://docs.aws.amazon.com/forecast/latest/dg/weather.html
+- **Use the built-in, AWS-hosted data enrichments: Holidays and Weather.  Easy.**  Both of these variables can help more accurately predict sales.  Weather requires hourly time granularity of data and forecast horizon 14 days or less.  Weather also requires locations to be more than just string names, that is, to have actual geolocations.  Geolocations can be 2-digit country code + "_" + 5-digit zip or actual latitude_longitude.  https://docs.aws.amazon.com/forecast/latest/dg/weather.html
 
-    - When you train a Predictor with either Holidays and/or Weather features enabled, use HPO=True**, or Hyperparameter Optimization toggled on, so you get the best tuned Predictor.  Make sure you do this before making inferences (or forecasts).
+  - When you train a Predictor with either Holidays and/or Weather features enabled, use HPO=True**, or Hyperparameter Optimization toggled on, so you get the best tuned Predictor.  Make sure you do this before making inferences (or forecasts).
 
-29. **Add Item Metadata (IM) and/or Related (RTS) data.  Difficult.**  For RTS, the first time you'll have to figure out the best featurization and import the data.  To decide which data to use as a related time series start with:
+- **If using DeepAR+ algorithm, try a different likelihood function**.  The default likelihood function "student-t" works best most of the time.  Plot the target-value histogram and see which distribution the plot looks like.  Use these general rules based on what you see:
 
-    - Discuss with your business users to build an intuition of what factors might impact your product demand. 
+  - Positive counting numbers -> Use negative-binomial
 
-    - Visualize the data by overlaying it with your target time series to see patterns.   
+  - Limited range 0 or 1 target_value -> Use beta
+  
+  - Floating point decimal numbers -> Usually student-t; very rarely gaussian
+    - Use student-t when any of: population size is small, or population standard deviation unknown, or you expect heavier tails than “normal”
+  - Non-stationary Poisson, or different student-t’s in different time ranges (e.g. higher traffic during commuting hours) -> Try piecewise-linear 
+  - PW-linear likelihood function wins - for irregular data - e.g. web traffic, retail sales
+  - Student-t  wins for regular data - e.g. electricity, highway traffic 
 
-      - For example below, we visualize a candidate "weekend" related time series feature by overlaying the 0-1 variable (red) with actual values.
-        <img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/visualize_related_weekend.png" style="zoom:50%;" />
+- **Add Item Metadata (IM) and/or Related (RTS) data.  Difficult.**  For RTS, the first time you'll have to figure out the best featurization and import the data.  To decide which data to use as a related time series start with:
 
-    - Assess correlation between the target_value and the related variable
+  - Discuss with your business users to build an intuition of what factors might impact your product demand. 
 
-    - Try transformations - e.g. log(price) instead of abs(price)
+  - Visualize the data by overlaying it with your target time series to see patterns.   
 
-    - Try related time series one at a time and trying in different combinations. Sometimes you might have to transform your related time series data to see if the accuracy increases. 
+    - For example below, we visualize a candidate "weekend" related time series feature by overlaying the 0-1 variable (red) with actual values.
+      <img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/visualize_related_weekend.png" style="zoom:50%;" />
 
-    - **Pro-tip:  Train a new Predictor using just CNN-QR**, if possible, so you can tell from the Predictor parameters if the new data gets picked up or not.  You want to see: 
+  - Assess correlation between the target_value and the related variable
 
-      ```json
-      "use_related_data": "ALL",
-      "use_item_metadata": "ALL",
-      ```
+  - Try transformations - e.g. log(price) instead of abs(price)
 
-    - If CNN-QR is not using all your IM and RTS, it means your data was not found to be useful.  Time to iterate on the data.
+  - Try related time series one at a time and trying in different combinations. Sometimes you might have to transform your related time series data to see if the accuracy increases. 
 
-    - Prophet is the only statistical algorithm that can use RTS; it cannot use Item Metadata.
+  - **Pro-tip:  Train a new Predictor using just CNN-QR**, if possible, so you can tell from the Predictor parameters if the new data gets picked up or not.  Inside the Predictor Training Parameters, you want to see: 
 
-    - To use both IM and RTS, you will need to use a Deep Learning Algorithm
+    ```json
+    "use_related_data": "ALL",
+    "use_item_metadata": "ALL",
+    ```
 
-    - **If you are trying to forecast "cold-starts" or new products, Item Metadata is required.**  Provide item group names to tie together new products with existing products with longer histories.  Forecasting cold-starts can only be done using Deep Learning algorithms.
+  - If CNN-QR is not using all your IM and RTS, it means your data was not found to be useful.  Time to iterate on the data.
 
-    - To iterate on IM and RTS, it is possible to change the data and perform inference-only.  See Running an experiment without re-training by API call:  https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/WhatIf_Analysis/WhatIf_Analysis.ipynb. At the moment, forecast metrics are not automatically calculated, so this approach takes a lot more effort, and may not end up saving you time between iterations.  
+  - Prophet is the only statistical algorithm that can use RTS; it cannot use Item Metadata.
 
-30. **To get the best accuracy, once you have finalized the IM and RTS fields, train with HPO=True**, or Hyperparameter Optimization toggled on, so you get the best tuned Predictor.  Make sure you do this before making inferences (or forecasts).  At the moment, since Predictor metrics are automatically calculated, re-training each experiment with HPO=True, might be the most efficient approach, since your time is not completely occupied and can be spent somewhere else during training times.
+  - To use both IM and RTS, you will need to use a Deep Learning Algorithm
+
+  - **If you are trying to forecast "cold-starts" or new products, Item Metadata is required.**  Provide item group names to tie together new products with existing products with longer histories.  Forecasting cold-starts can only be done using Deep Learning algorithms.
+
+  - To iterate on IM and RTS, it is possible to change the data and perform inference-only.  See Running an experiment without re-training by API call:  https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/WhatIf_Analysis/WhatIf_Analysis.ipynb. At the moment, forecast metrics are not automatically calculated, so this approach takes a lot more effort, and may not end up saving you time between iterations.  
+
+- **To get the best accuracy, once you have finalized the IM and RTS fields, train with HPO=True**, or Hyperparameter Optimization toggled on, so you get the best tuned Predictor.  Make sure you do this before making inferences (or forecasts).  At the moment, since Predictor metrics are automatically calculated, re-training each experiment with HPO=True, might be the most efficient approach, since your time is not completely occupied and can be spent somewhere else during training times.
+
+ 
 
 <br>
 
