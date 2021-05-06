@@ -479,7 +479,8 @@ Choose whether to generate forecast using the same train data or whether to upda
 
 - High-level intro to Amazon Forecast (minutes 1-8), demo (minutes 8-18), and customer story in retail (minutes 20-34): https://www.youtube.com/watch?v=K7MaDbn8_l0
 - Demo how to prepare data for Amazon Forecast using AWS Glue DataBrew (5min) : 
-- [Demo how to train a predictor using Amazon Forecast screens for NYC taxi data](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/demo_videos/train_predictor.mp4) (6min):
+- Demo how to train and evaluate a predictor using Amazon Forecast screens for NYC taxi data [Demo video](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/demo_videos/forecast_pipeline_through_console.mp4) (minutes 1-10):
+- Demo how to create a forecast, query forecast in console, and visualize through Amazon Quicksight BI Dashboard [Demo video](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/demo_videos/forecast_pipeline_through_console.mp4) (minutes 9:45-end, ~4min)
 - Demo how to train a predictor using Improving Forecast Accuracy with ML Solution CloudFormation template (5min):
 
 
