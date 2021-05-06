@@ -1,6 +1,6 @@
 # Instructions how to install the Amazon Forecast solution
 
-The Amazon Forecast Pre-POC workshop uses a solution that is implemented using AWS service components bundled together and deployed using AWS CloudFormation template.  The architecture components will make experimentation and iteration of Forecast models easier.
+The Amazon Forecast Pre-POC workshop uses a solution that is implemented using AWS service components bundled together and deployed using an AWS CloudFormation template.  AWS CF templates are JSON or YAML that programmatically declare the AWS resources to be used and specific configurations.  The architecture components will make experimentation and iteration of Forecast models easier.
 
 By default, the installed components of this solution do not incur any cost when not in use. 
 
@@ -39,7 +39,6 @@ A few days before starting the workshop, log into your AWS account and install o
    * N. Virginia: <a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">us-east-1</a>
    * Ohio: <a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">us-east-2</a>
    * Oregon: <a href="https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">us-west-2</a>
-     
 
 ## Next, follow these directions for the screens that will pop up:
 
