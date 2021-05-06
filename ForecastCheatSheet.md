@@ -159,7 +159,7 @@ Best Practices are continued inside this tutorial.
 13. **Create a Dataset Group and Target Time Series data**
     1. On the Forecast console, click Create dataset group
 
-    2. Give your Dataset Group a name, and choose Custom “domain” or another vocabulary that is convenient for you. The domain is for convenience, it makes no difference to forecast algorithms whether you call your target value “demand” or “target_value”, the column headers will be dropped anyway. 
+    2. Give your Dataset Group a name, and choose Custom “domain” or another vocabulary for convenience, it makes no difference to forecast algorithms whether you call your target value “demand” or “target_value”, the column headers will be dropped anyway. 
 
     3. Click Next
 
@@ -479,8 +479,8 @@ Choose whether to generate forecast using the same train data or whether to upda
 
 - High-level intro to Amazon Forecast (minutes 1-8), demo (minutes 8-18), and customer story in retail (minutes 20-34): https://www.youtube.com/watch?v=K7MaDbn8_l0
 - Demo how to prepare data for Amazon Forecast using AWS Glue DataBrew (5min) : 
-- Demo how to train a predictor using Amazon Forecast screens for NYC taxi data (5min):
-- Demo how to train a predictor using Improving Accuracy Forecast Solution CloudTemplate stack (5min):
+- [Demo how to train a predictor using Amazon Forecast screens for NYC taxi data](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/demo_videos/train_predictor.mp4) (6min):
+- Demo how to train a predictor using Improving Forecast Accuracy with ML Solution CloudFormation template (5min):
 
 
 
