@@ -13,7 +13,7 @@ Default:
             AttributeType: timestamp
           - AttributeName: item_id
             AttributeType: string
-          - AttributeName: location
+          - AttributeName: geolocation
             AttributeType: geolocation
           - AttributeName: target_value
             AttributeType: float
@@ -33,7 +33,7 @@ Default:
       - "0.90"
 
 
-nyctaxi_erratic_snap02232020_168H:
+nyctaxi_weather_auto:
   DatasetGroup:
     Domain: CUSTOM
 
