@@ -48,7 +48,7 @@ A few days before starting the workshop, log into your AWS account and install o
 
 
 
-**Step 2:** Name your stack "forecast-stack-nyctaxi-demo" and provide an email address for notifications. Click "Next".
+**Step 2:** Provide an email address for notifications. Click "Next".
 
 <img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-step2.png" style="zoom:60%;" />
 
@@ -137,13 +137,18 @@ Click button next to the nested stack and click menu action “Update”
 ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-1QuickSight.png)
 <br>
 
-**Step 9**: Click "Use current template" and click "Next".
+**Step 9**: Click "Update nested stack" and click "Update stack".
+![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-1.5QuickSight.png)
+
+**Step 10**: Click "Use current template" and click "Next".
 ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-2QuickSight.png)
 
-**Step 10**:  Edit "Email" if it's not already set.  Paste your QuickSight ARN in the "Visualization Options" field.  Click "Next".
+**Step 11**:  Edit "Email" if it's not already set.  Paste your QuickSight ARN in the "Visualization Options" field.  Click "Next".
 ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-3QuickSight.png)
 
-**Step 11**:  On final Review page, scroll down to the bottom of page.  Click the 2 checkboxes to allow IAM resources to be created and auto_expand to make the requested changes.  Click "Update stack".
+**Step 12**:  Accept existing role.  Click "Next".
+
+**Step 13**:  On final Review page, scroll down to the bottom of page.  Click the 2 checkboxes to allow IAM resources to be created and auto_expand to make the requested changes.  Click "Update stack".
 
 ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-4QuickSight.png)
 
