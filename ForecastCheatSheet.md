@@ -39,7 +39,7 @@ This is summarized in the following table:
 
 | Criteria                                                     | Amazon Forecast Algorithm class                              |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Large dataset with up to 1 million time series with similar underlying patterns + seasonal effects + related data. Each time series should have a long history, ideally more than 2 years if trying to capture annual events, and each time series more than 300, ideally at least 1K data points. | Amazon Forecast's proprietary deep learning DeepAR+, CNN-QR  |
+| Large dataset with up to 5 million time series with similar underlying patterns + seasonal effects + related data. Each time series should have a long history, ideally more than 2 years if trying to capture annual events, and each time series more than 300, ideally at least 1K data points. | Amazon Forecast's proprietary deep learning DeepAR+, CNN-QR  |
 | Small dataset with 1-100's of time series, where majority of time series have more than 300 data points + seasonal effects + related data. | Prophet                                                      |
 | Small dataset with 1-10's of time series, where majority of time series have more than 300 data points + seasonal effects. | ETS, ARIMA                                                   |
 | Intermittent (sparse containing many 0s) with 1-10's of time series, where majority of time series have more than 300 data points. | Amazon Forecast's proprietary NPTS                           |
@@ -193,7 +193,7 @@ Best Practices are continued inside this tutorial.
     - Note:  In the predictor output, errors for each quantile forecast are called "wQL" or weighted quantile loss, which is the error of that quantile forecast. 
 
 
-    > Technical details:  The formal definition of a quantile forecast is Pr(actual value <= forecast at quantile q) = q.  Technically a quantile is a percentile/100.  Statisticians tend to say ”p90 quantile-level“, since that is easier to say than "“quantile 0.9”. For example, a p90 quantile-level forecast means the actual value can be expected to be less than the forecast 90% of the time.  Specifically if at time=t1 and quantile-level=0.9, the predicted value = 30, that means the actual value at time= t1, if you had 1000 simulations, would be expected to be less than 30 for 900 simulations, and for the remaining 100 simulations, the actual value is expected to be over 30.
+    > Technical details:  The formal definition of a quantile forecast is Pr(actual value <= forecast at quantile q) = q.  Technically a quantile is a percentile/100.  Statisticians tend to say ”p90 quantile-level“, since that is easier to say than "“quantile 0.9”. For example, a p90 quantile-level forecast means the actual value can be expected to be less than the forecast 90% of the time.  Specifically if at time=t1 and quantile-level=0.9, the predicted value = 30, that means the actual value at time= t1, if you had 1000 simulations, would be expected to be less than 30 for 900 simulations, and for 100 simulations, the actual value is expected to be over 30.
 
 16. **Training Strategy: Start simple with historical sales data only (TTS) and AutoML.  Iterate just on this data before adding Meta- and Related data.**  This will give you a baseline, so you will be able to determine which data and/or training iterations are working to improving accuracy.  
 
@@ -277,7 +277,7 @@ Best Practices are continued inside this tutorial.
       - Check the “Items” column. Is that the full # time series? If not, why? 
       - Do you have enough history to support the desired forecast length? 
         - If not, you’ll get an error message. 
-        - **Rule: Amazon Forecast requires length of forecast to be shorter of 500 data points or 1/3 of training data.**
+        - **Rule: Amazon Forecast requires length of forecast to be shorter than 1/3 of training data.**
       - Do you have enough data per time series? 
         - If not, you’ll get error message. E.g. Very low # of observations (found 238 observations in 3 time series). 
         - **Rule: Deep Learning algorithms require at least 300 observations in the majority of time series.**
@@ -347,11 +347,7 @@ Keeping this in mind, some typical next iterations, in order of easiest-to-harde
   Below is an example Amazon QuickSight visualization, comparing the same random items across 3 models:  1) top row is global all-in model that was trained on all data at once; 2) 2nd row is same items from model trained on subset only "top-moving" items; 3) 3rd row is same items from model trained on subset only "erratic time series"  items.  We can see below that items from the Erratic-only model have highest accuracy.  On the other hand, we expect the subset of items that are not-erratic or not-top-moving, which are harder to forecast, will have better accuracy when taken from the top, all-in model.
   <img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/quicksight-example-model-iterations.png" alt="Compare models created on different data subsets" style="zoom:70%;" />
 
-- **Use the built-in, AWS-hosted data enrichments: Holidays and Weather.  Easy.**  Both of these variables can help more accurately predict sales.  Weather requires hourly time granularity of data and forecast horizon 14 days or less.  Weather also requires locations to be more than just string names, that is, to have actual geolocations.  Geolocations can be 2-digit country code + "_" + 5-digit zip or actual latitude_longitude.  https://docs.aws.amazon.com/forecast/latest/dg/weather.html
-
-  - When you train a Predictor with either Holidays and/or Weather features enabled, use HPO=True**, or Hyperparameter Optimization toggled on, so you get the best tuned Predictor.  Make sure you do this before making inferences (or forecasts).
-
-- **If using DeepAR+ algorithm, try a different likelihood function**.  The default likelihood function "student-t" works best most of the time.  Plot the target-value histogram and see which distribution the plot looks like.  Use these general rules based on what you see:
+- **If using DeepAR+ algorithm, try a different likelihood function.  Easy.**  The default likelihood function "student-t" works best most of the time.  Plot the target-value histogram and see which distribution the plot looks like.  Use these general rules based on what you see:
 
   - Positive counting numbers -> Use negative-binomial
 
@@ -362,6 +358,10 @@ Keeping this in mind, some typical next iterations, in order of easiest-to-harde
   - Non-stationary Poisson, or different student-t’s in different time ranges (e.g. higher traffic during commuting hours) -> Try piecewise-linear 
   - PW-linear likelihood function wins - for irregular data - e.g. web traffic, retail sales
   - Student-t  wins for regular data - e.g. electricity, highway traffic 
+
+- **Use the built-in, AWS-hosted data enrichments: Holidays and Weather.  Easy.**  Both of these variables can help more accurately predict sales.  Weather requires hourly time granularity of data and forecast horizon 14 days or less.  Weather also requires locations to be more than just string names, that is, to have actual geolocations.  Geolocations can be 2-digit country code + "_" + 5-digit zip or actual latitude_longitude.  https://docs.aws.amazon.com/forecast/latest/dg/weather.html
+
+  - When you train a Predictor with either Holidays and/or Weather features enabled, use HPO=True**, or Hyperparameter Optimization toggled on, so you get the best tuned Predictor.  Make sure you do this before making inferences (or forecasts).
 
 - **Add Item Metadata (IM) and/or Related (RTS) data.  Difficult.**  For RTS, the first time you'll have to figure out the best featurization and import the data.  To decide which data to use as a related time series start with:
 
