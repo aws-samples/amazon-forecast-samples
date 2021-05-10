@@ -362,9 +362,9 @@ Keeping this in mind, some typical next iterations, in order of easiest-to-harde
   - PW-linear likelihood function wins - for irregular data - e.g. web traffic, retail sales
   - Student-t  wins for regular data - e.g. electricity, highway traffic 
 
-- **Use the built-in, AWS-hosted data enrichments: Holidays and Weather.  Easy.**  Both of these variables can help more accurately predict sales.  Weather requires hourly time granularity of data and forecast horizon 14 days or less.  Weather also requires locations to be more than just string names, that is, to have actual geolocations.  Geolocations can be 2-digit country code + "_" + 5-digit zip or actual latitude_longitude.  https://docs.aws.amazon.com/forecast/latest/dg/weather.html
+- **Use the built-in, AWS-hosted data enrichments: Holidays and Weather.  Easy.**  Both of these variables can help more accurately predict sales.  Weather requires daily (or lower) time granularity of data and forecast horizon <= 14 days.  Weather also requires locations to be more than just string names, that is, to have actual geolocations.  Geolocations can be 2-digit country code + "_" + 5-digit zip or actual latitude_longitude.  https://docs.aws.amazon.com/forecast/latest/dg/weather.html
 
-  - When you train a Predictor with either Holidays and/or Weather features enabled, use HPO=True**, or Hyperparameter Optimization toggled on, so you get the best tuned Predictor.  Make sure you do this before making inferences (or forecasts).
+  - When you train a Predictor with either Holidays and/or Weather features enabled, use HPO=True, or Hyperparameter Optimization toggled on, so you get the best tuned Predictor.  Make sure you do this before making inferences (or forecasts).
 
 - **Add Item Metadata (IM) and/or Related (RTS) data.  Difficult.**  For RTS, the first time you'll have to figure out the best featurization and import the data.  To decide which data to use as a related time series start with:
 
@@ -420,24 +420,27 @@ Choose whether to generate forecast using the same train data or whether to upda
 
 30. **Create a Forecast**
 
-1. **Select a Predictor** (will automatically use latest imported data in DataSet Group to which Predictor belongs)
-2. **Choose forecast types (quantiles)**.
-   Note: Only DeepAR+ allows different quantiles in the Forecast step than were used to train the Predictor.  All other algorithms require the same quantiles to be used in both the Predictor and the Forecast.
-3. Click Start.
+31. **Select a Predictor** (will automatically use latest imported data in DataSet Group to which Predictor belongs)
 
-31. **Export a Forecast**
+2. **Choose forecast types (quantiles)** 
+   
+   1. Pro-tip.  For fastest imputations. choose same quantiles you chose for Predictor.  The reason for this is that all algorithms, except DeepAR+, will have to do extra simulations to re-calculate if the quantiles are different between how model was trained and how forecasts will be imputed.
+   
+33. Click Start.
 
-1. Under the **Exports** section, **click Create forecast export**
+34. **Export a Forecast**
 
-2. Give the export a name
+35. Under the **Exports** section, **click Create forecast export**
 
-3. In the S3 forecast export location, paste an S3 path to your own location to save.
+36. Give the export a name
 
-   Note: any kind of Amazon Forecast Delete action - Hierarchical delete, or any individual delete action will not delete your exported, saved forecast copy.
+37. In the S3 forecast export location, paste an S3 path to your own location to save.
 
-   Note: In the downloaded forecast .csv file, probabilistic quantile-level forecasts are indicated by named column, for example "p90"  for the  "p90 quantile-level forecast".
+    Note: any kind of Amazon Forecast Delete action - Hierarchical delete, or any individual delete action will not delete your exported, saved forecast copy.
 
-32. **Query a Forecast**
+    Note: In the downloaded forecast .csv file, probabilistic quantile-level forecasts are indicated by named column, for example "p90"  for the  "p90 quantile-level forecast".
+
+38. **Query a Forecast**
 
     1. **Wait the specified time, then select Forecast lookup**
 
