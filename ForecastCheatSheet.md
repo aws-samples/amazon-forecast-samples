@@ -183,10 +183,13 @@ Best Practices are continued inside this tutorial.
 15. **Choose probabilistic quantiles that fit your business goals.**  The optimal choice of quantile reflects the average proportion between marginal profit and the production and inventory holding costs.  In other words, the quantile choice should be based on the lost opportunity cost of under-forecasting and the cost of over-producing and holding over-forecasted items.  
 
     - The risk tolerance for certain SKUs might be higher than others. For long shelf life items, you may prefer to overstock because you can easily store excess inventory. For items with a short shelf life, you may prefer a lower stocking level to reduce waste. **It’s ideal to train one model but assess forecasting accuracy for different SKUs at different stocking levels.**
+    
     - For some items the opportunity cost dictates decisions.  For example, a p90 forecast is useful when you have something like milk or toilet paper, that a grocery store never wnats to run out of and doesn't mind always having some remaining on the shelves. On the other hand, for an expensive machine, a p10 forecast would be more useful since you don’t want to carry such expensive inventory costs and customers probably aren’t expecting that machine to just be sitting around in stock anyway. As an extreme example, Amazon Redshift uses Forecast at p99 levels, because they never want to run out of virtual resources. [See documentation for more details on metrics.](https://docs.aws.amazon.com/forecast/latest/dg/metrics.html)
-
+    
+      
+    
     > **If you don't know your business costs of under- vs over- forecasting, or maybe such costs are equal, use the default values for AutoML which are p10, p50, p90.**  
-
+    
     - Typically forecasters choose 3 quantiles.  For example, generating 3 forecasts at p10, p50, p90 results in an 80% confidence interval around the p50 forecast.  When making charts, typically the region between p10 and p90 is shaded to indicate the 80% confidence interval.
 
 
@@ -225,7 +228,7 @@ Best Practices are continued inside this tutorial.
 
        
 
-       - [Forecast uses backtesting](https://docs.aws.amazon.com/forecast/latest/dg/metrics.html) to tune predictors and produce accuracy metrics. To perform backtesting, Forecast automatically splits your time-series datasets into two sets: training and testing. The training set is used to train your model, and the testing set to evaluate the model’s predictive accuracy. We recommend choosing more than one backtest window to minimize selection bias that may make one window more or less accurate by chance. Assessing the overall model accuracy from multiple backtest windows provides a better measure of the strength of the model and reduces the chance of overfitting. 
+       - [Forecast uses backtesting](https://docs.aws.amazon.com/forecast/latest/dg/metrics.html) to tune predictors and produce accuracy metrics. To perform backtesting, Forecast automatically splits your time-series datasets into two sets: training and testing. The training set is used to train your model, and the testing set to evaluate the model’s predictive accuracy. **We recommend choosing more than one backtest window to minimize selection bias**, in case one window is more or less accurate by chance. **Assessing the overall model accuracy from multiple backtest windows provides a better measure of the strength of the model and reduces the chance of overfitting.** 
 
        
 
@@ -300,7 +303,7 @@ Best Practices are continued inside this tutorial.
         - WAPE (measured at mean, which may be different from p50 quantile). 
   - RMSE (measured at mean, which may be different from p50 quantile).
     
-      - As [explained in Step 15](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#tutorial), Amazon Forecast generates a forecast at a particular quantile. Weighted quantile loss is the accuracy metric or “wQL”. Machine learning models work by minimizing (or maximizing) an objective function, in this case loss or prediction error. The weighted quantile loss function is weighted to penalize forecast values at kth percentile that are higher than actuals more when k < 0.5 and the reverse when k > 0.5. So, p10 quantile predictions that are higher than actuals will get 0.9 weightings; whereas p90 quantile predictions that are lower than actual will get 0.9 weighting. The full formula is:
+      - As [explained in Step 15](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#tutorial), Amazon Forecast generates a forecast at a particular quantile. Weighted quantile loss is the error metric or “wQL”. Machine learning models work by minimizing (or maximizing) an objective function, in this case loss or prediction error. The weighted quantile loss function is weighted to penalize forecast values at kth percentile that are higher than actuals more when k < 0.5 and the reverse when k > 0.5. So, p10 quantile predictions that are higher than actuals will get 0.9 weightings; whereas p90 quantile predictions that are lower than actual will get 0.9 weighting. The full formula is:
     ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/Formula_wql.png) 
     
     [See documentation for more details.](https://docs.aws.amazon.com/forecast/latest/dg/metrics.html.)
@@ -478,10 +481,11 @@ Choose whether to generate forecast using the same train data or whether to upda
 ## Videos<a name="videos">
 
 - High-level intro to Amazon Forecast (minutes 1-8), demo (minutes 8-18), and customer story in retail (minutes 20-34): https://www.youtube.com/watch?v=K7MaDbn8_l0
-- Demo how to prepare data for Amazon Forecast using AWS Glue DataBrew (5min) : 
-- Demo how to train and evaluate a predictor using Amazon Forecast screens for NYC taxi data [Demo video](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/demo_videos/forecast_pipeline_through_console.mp4) (minutes 1-10):
-- Demo how to create a forecast, query forecast in console, and visualize through Amazon Quicksight BI Dashboard [Demo video](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/demo_videos/forecast_pipeline_through_console.mp4) (minutes 9:45-end, ~4min)
-- Demo how to train a predictor using Improving Forecast Accuracy with ML Solution CloudFormation template (5min):
+- TODO: Demo how to prepare data for Amazon Forecast using AWS Glue DataBrew (5min) : 
+- [Demo video](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/demo_videos/video_import_console.mp4) how to import data using Amazon Forecast screens for NYC taxi data (6min):
+- [Demo video](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/demo_videos/video_train_eval_console.mp4) how to train (minutes 1-2:30) and evaluate a predictor (minutes 2:30-6) using Amazon Forecast screens for NYC taxi data (6min):
+- [Demo video](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/demo_videos/video_create_query_vis_forecast.mp4) how to create a forecast, query forecast in console, and visualize through Amazon Quicksight BI Dashboard (2min):
+- TODO: Demo how to train a predictor using Improving Forecast Accuracy with ML Solution CloudFormation template (5min):
 
 
 
