@@ -27,7 +27,7 @@ For more information, [see our documentation](https://docs.aws.amazon.com/foreca
 
 Amazon Forecast's strength is its deep learning algorithms.  Traditional statistical methods, sometimes called "local models", are able to learn one time series at a time.  That means if you have 20K items to forecast, then 20K traditional models are required; each model unable to learn from other models.  Traditional statistical algorithms include:  Exponential Smoothing (ETS), ARIMA, NPTS, and Prophet.  These traditional algorithms are included in Amazon Forecast.
 
-Deep learning algorithms, sometimes called "global models", are able to learn using more than 1 time series at a time.  That means if you have 20K items to forecast, and they have interrelationships between them such as item-affinity or cannibalism, such behaviors can be learned by inputting them all into a single model.  Amazon Forecast's proprietary deep learning algorithms include:  DeepAR+ (an LSTM version of RNN) and CNN-QR (a quantile regression version of CNN, a neural network topology typically used in computer vision). 
+Deep learning algorithms, sometimes called "global models", are able to learn using more than 1 time series at a time.  That means if you have 20K items to forecast, and they have interrelationships between them such as item-affinity or cannibalization, such behaviors can be learned by inputting them all into a single model.  Amazon Forecast's proprietary deep learning algorithms include:  DeepAR+ (an LSTM version of RNN) and CNN-QR (a quantile regression version of CNN, a neural network topology typically used in computer vision). 
 
 ### Is Amazon Forecast a Good Fit?
 
@@ -35,7 +35,7 @@ Not all machine learning problems are forecasting problems.  The first question 
 
 In addition to having time series data, the data itself should be "dense" and with long histories.
 
-This is summarized in the following table:
+This is summarized in the following table:<a name="datasize"/>
 
 | Criteria                                                     | Amazon Forecast Algorithm class                              |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -139,7 +139,7 @@ Adjust your definition of "timestamp" and "item_id" such that at your chosen agg
 
 Note: the forecast hold-out data is for developing custom error/accuracy metrics that can be calculated on exported forecasts, if desired.  If no custom metrics are required, there is no need for the hold-out, all the data can be used for training.  [Errors/accuracy are automatically calculated by Amazon Forecast system on forecasts using the "backtest technique".](https://docs.aws.amazon.com/forecast/latest/dg/metrics.html)  
 
-**Note: special consideration for cold-start or new product introductions**.  For best results, do not include new items in your training data.  Do include new items in the inference data.  If fewer than 5 data points exist per new item, be sure to fill missing values explicitly in the new items with "NaN"; otherwise the cold-start items will be silently dropped.
+**Note: special consideration for cold-start or new product introductions**.<a name="coldstart"/>  For best results, do not include new items in your training data.  Do include new items in the inference data.  If fewer than 5 data points exist per new item, be sure to fill missing values explicitly for the new items with "NaN"; otherwise the cold-start items will be silently dropped.  For training, keep the [default null-filling frontfill= "none"](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#null-filling).
 
 10) **Create just historical sales part of training data (TTS).** Subset out just the timestamp, item_id, target_value columns.  Save this TTS subset of training data on S3, example as TTS.csv.  
 
@@ -232,7 +232,7 @@ Best Practices are continued inside this tutorial.
 
        
 
-    7. **Expand the “Advanced configurations” and scroll down to the "Featurizations"** section to view null-filling options.
+    7. **Expand the “Advanced configurations” and scroll down to the "Featurizations"** section to view null-filling options.<a name="null-filling"/>
 
     ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/understandNullFilling.png)
 
@@ -249,7 +249,7 @@ Best Practices are continued inside this tutorial.
 
     - **If the default filling looks fine, you don’t need to do anything**
 
-    - If you want to change middlefill=”nan” because 0’s aren’t really 0’s and backfill=”nan” because you know you have some products with end-of-life, paste the sample JSON below.
+    - If you want to change middlefill=”nan” because 0’s aren’t really 0’s and backfill=”zero” because you know you have some products with end-of-life, paste the sample JSON below.
 
       ```json
       [
@@ -262,7 +262,7 @@ Best Practices are continued inside this tutorial.
       					"aggregation": "sum",
     					"frontfill": "none",
       					"middlefill": "nan",
-    					"backfill": "nan"
+    					"backfill": "zero"
       				}
     			}
       		]
