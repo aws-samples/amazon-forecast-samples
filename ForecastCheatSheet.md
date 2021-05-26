@@ -362,7 +362,7 @@ Keeping this in mind, some typical next iterations, in order of easiest-to-harde
   - PW-linear likelihood function wins - for irregular data - e.g. web traffic, retail sales
   - Student-t  wins for regular data - e.g. electricity, highway traffic 
 
-- **Use the built-in, AWS-hosted data enrichments: Holidays and Weather.  Easy.**  Both of these variables can help more accurately predict sales.  Weather requires daily (or lower) time granularity of data and forecast horizon <= 14 days.  Weather also requires locations to be more than just string names, that is, to have actual geolocations.  Geolocations can be 2-digit country code + "_" + 5-digit zip or actual latitude_longitude.  https://docs.aws.amazon.com/forecast/latest/dg/weather.html
+- **Use the built-in, AWS-hosted data enrichments: Holidays and Weather.  Easy.**  Both of these variables can help more accurately predict sales.  Weather requires daily (or lower) time granularity of data, forecast horizon <= 14 days, and up to 2K geolocations per model.  Weather also requires locations to be more than just string names, that is, to have actual geolocations.  Geolocations can be 2-digit country code + "_" + 5-digit zip or actual latitude_longitude.  https://docs.aws.amazon.com/forecast/latest/dg/weather.html
 
   - When you train a Predictor with either Holidays and/or Weather features enabled, use HPO=True, or Hyperparameter Optimization toggled on, so you get the best tuned Predictor.  Make sure you do this before making inferences (or forecasts).
 
@@ -506,7 +506,7 @@ Choose whether to generate forecast using the same train data or whether to upda
 
   - Automation pipeline solution:  https://aws.amazon.com/solutions/implementations/improving-forecast-accuracy-with-machine-learning/?did=sl_card&trk=sl_card
 
-  - Github tutorials:  https://github.com/aws-samples/amazon-forecast-samples/tree/master/notebooks/basic/Tutorial
+  - Github tutorials:  https://github.com/aws-samples/amazon-forecast-samples/tree/master/workshops 
 
   - Blogs: https://aws.amazon.com/blogs/machine-learning/category/artificial-intelligence/amazon-forecast/
 
