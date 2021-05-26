@@ -87,7 +87,7 @@ Next we need to get your QuickSight Username.
 ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightGetUsername.png)
 
 **Step 5**:  Construct the QuickSight ARN (Note "ARN" means "Amazon Resource Number", think of it as an AWS-specialized URL) following this pattern: <br> 
-"**arn:aws:quicksight:<region>:<account ID>::user/default/<QuickSight username>**" , where
+"**arn:aws:quicksight:region:accountID:user/default/QuickSight_username**" , where
 
 - region = name of region where you installed the CloudFormation template, e.g. "us-west-2"
 - account ID = number from Step 2

@@ -1,11 +1,11 @@
 # Notebooks
 
-Here you will find examples how to use Amazon Forecast Python SDK to make API calls.  Primary audience is Developers, MLOps Enginners, and Integration Partners who need to put forecasts into production.
+Here you will find examples how to use Amazon Forecast Python SDK to make API calls, with manual waits between API calls.  Primary audience is Developers, MLOps Enginners, and Integration Partners who need to see how to put forecasts into production.
 
 For detailed specifics of any concept mentioned look at the [Forecast developer guide](https://docs.aws.amazon.com/forecast/latest/dg/what-is-forecast.html) and this github [Introduction, Best Practices Tutorial](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md).
 
 - Basic folder contains introductory notebooks to show API calls to:
-  - [import data containing 1 single item](https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/basic/Tutorial/1.Getting_Data_Ready.ipynb)
+  - [import data containing 1 single item](https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/basic/Tutorial/1.Importing_Your_Data.ipynb)
   - [train a predictor and forecast on a single item](https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/basic/Tutorial/2.Building_Your_Predictor.ipynb)
   - [query and evaluate one item at a time](https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/basic/Tutorial/3.Evaluating_Your_Predictor.ipynb)
   
