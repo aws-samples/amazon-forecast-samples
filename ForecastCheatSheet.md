@@ -141,6 +141,8 @@ Note: the forecast hold-out data is for developing custom error/accuracy metrics
 
 **Note: special consideration for cold-start or new product introductions**.<a name="coldstart"/>  For best results, do not include new items in your training data.  Do include new items in the inference data.  If fewer than 5 data points exist per new item, be sure to fill missing values explicitly for the new items with "NaN"; otherwise the cold-start items will be silently dropped.  For training, keep the [default null-filling frontfill= "none"](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#null-filling).
 
+**Above new items advice assumes new items are the exception** and you have a majority set of "core" items with long histories.  For some customers, their items are almost all short-lived, so at any point in time, items are mostly either new or near end-of-life.  In this case, try to see if you have a higher-level item group that represents "substitution items" grouping.  Can you build a model at this substitution item_grouping level?  Otherwise, the only other option is to try the Deep Learning algorithms with metadata that ties together items, which may be in various phases of their life cycles, and are all included in the training data.
+
 10) **Create just historical sales part of training data (TTS).** Subset out just the timestamp, item_id, target_value columns.  Save this TTS subset of training data on S3, example as TTS.csv.  
 
 Copy the "S3 URI" to TTS.csv
@@ -242,14 +244,14 @@ Best Practices are continued inside this tutorial.
 
     - [Null-filling featurization terminology and syntax](https://docs.aws.amazon.com/forecast/latest/dg/howitworks-missing-values.html):
 
-      - "**frontfill**" - (TTS only) refers to cold-start items and how you want to treat nulls before the item begins to have any history
+      - "**frontfill**" - (TTS only) refers to new (cold-start) items and how you want to treat nulls before the item begins to have any history
       - "**middlefill**" - refers to nulls in the middle of time series values
       - "**backfill**" - refers to end-of-life items and how you want to treat nulls after an item has stopped selling
       - "**futurefill**" - (RTS only) refers to nulls that occur after the end of training data
 
     - **If the default filling looks fine, you don’t need to do anything**
 
-    - If you want to change middlefill=”nan” because 0’s aren’t really 0’s and backfill=”zero” because you know you have some products with end-of-life, paste the sample JSON below.
+    - Below is a JSON example if you want to change middlefill=”zero” (everything between 1st and last timestamps) and backfill=”nan” because you know you have some products with end-of-life, paste the sample JSON below.
 
       ```json
       [
@@ -261,8 +263,8 @@ Best Practices are continued inside this tutorial.
     				"FeaturizationMethodParameters": {
       					"aggregation": "sum",
     					"frontfill": "none",
-      					"middlefill": "nan",
-    					"backfill": "zero"
+      					"middlefill": "zero",
+    					"backfill": "nan"
       				}
     			}
       		]
@@ -515,8 +517,9 @@ Choose whether to generate forecast using the same train data or whether to upda
 - Amazon Forecast Science:
 
 - - Tutorial for time series forecasting with video: https://lovvge.github.io/Forecasting-Tutorial-WWW-2020/
+  - https://www.amazon.science/videos-and-tutorials/forecasting-big-time-series-theory-and-practice
   - DeepAR: Probabilistic Forecasting with Autoregressive Recurrent Networks- 2017. https://arxiv.org/pdf/1704.04110.pdf
   - CNN-QR: A Multi-Horizon Quantile Recurrent Forecaster -2018. https://arxiv.org/pdf/1711.11053.pdf 
   - Intermittent Demand Forecasting with Renewal Processes - 2020. https://arxiv.org/pdf/2010.01550.pdf
-
+  
 - AWS AI Science Forecasting book:  https://www.amazon.com/Business-Forecasting-Emerging-Artificial-Intelligence/dp/1119782473
