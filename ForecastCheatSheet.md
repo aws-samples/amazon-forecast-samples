@@ -66,6 +66,9 @@ If you are a developer or line of business person reading this, you are our targ
 
 In terms of data, Forecasting works best on "dense" data. When, per timestamp and "item" to forecast, there is almost always a data point.  Examples of dense data include high-volume transactional consumer demand, call center demand, IT infrastructure demand, location-based service needs, electricity use.  "Sparse" data is when per timestamp and item very few sales happen.  Examples of sparse data are when the SKU is so targeted that it does not sell frequently, sales order data, or financial revenue numbers that are summarized per month.  Sparse data is difficult to forecast because as a time series there is not enough of it to establish a pattern.  Time series patterns are used to predict when and with what amplitude a particular "item target value" will occur in the future.  
 
+For additional best practices and recommendations on data preparation, focused on sales and demand planning, but also generally applicable, refer to the [Amazon Forecast Data Set Guidance for Sales and Demand Planning](./ForecastDatasetGuidanceSales.md).
+
+
 **Developers:**  [Use AWS Glue DataBrew](https://aws.amazon.com/glue/features/databrew/), a data preparation UI tool, to clean data and save TTS to S3.  TODO link 5min video<br />
 
 **Data Scientists:** We have DataPrep Jupyter notebook templates.  We have included common data prep steps we have noticed in customers' data.  
