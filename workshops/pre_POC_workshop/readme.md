@@ -14,13 +14,13 @@ This workshop is designed to accelerate customers doing an Amazon Forecast POC. 
 ### Three ways to use this workshop
 
 1. **Self-service training.**  You can bring your own data, and follow along all the steps below, starting with "Install the demo".  You'll need time to customize the [Data Prep notebook to your data](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/1.Getting_Data_Ready_nytaxi.ipynb).  Best Practice theory is mixed-in along with Hands-on Lab instructions.  
-2. **AWS- or AWS Partner-led training as a no-code, no-hands-on, canned demo**.  [See the separate instructions](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/AWS_instructions.md) and look for notes about "canned demo".  Follow the below instructions to "Install the demo" before day of your demo.  The NYC Taxi demo will be created for you automatically.  All you have to do is open AWS console to Amazon Forecast, and walk audience through the completed screens in the Forecast Dataset Group called "nyctaxi_weather_auto".
-3. **AWS- or AWS Partner-led hands-on, bring your own data, pre-POC workshop.**  [See the separate instructions](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/AWS_instructions.md).  For best results, ask for a sample of customer's anonymized POC data at least 1 week in advance.  You'll need time to customize the [Data Prep notebook to their data](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/1.Getting_Data_Ready_nytaxi.ipynb).  You'll also need follow the below instructions to "Install the demo" beforehand.  Day of the workshop, share the customized Data Prep notebook with customer, so they can more quickly get going with their Forecast POC.
+2. **AWS- or AWS Partner-led training as a no-code, no-hands-on, canned demo**.  [See the separate instructions](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/INSTRUCTOR_instructions.md) and look for notes about "canned demo".  Follow the below instructions to "Install the demo" before day of your demo.  The NYC Taxi demo will be created for you automatically.  All you have to do is open AWS console to Amazon Forecast, and walk audience through the completed screens in the Forecast Dataset Group called "nyctaxi_weather_auto".
+3. **AWS- or AWS Partner-led hands-on, bring your own data, pre-POC workshop.**  [See the separate instructions](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/INSTRUCTOR_instructions.md).  For best results, ask for a sample of customer's anonymized POC data at least 1 week in advance.  You'll need time to customize the [Data Prep notebook to their data](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/1.Getting_Data_Ready_nytaxi.ipynb).  You'll also need follow the below instructions to "Install the demo" beforehand.  Day of the workshop, share the customized Data Prep notebook with customer, so they can more quickly get going with their Forecast POC.
 
 
 
+### Install the demo (an AWS CloudFormation template)
 
-### Install the demo (an AWS CloudFormation template)  
 Three days before the workshop, install the [Improving Forecast Accuracy With Machine Learning Solution](https://aws.amazon.com/solutions/implementations/improving-forecast-accuracy-with-machine-learning/) AWS CloudFormation template in your AWS account where you will run the Forecast POC.  This best practice AWS solution streamlines the workflow around Amazon Forecast of ingesting, modeling, forecasting, and visualizing with Amazon QuickSight through an AWS CloudFormation template.
 
 The template will make experimentation and iteration of Forecast models easier.  
@@ -33,7 +33,7 @@ Total install time ~15min.
 
 By default, the installed AWS service components do not incur any cost when not in use.  
 
-- [ ] Warning:  SageMaker is the only AWS service in this solution you need to take extra precautions about when not in use.  As installed, the Forecast solution will not incur cost.  However, if you do open a SageMaker Notebook, make sure to shut down all Notebook instances when not in use, otherwise SageMaker will keep charging, even when not in use.
+>  ⚠️ **Warning:**  SageMaker is the only AWS service in this solution you need to take extra precautions about when not in use.  As installed, the Forecast solution will not incur cost.  However, if you do open a SageMaker Notebook, make sure to shut down all Notebook instances when not in use, otherwise SageMaker will keep charging, even when not in use.
 
 
 
@@ -60,4 +60,3 @@ By default, the installed AWS service components do not incur any cost when not 
   | 3:15      | 3:30p   | IMPORTANT!! IF YOU OPENED ANY SAGEMAKER NOTEBOOK INSTANCES, SHUT THEM DOWN BEFORE LEAVING END OF DAY!!  Otherwise SageMaker will keep charging, even when not in use. |
   | 3:15p     | 3:30p   | [Additional Resources](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#notebooks) |
   | 3:30p     | 3:30p   | END OF WORKSHOP                                              |
-

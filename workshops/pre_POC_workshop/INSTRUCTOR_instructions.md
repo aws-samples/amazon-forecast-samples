@@ -20,28 +20,30 @@ Budget $200 total for the workshop should cover everything.
 
 
 
-### Three ways to use this workshop
+## Three ways to use this workshop
 
-1. **Self-service training.**  You can bring your own data, and follow along all the steps below, starting with "Install the demo".  You'll need time to customize the [Data Prep notebook to your data](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/1.Getting_Data_Ready_nytaxi.ipynb).  Best Practice theory is mixed-in along with Hands-on Lab instructions.  
-2. **AWS- or AWS Partner-led training as a no-code, no-hands-on, canned demo**.  [See the separate instructions](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/AWS_instructions.md) and look for notes about "canned demo".  Follow the below instructions to "Install the demo" before day of your demo.  The NYC Taxi demo will be created for you automatically.  All you have to do is open AWS console to Amazon Forecast, and walk audience through the completed screens in the Forecast Dataset Group called "nyctaxi_weather_auto".
-3. **AWS- or AWS Partner-led hands-on, bring your own data, pre-POC workshop.**  [See the separate instructions](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/AWS_instructions.md).  For best results, ask for a sample of customer's anonymized POC data at least 1 week in advance.  You'll need time to customize the [Data Prep notebook to their data](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/1.Getting_Data_Ready_nytaxi.ipynb).  You'll also need follow the below instructions to "Install the demo" beforehand.  Day of the workshop, share the customized Data Prep notebook with customer, so they can more quickly get going with their Forecast POC.
+1. **Self-service training.**  See the the main [readme file](readme.md) for guidance to bring your own data and follow along all the steps to customize the [Data Prep notebook to your data](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/1.Getting_Data_Ready_nytaxi.ipynb). 
+2. **AWS- or AWS Partner-led training as a no-code, no-hands-on, canned demo**.  Follow the instructions below and look for notes about *"canned demo"*, to install and set up the solution before day of your demo.  The NYC Taxi demo will be created for you automatically.  All you have to do is open AWS console to Amazon Forecast, and walk audience through the completed screens in the Forecast Dataset Group called "nyctaxi_weather_auto".
+3. **AWS- or AWS Partner-led hands-on, bring your own data, pre-POC workshop.**  Follow the instructions below, taking careful note of the advanced preparation steps to give yourself enough time to customize the Data Prep notebook to the customer's data - ready to share on the day.  You'll also need follow the below instructions to "Install the demo" beforehand.
 
 
 
-### AWS (or Partner) Trainer - Get Ready for the Workshop
+## AWS (or Partner) trainer - Get ready for the workshop
 
-**1 month before the workshop**
+### 1 month before the workshop
 
 Ask customer to create an AWS sandbox account for running the POC.  Data migration from on-premise might need to be set up.  Customer should put their POC data into an S3 bucket in this AWS sandbox account.  
 
 - Confirm what data customer will use.  
 - Confirm with customer that it is acceptable for Instructor staff to temporarily access the sandbox account for purpose of conducting the Pre-POC workshop training.  We won't set up the access yet.
 
-**2 weeks before the workshop** 
+### 2 weeks before the workshop
 
 Customer to send Instructor staff leading the workshop an anonymized sample of data.  
 
-- Instructor customize the Data Prep template notebooks to the customer's data. 
+> ⏰ For best results, request the customer provide the data extract **at least a week before the event** to ensure you have time to customize the materials!
+
+- Instructor to customize the Data Prep template notebooks to the customer's data. 
 
   - If data is daily or finer-grained - [use the regular DataPrep template notebook](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/1.Getting_Data_Ready_nytaxi_template.ipynb)
   - If data is weekly or bigger-grained - [use the weekly DataPrep template notebook](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/1.Getting_Data_Ready_nytaxi_weekly_template.ipynb)
@@ -49,25 +51,27 @@ Customer to send Instructor staff leading the workshop an anonymized sample of d
 - Confirm POC Forecast choices:  
 
   - Forecast time unit granularity?  
-    - Choices are Y|M|W|D|H|30min|15min|10min|5min|1min
+    - Choices are `Y|M|W|D|H|30min|15min|10min|5min|1min`
   - How many time units (forecast length)?  
-    - For example, if your time unit is H, then if you want to forecast out 1 week, that would be 24*7 = 168 hours, so forecast length = 168.  
+    - For example, if your time unit is `H`, then if you want to forecast out 1 week, that would be 24*7 = 168 hours, so forecast length = 168.  
     - Rule: Forecast length cannot be longer than 1/3 of training data.
   - Data time granularity? 
     - Usually the same as forecast granularity
     - Rule: Data granularity can be <= forecast time unit granularity.
 
-- **3 days before the workshop** - Instructor needs access to customer's account to follow instructions below "Install the demo".
+### 3 days before the workshop
 
-  
+ - Instructor needs access to customer's account to follow instructions below "Install the demo".
 
 
-### Install the demo (an AWS CloudFormation template)  
+
+## Install the demo (an AWS CloudFormation template)  
+
 Three days before the workshop, install the [Improving Forecast Accuracy With Machine Learning Solution](https://aws.amazon.com/solutions/implementations/improving-forecast-accuracy-with-machine-learning/) AWS CloudFormation template in your AWS account where you will run the Forecast POC.  This best practice AWS solution streamlines the workflow around Amazon Forecast of ingesting, modeling, forecasting, and visualizing with Amazon QuickSight through an AWS CloudFormation template.
 
 The template will make experimentation and iteration of Forecast models easier.  
 
-Total install time ~15min.
+**Total install time ~15min.**
 
 1. Log into customer's account with Admin account 
 2. [Follow these instructions](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/install-forecast-solution.md)
@@ -84,11 +88,11 @@ Total install time ~15min.
 
 By default, the installed AWS service components do not incur any cost when not in use.  
 
-- [ ] Warning:  SageMaker is the only AWS service in this solution you need to take extra precautions about when not in use.  As installed, the Forecast solution will not incur cost.  However, if you do open a SageMaker Notebook, make sure to shut down all Notebook instances when not in use, otherwise SageMaker will keep charging, even when not in use.
+> ⚠️ **Warning:**  SageMaker is the only AWS service in this solution you need to take extra precautions about when not in use.  As installed, the Forecast solution will not incur cost.  However, if you do open a SageMaker Notebook, make sure to shut down all Notebook instances when not in use, otherwise SageMaker will keep charging, even when not in use.
 
 
 
-### Day of workshop.  Typical agenda.
+## Day of workshop.  Typical agenda.
 
 - | **Start** | **End** | **Activity**                                                 |
   | --------- | ------- | ------------------------------------------------------------ |
@@ -111,4 +115,3 @@ By default, the installed AWS service components do not incur any cost when not 
   | 3:15      | 3:30p   | IMPORTANT!! IF YOU OPENED ANY SAGEMAKER NOTEBOOK INSTANCES, SHUT THEM DOWN BEFORE LEAVING END OF DAY!!  Otherwise SageMaker will keep charging, even when not in use.<br />**Instructor:**  Remove AWS staff temporary access to the POC sandbox account. |
   | 3:15p     | 3:30p   | [Additional Resources](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md#notebooks) |
   | 3:30p     | 3:30p   | END OF WORKSHOP                                              |
-

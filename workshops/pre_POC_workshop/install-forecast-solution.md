@@ -4,7 +4,9 @@ The Amazon Forecast Pre-POC workshop uses a solution that is implemented using A
 
 By default, the installed components of this solution do not incur any cost when not in use. 
 
-- [ ] Warning:  SageMaker is the only AWS service in this solution you need to take extra precautions about when not in use.  As installed, it will not incur cost.  However, if you do open a SageMaker Notebook, make sure to shut down all Notebook instances when not in use, otherwise SageMaker will keep charging, even when not in use.
+> ⚠️ **Warning:**  SageMaker is the only AWS service in this solution you need to take extra precautions about when not in use.  As installed, it will not incur cost.  However, if you do open a SageMaker Notebook, make sure to shut down all Notebook instances when not in use, otherwise SageMaker will keep charging, even when not in use.
+
+
 
 ## Details
 
@@ -18,9 +20,9 @@ Below is an architecture diagram of components used in this solution, showing ho
 
 ![cloudformationautomation-architecture](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/architectureDevMode.png)
 
-
-
 ![cloudformationautomation-architecture](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/architectureProdMode.png)
+
+
 
 ## Instructions
 
@@ -29,24 +31,26 @@ A few days before starting the workshop, log into your AWS account and install o
 1. **Log in to AWS using an Admin account**. If you do not already have one, <a href="https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/" target="_blank">create an AWS account</a>.
 2. **Install the AWS CloudFormation template.** Right-click-open in new tab, the Region closest to you:
 
-   * Tokyo: <a href="https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank"> ap-northeast-1</a>
-   * Seoul: <a href="https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">ap-northeast-2</a>
-   * Mumbai: <a href="https://console.aws.amazon.com/cloudformation/home?region=ap-south-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">ap-south-1</a>
-   * Singapore: <a href="https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">ap-southeast-1</a>
-   * Sydney: <a href="https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">ap-southeast-2</a>
-   * Frankfurt: <a href="https://console.aws.amazon.com/cloudformation/home?region=eu-central-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">eu-central-1</a>
-   * Ireland: <a href="https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">eu-west-1</a>
-   * N. Virginia: <a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">us-east-1</a>
-   * Ohio: <a href="https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">us-east-2</a>
-   * Oregon: <a href="https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template" target="_blank">us-west-2</a>
+| Region | Launcher |
+|:-------|:---------|
+| `ap-northeast-1` Tokyo | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template "Launch Stack") |
+| `ap-northeast-2` Seoul | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=ap-northeast-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template "Launch Stack") |
+| `ap-south-1` Mumbai | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=ap-south-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template "Launch Stack") |
+| `ap-southeast-1` Singapore | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template "Launch Stack") |
+| `ap-southeast-2` Sydney | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template "Launch Stack") |
+| `eu-central-1` Frankfurt | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=eu-central-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template "Launch Stack") |
+| `eu-west-1` Ireland | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template "Launch Stack") |
+| `us-east-1` N. Virginia | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template "Launch Stack") |
+| `us-east-2` Ohio | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template "Launch Stack") |
+| `us-west-2` Oregon | [![Launch Stack](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=forecast-stack&templateURL=https:%2F%2Fs3.amazonaws.com%2Fsolutions-reference%2Fimproving-forecast-accuracy-with-machine-learning%2Flatest%2Fimproving-forecast-accuracy-with-machine-learning-demo.template "Launch Stack") |
+
+
 
 ## Next, follow these directions for the screens that will pop up:
 
 **Step 1**: Accept defaults, click "Next"
 
 <img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-step1.png" style="zoom:60%;" />
-
-
 
 **Step 2:** Provide an email address for notifications. Click "Next".
 
@@ -61,8 +65,6 @@ A few days before starting the workshop, log into your AWS account and install o
 **Step 5:** Open your email and confirm subscription to notifications.
 
 <img src="https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-step5.png" style="zoom:60%;">
-
-
 
 **That’s it!  Congratulations**! You have deployed a CloudFormation template in Amazon Forecast. 
 
@@ -87,9 +89,9 @@ Next we need to get your QuickSight Username.
 ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightGetUsername.png)
 
 **Step 5**:  Construct the QuickSight ARN (Note "ARN" means "Amazon Resource Number", think of it as an AWS-specialized URL) following this pattern: <br> 
-"**arn:aws:quicksight:region:accountID:user/default/QuickSight_username**" , where
+"**arn:aws:quicksight:us-east-1:accountID:user/default/QuickSight_username**" , where
 
-- region = name of region where you installed the CloudFormation template, e.g. "us-west-2"
+- region = `us-east-1` *regardless of where you spun up the stack* (as QuickSight configuration is always performed via `us-east-1`)
 - account ID = number from Step 2
 - QuickSight username = "Admin/username" from Step 4
 
@@ -101,7 +103,7 @@ Copy and save your QuickSight ARN somewhere convenient and to your clipboard.
 
 #### Configure from where QuickSight is allowed to read data.
 
-**Step 1**: From QuickSight, click  top right "Admin".  Click change region.  Choose US-east-1 N.Virginia.  (QuickSight configuration tasks only work in us-east-1).
+**Step 1**: From QuickSight, click  top right "Admin".  Click change region.  Choose us-east-1 N.Virginia.  (QuickSight configuration tasks only work in us-east-1).
 
 **Step 2**: From QuickSight, click topright "Admin".  Click "Manage Quicksight".
 
@@ -126,6 +128,8 @@ Next, you will configure which S3 buckets QuickSight can read from.
 **Step 6**: Click "Amazon S3" and "Amazon Athena" checkboxes.  Click “Update”.
 ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightConfigAthena.png)
 <br>
+
+
 
 #### Update the CloudFormation nested (main) stack called "forecast-stack-ForecastStack-xxxx" and add your QuickSight ARN.
 
@@ -156,13 +160,12 @@ Click button next to the nested stack and click menu action “Update”
 
 **Congratulations!!**  You have installed a CloudFormation template in Amazon Forecast and configured Forecast visualization output into QuickSight.
 
-<br>
 
-**Deleting the stack:** 
+
+## Deleting the stack
 
 1) Deleting the "forecast-stack" demo stack will retain the nested main "forecast-stack-ForecastStack-xxxx" "Improving Forecast Accuracy with Machine Learning Stack". 
 
 2) Deleting the nested main "forecast-stack-ForecastStack-xxxx" "Improving Forecast Accuracy with Machine Learning" stack will leave all S3, Athena, QuickSight, and Forecast data in the account.
 
 **Other deployment options**: For more deployment options, see <a href="https://docs.aws.amazon.com/solutions/latest/improving-forecast-accuracy-with-machine-learning/automated-deployment.html" target="_blank">Automated Deployment</a>. 
-
