@@ -72,7 +72,7 @@ A few days before starting the workshop, log into your AWS account and install o
 
 ## **Optional steps for QuickSight visualization:**
 
-**Step 1**: Sign up for [QuickSight Enterprise](https://aws.amazon.com/quicksight/pricing/).  QuickSight is a BI visualization tool, similar to Tableau.  QuickSight Enterprise per user cost is $5/month (at time of writing this) which should be enough if everyone is logging in using "Admin" account.
+**Step 1**: Sign up for [QuickSight Enterprise](https://aws.amazon.com/quicksight/pricing/).  QuickSight is a BI visualization tool, comparable to Tableau.  QuickSight Enterprise is $29/month (at time of writing this) which should be enough if everyone is logging in using "Admin" account.
 
 **Step 2**: Login to AWS using Admin account.  [console.aws.amazon.com](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightConfig.png)
 
@@ -80,32 +80,38 @@ After you login, copy your Account ID and save somewhere convenient.
 
 ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightGetAccountID.png)
 
-**Step 3**: In search box type "quicksight" to navigate to QuickSight
+**Step 3**: In the AWS console, top menu bar, click terminal icon to open AWS CloudShell.![terminal icon to](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/common/images/workshops/console_search_and_cloudshell.png) 
 
-Next we need to get your QuickSight Username.
+**Step 4**:  Next we need to get your QuickSight ARN.  In the CloudShell, type:
 
-**Step 4**:  Click on "Admin" in top-right corner of QuickSight.  Copy your QuickSight Username and save somewhere convenient.
+aws quicksight list-users --region us-east-1 --aws-account-id **accountID** --namespace default
 
-![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightGetUsername.png)
+* where **accountID** is number you copied in Step 2.
 
-**Step 5**:  Construct the QuickSight ARN (Note "ARN" means "Amazon Resource Number", think of it as an AWS-specialized URL) following this pattern: <br> 
-"**arn:aws:quicksight:us-east-1:accountID:user/default/QuickSight_username**" , where
+**Step 5**:  Copy your QuickSight ARN (Note "ARN" means "Amazon Resource Number", think of it as an AWS-specialized URL) following this pattern: <br>
+"**arn:aws:quicksight:us-east-1:accountID:user/default/quickSight_username**" , where
 
 - region = `us-east-1` *regardless of where you spun up the stack* (as QuickSight configuration is always performed via `us-east-1`)
 - account ID = number from Step 2
-- QuickSight username = "Admin/username" from Step 4
 
-Example: arn:aws:quicksight:us-east-1:12345678901:user/default/Admin/myusername
+Example: 
+
+* arn:aws:quicksight:us-east-1:12345678901:user/default/Admin/myusername
+* arn:aws:quicksight:us-east-1:12345678901:user/default/myusername
 
 Copy and save your QuickSight ARN somewhere convenient and to your clipboard. 
+
+**Step 6**: Go back to your AWS console, top menu bar, in the Search box, type "quicksight".  See image Step 3.  
+
+Open QuickSight
 
 
 
 #### Configure from where QuickSight is allowed to read data.
 
-**Step 1**: From QuickSight, click  top right "Admin".  Click change region.  Choose us-east-1 N.Virginia.  (QuickSight configuration tasks only work in us-east-1).
+**Step 1**: From QuickSight, click  top right drop-down next to your username.  Click change region.  Choose us-east-1 N.Virginia.  (QuickSight configuration tasks only work in us-east-1).
 
-**Step 2**: From QuickSight, click topright "Admin".  Click "Manage Quicksight".
+**Step 2**: From QuickSight, click drop-down menu on top-right, next to your username.  Click "Manage Quicksight".
 
 ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightConfig.png)
 
@@ -115,29 +121,44 @@ Copy and save your QuickSight ARN somewhere convenient and to your clipboard.
 
 Next, you will configure which S3 buckets QuickSight can read from.
 
-**Step 4**: Click S3 Details.  
+**Step 4**: Click S3 "Details".  Click "Select S3 buckets".
 
-![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightConfigS3-main.png)
+![](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/common/images/workshops/QuickSightConfigS3-main.png)
 
-**Step 5**: Choose forecast-stack-athenabucket and forecast-stack-data-bucket.  Click "Finish".
+**Step 5**: Verify which S3 buckets you need to allow by going back to CloudFormation template.  
 
-![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightConfigS3.png)
+Open AWS console again.  [console.aws.amazon.com](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightConfig.png)
+
+In search box type "cloud formation" to **navigate to CloudFormation templates**.
+
+**Click on the nested stack called "forecast-stack-ForecastStack-xxxx"** (do not click on the nested DemoDownloader ).  ![](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/common/images/workshops/cloudformation_get_s3_buckets_step0.png)
+
+On the nested ForecastStack, **click "Outputs" tab.**
+
+Make note of the names of your 1) AthenaBucket, 2) ForecastBucket
+
+![https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/common/images/workshops/cloudformation_get_s3_buckets.png](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/common/images/workshops/cloudformation_get_s3_buckets.png)
+
+
+
+**Step 6**: Go back to your QuickSight console window, where you were in the middle of setting S3 permissions.  Choose forecast-stack-athenabucket and forecast-stack-data-bucket names that match what you saw in previous step.  Click "Finish".  ![](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/common/images/workshops/QuickSightConfigS3.png)
 
 <br>Next, allow QuickSight to read from both S3 and Athena.
 
-**Step 6**: Click "Amazon S3" and "Amazon Athena" checkboxes.  Click “Update”.
+**Step 7**: Click "Amazon S3" and "Amazon Athena" checkboxes.  Click “Update”.
 ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightConfigAthena.png)
 <br>
 
 
 
-#### Update the CloudFormation nested (main) stack called "forecast-stack-ForecastStack-xxxx" and add your QuickSight ARN.
+#### Update the CloudFormation nested stack called "forecast-stack-ForecastStack-xxxx" and add your QuickSight ARN.
 
-**Step 7**: Open AWS console again.  [console.aws.amazon.com](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightConfig.png)
+**Step 8**: Open AWS console again.  [console.aws.amazon.com](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/QuickSightConfig.png)
 
-**Step 8**: In search box type "cloud formation" to navigate to CloudFormation templates.
+In search box type "cloud formation" to navigate to CloudFormation templates.
 
-Click button next to the nested stack and click menu action “Update”
+Click on the button next to nested stack called "forecast-stack-ForecastStack-xxxx" and click menu action “Update”
+
 ![](https://amazon-forecast-samples.s3-us-west-2.amazonaws.com/common/images/workshops/cloudformationautomation-1QuickSight.png)
 <br>
 
