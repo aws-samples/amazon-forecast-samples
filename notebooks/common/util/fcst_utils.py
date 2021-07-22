@@ -1,3 +1,5 @@
+import re
+import io
 import time
 import json
 import gzip
@@ -131,7 +133,114 @@ def create_bucket(bucket_name, region=None):
         return False
     return True
 
+
+def empty_s3_path( s3_client, s3_path ):
+
+    if s3_path[-1] != "/":
+        s3_path += "/"
+
+    # extract s3 bucket and s3 key
+    re_result = re.match( "s3://([^/]+)/(.*)", s3_path )
+    if re_result:
+        bucket_name = re_result.group(1)
+        prefix = re_result.group(2)
+    else:
+        raise ValueError( "S3 path format error", src )
+
+    cont_token = None
+    while True:
+        list_param = {
+            "Bucket" : bucket_name, 
+            "Prefix" : prefix,
+        }
+        if cont_token:
+            list_param["ContinuationToken"] = cont_token
+        
+        response = s3_client.list_objects_v2( **list_param )
+        
+        delete_param = {
+            "Bucket" : bucket_name, 
+            "Delete" : {
+                "Objects" : []
+            },
+        }
+        
+        if "Contents" in response:
+            for item in response["Contents"]:
+                if item["Key"].endswith("/") : continue
+                
+                print(item["Key"])
+                
+                delete_param["Delete"]["Objects"].append(
+                    {
+                        "Key" : item["Key"]
+                    }
+                )
+                
+            s3_client.delete_objects( **delete_param )
+
+        if "NextContinuationToken" in response:
+            cont_token = response["NextContinuationToken"]
+            continue
+        
+        break
+
+        
+def read_exported_forecast_into_dataframe( s3_client, s3_path ):
+
+    if s3_path[-1] != "/":
+        s3_path += "/"
+
+    # extract s3 bucket and s3 key
+    re_result = re.match( "s3://([^/]+)/(.*)", s3_path )
+    if re_result:
+        bucket_name = re_result.group(1)
+        prefix = re_result.group(2)
+    else:
+        raise ValueError( "S3 path format error", src )
+
+    s3_objects = []
+    cont_tolen = None
     
+    # list objects
+    while True:
+        params = { "Bucket" : bucket_name, "Prefix" : prefix }
+        if cont_tolen:
+            params["ContinuationToken"] = cont_tolen
+    
+        response = s3_client.list_objects_v2( **params )
+        s3_objects += response["Contents"]
+        
+        if "NextContinuationToken" not in response:
+            break
+
+        cont_tolen = response["NextContinuationToken"]
+    
+    df_list = []
+    
+    # read objects and convert to pandas dataframes
+    for obj in s3_objects:
+        key = obj["Key"]
+        
+        if not key.endswith(".csv"):
+            continue
+        
+        print(key)
+
+        fd = io.BytesIO()
+        s3_client.download_fileobj( Bucket=bucket_name, Key=key, Fileobj=fd )
+        fd.seek(0)
+        
+        df_part = pd.read_csv(fd)
+        df_list.append(df_part)
+    
+    df = pd.concat( df_list )
+    
+    df["date"] = pd.to_datetime( df["date"], format="%Y-%m-%dT%H:%M:00Z" )
+    
+    return df
+
+
 def plot_forecasts(fcsts, exact, freq = '1H', forecastHorizon=24, time_back = 80):
     p10 = pd.DataFrame(fcsts['Forecast']['Predictions']['p10'])
     p50 = pd.DataFrame(fcsts['Forecast']['Predictions']['p50'])
