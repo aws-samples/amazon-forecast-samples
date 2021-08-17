@@ -11,5 +11,4 @@ __pycache__
 /notebooks/advanced/WhatIf_Analysis/data/rts1.csv
 /notebooks/advanced/WhatIf_Analysis/data/rts2.csv
 /notebooks/advanced/WhatIf_Analysis/data/tts.csv
-/notebooks/advanced/Clustering_Preprocessing/data/*
 /notebooks/advanced/Clustering_Preprocessing/tsl/*
