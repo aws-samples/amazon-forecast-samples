@@ -26,9 +26,7 @@ import warnings
 
 # External Dependencies:
 try:
-    import dask
     import dask.dataframe as dd
-    from dask.diagnostics import ProgressBar
     HAS_DASK = True
 except ImportError:
     warnings.warn("dask[dataframe] not installed: Using pure pandas")
@@ -103,7 +101,7 @@ def group_and_apply(
     """
     if HAS_DASK and use_dask_if_available:
         print("Aggregating with Dask")
-        ddf = dd.from_pandas(df, num_partitions)
+        ddf = dd.from_pandas(df, npartitions=num_dask_partitions)
         return ddf.groupby(group_by_cols).apply(apply_fn, meta=output_meta).compute()
     else:
         print("Aggregating with Pandas")

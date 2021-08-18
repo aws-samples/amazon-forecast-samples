@@ -16,7 +16,6 @@ from . import distributed
 def analyze_lengths_and_sparsity(
     binned_df: pd.DataFrame,
     agg_freq: str,
-    timestamp_col: str,
     forecast_dims: Iterable[str],
     target_col: str,
     hist_bins: int=32,
@@ -35,8 +34,6 @@ def analyze_lengths_and_sparsity(
     agg_freq : str
         Time frequency for grouping (Only used for labelling plots). Can be as per the `freq` param
         of: https://pandas.pydata.org/docs/reference/api/pandas.Grouper.html
-    timestamp_col : str
-        Column name of `input_df` where record timestamps are located
     forecast_dims : str
         Column name of `input_df` where each record's forecast item identifier is located
     target_col : str

@@ -96,7 +96,6 @@ def aggregate_time_series(
         analyze_lengths_and_sparsity(
             g,
             agg_freq=agg_freq,
-            timestamp_col=timestamp_col,
             forecast_dims=dimension_cols,
             target_col=target_col,
         )
