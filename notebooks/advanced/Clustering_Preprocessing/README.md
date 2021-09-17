@@ -6,9 +6,15 @@ We leverage the [tslearn.clustering](https://tslearn.readthedocs.io/en/stable/ge
 
 The collection includes two notebooks, the first is optional relating to data cleaning / processing; and the main notebook relating to time series clustering. We use the open source UCI [Online Retail II Data Set](https://archive.ics.uci.edu/ml/datasets/Online+Retail+II) for this demonstration.
 
+**Please note**, these notebooks cover the preprocessing and data preparation steps related to the clustering of Time Series data. The reader is referred to the [Forecast Developers Guide](https://docs.aws.amazon.com/forecast/latest/dg/what-is-forecast.html) for model training and evaluation.
+
 *Table of contents:*
 
 - [01. Optional - Data Cleaning and Preparation](https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/Clustering_Preprocessing/01.%20Optional%20-%20Data%20Cleaning%20and%20Preparation.ipynb)
 - [02. Time Series Clustering Using DTW KMeans](https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/Clustering_Preprocessing/02.%20Time%20Series%20Clustering%20Using%20DTW%20KMeans.ipynb)
 
-**Please note**, these notebooks only cover the preprocessing and data preparation steps related to the clustering of Time Series data. The reader is referred to the [Basic TutorialNotebooks](https://github.com/aws-samples/amazon-forecast-samples/tree/master/notebooks/basic/Tutorial) for model training and evaluation steps.
+*References:*
+
+- Dua, D. and Graff, C. (2019). UCI Machine Learning Repository [http://archive.ics.uci.edu/ml]. Irvine, CA: University of California, School of Information and Computer Science.
+- https://archive.ics.uci.edu/ml/datasets/Online+Retail+II
+- https://github.com/tslearn-team/tslearn
