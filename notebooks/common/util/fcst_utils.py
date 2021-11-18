@@ -1,15 +1,17 @@
 import time
 import json
 import gzip
+import os
+import shutil
 
 import boto3
 import botocore.exceptions
 
 import pandas as pd
 import matplotlib.pyplot as plt
+from tqdm.auto import trange
 
 import util.notebook_utils
-
 
 def wait_till_delete(callback, check_time = 5, timeout = None):
 
@@ -90,9 +92,11 @@ def get_or_create_iam_role( role_name ):
         )
 
         print("Waiting for a minute to allow IAM role policy attachment to propagate")
-        time.sleep(60)
+        for i in trange(60):
+            time.sleep(1.0)
+            
     except iam.exceptions.EntityAlreadyExistsException:
-        print("The role " + role_name + " exists, ignore to create it")
+        print("The role " + role_name + " already exists, skipping creation")
         role_arn = boto3.resource('iam').Role(role_name).arn
 
     print("Done.")
@@ -163,3 +167,47 @@ def extract_gz( src, dst ):
 
     print("Done.")
 
+def read_explainability_export(BUCKET_NAME, s3_path):
+    """Read explainability export files
+       Inputs: 
+           BUCKET_NAME = S3 bucket name
+           s3_path = S3 path to export files
+                         , everything after "s3://BUCKET_NAME/" in S3 URI path to your files
+       Return: Pandas dataframe with all files concatenated row-wise
+    """
+    # set s3 path
+    s3 = boto3.resource('s3')
+    s3_bucket = boto3.resource('s3').Bucket(BUCKET_NAME)
+    s3_depth = s3_path.split("/")
+    s3_depth = len(s3_depth) - 1
+    
+    # set local path
+    local_write_path = "explainability_exports"
+    if (os.path.exists(local_write_path) and os.path.isdir(local_write_path)):
+        shutil.rmtree('explainability_exports')
+    if not(os.path.exists(local_write_path) and os.path.isdir(local_write_path)):
+        os.makedirs(local_write_path)
+    
+    # concat part files
+    part_filename = ""
+    part_files = list(s3_bucket.objects.filter(Prefix=s3_path))
+    print(f"Number .part files found: {len(part_files)}")
+    for file in part_files:
+        # There will be a collection of CSVs, modify this to go get them all
+        if "csv" in file.key:
+            part_filename = file.key.split('/')[s3_depth]
+            window_object = s3.Object(BUCKET_NAME, file.key)
+            file_size = window_object.content_length
+            if file_size > 0:
+                s3.Bucket(BUCKET_NAME).download_file(file.key, local_write_path+"/"+part_filename)
+        
+    # Read from local dir and combine all the part files
+    temp_dfs = []
+    for entry in os.listdir(local_write_path):
+        if os.path.isfile(os.path.join(local_write_path, entry)):
+            df = pd.read_csv(os.path.join(local_write_path, entry), index_col=None, header=0)
+            temp_dfs.append(df)
+
+    # Return assembled .part files as pandas Dataframe
+    fcst_df = pd.concat(temp_dfs, axis=0, ignore_index=True, sort=False)
+    return fcst_df
