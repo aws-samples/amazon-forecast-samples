@@ -30,7 +30,7 @@
     {
       "DatasetName": "DatasetName",
       "Domain": "'RETAIL'|'CUSTOM'|'INVENTORY_PLANNING'|'EC2_CAPACITY'|'WORK_FORCE'|'WEB_TRAFFIC'|'METRICS'",
-      "DatasetType": "'TARGET_TIME_SERIES'|'RELATED_TIME_SERIES|ITEM_METADATA'",
+      "DatasetType": "'TARGET_TIME_SERIES'|'RELATED_TIME_SERIES'|'ITEM_METADATA'",
       "DatasetFrequency": "Y|M|W|D|H|30min|15min|10min|5min|1min",
       "Schema": {
         "item_id": "string|datetime|float",
@@ -40,7 +40,7 @@
     },{
       "DatasetName": "DatasetName",
       "Domain": "'RETAIL'|'CUSTOM'|'INVENTORY_PLANNING'|'EC2_CAPACITY'|'WORK_FORCE'|'WEB_TRAFFIC'|'METRICS'",
-      "DatasetType": "'TARGET_TIME_SERIES'|'RELATED_TIME_SERIES|ITEM_METADATA'",
+      "DatasetType": "'TARGET_TIME_SERIES'|'RELATED_TIME_SERIES'|'ITEM_METADATA'",
       "DatasetFrequency": "Y|M|W|D|H|30min|15min|10min|5min|1min",
       "Schema": {
         "item_id": "'string'|'integer'|'float'|'timestamp'",
