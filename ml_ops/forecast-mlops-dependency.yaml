@@ -1,0 +1,229 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: One-time creation for Amazon Forecast MLOps dependencies
+
+Parameters:
+
+  S3Bucket:
+    Description: Provide the S3 Bucket Name to be used
+    Type: String
+
+  ExistingS3Bucket:
+    Description: Does your S3 bucket already exist?
+    Default: false
+    Type: String
+    AllowedValues:
+        - true
+        - false
+    ConstraintDescription: must specify true or false
+
+Conditions:
+  CreateS3Resource: !Equals 
+    - !Ref ExistingS3Bucket
+    - false
+
+Resources:
+
+  ForecastArtifactBucket:
+    Type: AWS::S3::Bucket
+    Condition: CreateS3Resource
+    DeletionPolicy: Retain
+    Properties: 
+      BucketName: !Ref S3Bucket
+
+  ForecastProcessorLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+            - forecast.amazonaws.com
+        Version: '2012-10-17'
+      Path: "/"
+      Policies:
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Effect: Allow
+            Resource: 'arn:aws:logs:*:*:*'
+          Version: '2012-10-17'
+        PolicyName: !Sub '${AWS::StackName}-cloudwatch-ops'
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - forecast:*
+            Effect: Allow
+            Resource:
+            - !Sub 'arn:aws:forecast:::*'
+          Version: '2012-10-17'
+        PolicyName: !Sub '${AWS::StackName}-forecast-ops'
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - s3:PutObject
+            - s3:DeleteObject
+            - s3:Get*
+            - s3:List*
+            Effect: Allow
+            Resource:
+            - !Join 
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref S3Bucket
+            - !Join 
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref S3Bucket
+                  - '/*'
+          Version: '2012-10-17'
+        PolicyName: !Sub '${AWS::StackName}-s3-ops'
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - glue:GetTable
+            - glue:CreateTable
+            - glue:BatchCreatePartition
+            Effect: Allow
+            Resource:
+            - !Sub 'arn:aws:glue:*:${AWS::AccountId}:database/*'
+            - !Sub 'arn:aws:glue:*:${AWS::AccountId}:catalog'
+            - !Sub 'arn:aws:glue:*:${AWS::AccountId}:table/*/*'
+          Version: '2012-10-17'
+        PolicyName: !Sub '${AWS::StackName}-glue-ops'
+      RoleName: !Sub 'ForecastProcessorLambdaExecutionRole'
+  
+  MetadataLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: GetForecastMetadata
+      Handler: index.lambda_handler
+      Runtime: python3.9
+      Role: !GetAtt ForecastProcessorLambdaExecutionRole.Arn
+      Timeout: 5
+      MemorySize: 128
+      Code:
+        ZipFile: |
+          from datetime import datetime
+
+          def lambda_handler(event, context):
+
+              try:
+                  forecastHorizon = int(event.get('ForecastHorizon'))
+              except:
+                  forecastHorizon = 0
+              
+              return {
+                  'timeKey': datetime.today().strftime('%Y%m%d%H%M%S'),
+                  'dateKey': datetime.today().strftime('%Y%m%d'),
+                  'forecastHorizon': forecastHorizon
+              }
+      Description: Simple function that provides variables for unique Predictors, Forecasts and job names.
+
+
+  StateMachineExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - !Sub 'states.${AWS::Region}.amazonaws.com'
+        Version: '2012-10-17'
+      Path: "/"
+      Policies:
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - lambda:InvokeFunction
+            Effect: Allow
+            Resource: '*'
+          Version: '2012-10-17'
+        PolicyName: !Sub '${AWS::StackName}-lambda-ops'
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - athena:StartQueryExecution
+            - athena:GetQueryExecution
+            - athena:GetQueryResults
+            - glue:GetTable
+            - glue:GetPartitions
+            Effect: Allow
+            Resource: '*'
+          Version: '2012-10-17'
+        PolicyName: !Sub '${AWS::StackName}-athena-ops'  
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - s3:PutObject
+            - s3:DeleteObject
+            - s3:Get*
+            - s3:List*
+            Effect: Allow
+            Resource:
+            - !Join 
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref S3Bucket
+            - !Join 
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref S3Bucket
+                  - '/*'
+          Version: '2012-10-17'
+        PolicyName: !Sub '${AWS::StackName}-s3-ops'
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - forecast:*
+            Effect: Allow
+            Resource: '*'
+          Version: '2012-10-17'
+        PolicyName: !Sub '${AWS::StackName}-forecast-ops'
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - iam:PassRole
+            Effect: Allow
+            Resource: !GetAtt ForecastProcessorLambdaExecutionRole.Arn
+          Version: '2012-10-17'
+        PolicyName: !Sub '${AWS::StackName}-iam-passrole-ops'
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - sns:Publish
+            Effect: Allow
+            Resource:
+            - !Sub 'arn:aws:sns:*:${AWS::AccountId}:*'
+          Version: '2012-10-17'
+        PolicyName: !Sub '${AWS::StackName}-sns-ops'
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - ssm:Get*
+            Effect: Allow
+            Resource:
+            - !Sub 'arn:aws:ssm:*:${AWS::AccountId}:parameter/forecast/*'
+          Version: '2012-10-17'
+        PolicyName: !Sub '${AWS::StackName}-ssm-ops'
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - states:StartExecution
+            - states:DescribeExecution
+            - states:StopExecution
+            Effect: Allow
+            Resource:
+            - !Sub 'arn:aws:states:*:${AWS::AccountId}:stateMachine:${AWS::StackName}*'
+          Version: '2012-10-17'
+        PolicyName: !Sub '${AWS::StackName}-state-machine-ops'
+      RoleName: !Sub 'ForecastStepFunctionExecutionRole'
