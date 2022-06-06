@@ -1,10 +1,10 @@
 ﻿## Importing data into your Amazon Forecast Dataset Group
 
-You may repeat this process as a quick start for each use case you intend to deploy.  Since each deployment is mutually exclusive of the other, you can operate each stack independently.
+You may repeat this process as a quick start for each use case you intend to deploy.  Since each deployment is mutually exclusive from the other, you can operate each stack independently.
 
-In a prior step at the [Solution Guidance](SolutionGuidance.md) stack creation, **StackName** parameter was given.
+In a prior step at the [Solution Guidance](SolutionGuidance.md) stack creation, the **StackName** parameter was given.
 
-Ongoing, you should plan on running this task just ahead of create predictor and/or create forecast as appropriate, as a series, according to your schedule -- which could be daily, weekly or otherwise. 
+Ongoing, you should plan on running this task just ahead of create predictor and/or create forecast as appropriate, as a series, according to your schedule -- which could be daily, weekly, or otherwise. 
 
 1. In the AWS Console, navigate to the AWS Step Functions service.  You can do this by typing S3 in the "Step Functions" control in the black menu bar and hitting enter.
 2. Once in AWS Step Functions, a list of all state machines is provided.  Type the name of your StackName in the "Search for state machines" control to filter the list, if needed.
@@ -15,7 +15,7 @@ Ongoing, you should plan on running this task just ahead of create predictor and
 <br><br>
 ![Step Function Running](./images/step-function-import-running.jpg)
 <br><br>
-7. While this is running, in your browser, open another tab and use the AWS Console to nagivate to Amazon Forecast by typing Forecast in the search control in the black menu bar and hitting enter.
+7. While this is running, in your browser, open another tab and use the AWS Console to navigate to Amazon Forecast by typing Forecast in the search control in the black menu bar and hitting enter.
 8. In Forecast, navigate to the dataset group with your **StackName** and you should see data imports are in progress.  The interface will look similar to this screenshot.
 
 <br><br>
