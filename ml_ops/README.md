@@ -44,3 +44,5 @@ A---> H[Workload Deployment Stack: Workload n] ---> I[Operationalize]
 
 Begin here, with the one-time deployment of the [Dependency Stack](./DependencyStack.md)
 
+## License Summary
+This sample code is made available under a modified MIT license. See the [LICENSE](../LICENSE) file.
