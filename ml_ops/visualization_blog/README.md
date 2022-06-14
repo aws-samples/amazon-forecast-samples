@@ -1,5 +1,7 @@
 # Forecast Visualization Automation Blog
 
+Update: June 13, 2022 this solution page and child artifacts, originally published May 4, 2020 is being wholly replaced with [a newer method](../README.md) which uses native Amazon Forecast actions in the AWS Step Function, implements the Amazon Forecast AutoPredictor workflow, and removes the need to use SAM for build and deploy.  Please follow the new link provided; this page will be retired on July 31, 2022.
+
 This package contains the source code with a Step Functions pipeline that is able to perform
 multiple actions within Amazon Forecast, including the following:
 - Dataset creation
