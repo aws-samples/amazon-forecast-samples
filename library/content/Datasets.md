@@ -5,9 +5,9 @@
 
 * [Dataset group](#datasetgroup)  
 * [Target Time Series](#tts)  
-* [Related Time Seriesl](#rts)
-* [Item Metadata](#item)
-* [AWS supplied dataset: Weather Index](#item)
+* [Related Time Series](#rts)
+* [Item Metadata](#im)
+* [AWS supplied dataset: Weather Index](#weather)
 
 ## Dataset group<a name="datasetgroup"/>
 A  _dataset group_ is a collection of one to three complimentary datasets, one of each dataset type.  You import datasets to a dataset group, then use the dataset group to train a predictor and generate forecasts.  Ultimately, the dataset group is a self-contained unit that holds all related Amazon Forecast artifacts for a single workload including data, ML model and inference.  Customers may create many dataset groups, one for each workload, where a shared-nothing design is needed. 
@@ -51,7 +51,7 @@ You are able to define your TTS with JSON; this example supports the Figure 1 sc
 }
 ```
 
-## Optional: Related Time Series (RTS)<a name="tts"/>
+## Optional: Related Time Series (RTS)<a name="rts"/>
 
 In addition to historical data, **sometimes other data is known per item at exactly the same time.  This is called the Related Time Series (RTS)**.  Related data can give more clues to what future predictions could look like.  The best related data is also known and specified in the future.  For example unit prices, sale/promotions, marketing spend, economic indicators, holidays, traffic patterns, available inventory level.  
 
@@ -104,7 +104,7 @@ You are able to define your RTS with JSON; this example supports the Figure 2 sc
   ]
 }
 ```
-## Optional: Item Metadata (IM)<a name="tts"/>
+## Optional: Item Metadata (IM)<a name="im"/>
 
 Especially for cold-starts, or new product introductions, it is important to have Item Metadata (IM).  **Item Metadata is static information with respect to time, it varies only per fixed "item_id"**.  Examples of metadata are type of item, product group, genre, color, class.
 

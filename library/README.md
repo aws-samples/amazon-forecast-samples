@@ -8,5 +8,5 @@ Over time, our initial Amazon Forecast Cheat Sheet has grown quite large.   This
 **Table of Contents**
 
  - [Amazon Forecast Introduction](./content/Introduction.md)
+ - [Datasets](./content/Datasets.md)
  - [AutoPredictor](./content/AutoPredictor.md)
-
