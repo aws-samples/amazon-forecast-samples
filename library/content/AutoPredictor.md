@@ -46,3 +46,7 @@ Helpful links:
  - [Amazon Forecast Developer Guide](https://docs.aws.amazon.com/forecast/latest/dg/API_CreateAutoPredictor.html)
  - [Amazon CLI Command Reference](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/forecast/create-auto-predictor.html)
  - [Sample QuickStart Guide to Train an AutoPredictor](../../notebooks/basic/Getting_Started/Amazon_Forecast_Quick_Start_Guide.ipynb)
+ 
+ 
+<br><br>
+[Return to Table of Contents](../README.md)
