@@ -11,7 +11,7 @@
 
 ## Dataset group<a name="datasetgroup"/>
 A  _dataset group_ is a collection of one to three complimentary datasets, one of each dataset type.  You import datasets to a dataset group, then use the dataset group to train a predictor and generate forecasts.  Ultimately, the dataset group is a self-contained unit that holds all related Amazon Forecast artifacts for a single workload including data, ML model and inference.  Customers may create many dataset groups, one for each workload, where a shared-nothing design is needed. 
-<br>There are three dataset types: [target time series](#tts), [related time series](#rts) and [item metadata](#item) defined within.  The only required dataset type is **target time series**.
+<br>There are three dataset types: [target time series](#tts), [related time series](#rts) and [item metadata](#im) defined within.  The only required dataset type is **target time series**.
 
 ## Target Time Series (TTS)<a name="tts"/>
 
@@ -25,6 +25,7 @@ TTS consists of:
 In addition, you may specify up to 10 columns that provided added dimensions for more granularity.  An example is shown in Figure 1, where in addition to item_id, a store number is specified.   You may define these according to your hierarchy as needed.
 
 ***Figure 1 - Example of TTS with sample data records***
+<br>
 ![TTS](../images/target-time-series.png)
 
 You are able to define your TTS with JSON; this example supports the Figure 1 schema.
@@ -67,6 +68,7 @@ There are important distinctions with the RTS dataset:
 **For a more comprehensive list of considerations, visit the [related time series documentation](https://docs.aws.amazon.com/forecast/latest/dg/related-time-series-datasets.html) page.**
 
 ***Figure 2 - Example of RTS with sample data records***
+<br>
 ![RTS](../images/related-time-series.png)
 
 You are able to define your RTS with JSON; this example supports the Figure 2 schema.
@@ -104,14 +106,16 @@ You are able to define your RTS with JSON; this example supports the Figure 2 sc
   ]
 }
 ```
+
 ## Optional: Item Metadata (IM)<a name="im"/>
 
 Especially for cold-starts, or new product introductions, it is important to have Item Metadata (IM).  **Item Metadata is static information with respect to time, it varies only per fixed "item_id"**.  Examples of metadata are type of item, product group, genre, color, class.
 
 ***Figure 3 - Example of Item Metadata with sample data records***
+<br>
 ![IM](../images/item-metadata.png)
 
-You are able to define your RTS with JSON; this example supports the Figure 2 schema.
+You are able to define your IM with JSON; this example supports the Figure 3 schema.
 ```
 {
    "Attributes":[
