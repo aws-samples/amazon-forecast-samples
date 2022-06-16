@@ -12,4 +12,8 @@ You can’t use impact scores to determine whether particular attributes improve
 Explainability is available through the [AutoPredictor](AutoPredictor.md) models by enabling it during model creation or enabling it after the fact.  Once computed, you may view the outcome visually, as in Figure 1, through the AWS Console.  You may also request for data to be exported in a tabular output as well.
 
 ***Figure 1 - Example of Explainability available inside the AWS Console***
+<br>
 ![Explainability](../images/predictor-explainability.png)
+
+<br><br>
+[Return to Table of Contents](../README.md)
