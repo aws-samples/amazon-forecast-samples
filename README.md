@@ -2,11 +2,27 @@
 
 Workshops, Notebooks and examples on how to learn and use various features of Amazon Forecast
 
+
+### Announcements and New Service Features 
+
+ - [Building a Strong Time-Series ML Model: AutoPredictor](./library/content/AutoPredictor.md)
+ - [New Feature: Custom Time Alignment Boundary](./notebooks/advanced/Custom_Time_Alignment_Boundary/Time_Alignment_Boundary_Introduction.ipynb)
+ - [New Feature: Forecast on Selected Time-Series](./notebooks/advanced/Forecast_Selected_TimeSeries/Forecast_Selected_TimeSeries_Introduction.ipynb)
+ - [New Feature: Predictor Monitoring](./notebooks/advanced/Predictor_Monitoring/Predictor_Monitoring_Introduction.ipynb)
+ - [No Code Guide to Automate Forecast MLOps for PoC and production cycle model training and forecast generation](./ml_ops/README.md)
+ 
+
 ### Introduction, Best Practices, and Cheat Sheet Tutorial
 
-[Getting Started Guide and Best Practices Cheat Sheet Tutorial](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md) serves as a guide to onboarding and continued learning how to improve forecasts using Amazon Forecast Best Practices.
+Please [visit our growing library](./library/README.md) which serves as a guide for onboarding data and learning how to use Amazon Forecast.
 
-<br>
+The library is intended to replace our [Getting Started Guide and Best Practices Cheat Sheet Tutorial](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md).  As content in the singluar guide grew, it became necessary to organize the information as focused topics of interest.
+
+
+## MLOps: Learn how Amazon Forecast can provide cyclical production workloads
+
+The purpose of this guidance is to provide customers with a complete end-to-end workflow that serves as an example -- a model to follow.  As delivered, the guidance creates forecasted data points from an open-source input data set.  The template can be used to create Amazon Forecast Dataset Groups, import data, train machine learning models, and produce forecasted data points, on future unseen time horizons from raw data.  All of this is possible without having to write or compile code.  [Get Started](./ml_ops/README.md)
+
 
 ### Workshops
 
@@ -53,13 +69,6 @@ Here you will find examples how to use Amazon Forecast Python SDK to make API ca
   - [Assessing item level accuracy using custom metrics with Predictor backtest exported data](https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/Item_Level_Accuracy/Item_Level_Accuracy_Using_Bike_Example.ipynb) 
   - [Forecasting "cold-start" or new product introductions by generating test data explicitly filled with "NaN" for new items and running Forecast-only (that is inference only) using already trained predictor](https://github.com/aws-samples/amazon-forecast-samples/blob/master/notebooks/advanced/Forecast%20with%20Cold%20Start%20Items/Forecast%20with%20Cold%20Start%20Items.ipynb) 
 
-<br>
-
-## MLOps 
-
-This folder has been superceded by the [Improving Forecast Accuracy With Machine Learning Solution](https://aws.amazon.com/solutions/implementations/improving-forecast-accuracy-with-machine-learning/).  [Follow these instructions](https://github.com/aws-samples/amazon-forecast-samples/blob/master/workshops/pre_POC_workshop/install-forecast-solution.md) to deploy an automated end to end pipeline from training to visualization of your Amazon Forecasts in Amazon QuickSight.
-
-<br>
 
 
 ## License Summary
