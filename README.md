@@ -17,7 +17,7 @@ Workshops, Notebooks and examples on how to learn and use various features of Am
 
 Please [visit our growing library](./library/README.md) which serves as a guide for onboarding data and learning how to use Amazon Forecast.
 
-The library is intended to replace our [Getting Started Guide and Best Practices Cheat Sheet Tutorial](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md).  As content in the singluar guide grew, it became necessary to organize the information as focused topics of interest.
+The library is intended to replace our [Getting Started Guide and Best Practices Cheat Sheet Tutorial](https://github.com/aws-samples/amazon-forecast-samples/blob/master/ForecastCheatSheet.md).  As content in the singular guide grew, it became necessary to organize the information as focused topics of interest.
 
 
 ## MLOps: Learn how Amazon Forecast can provide cyclical production workloads
