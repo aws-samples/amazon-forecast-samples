@@ -4,6 +4,12 @@ Description: Creation for Amazon Forecast Solution Guidance
 
 Parameters:
 
+
+  DatasetGroupName:
+    Description: Short name for dataset group, a self-contained workload
+    Type: String
+    AllowedPattern: ^[a-zA-Z][a-zA-Z0-9_]*
+
   TimestampFormatTTS:
     Description: Which timestamp format is provided for Target Time Series
     Type: String
@@ -21,7 +27,7 @@ Parameters:
       - yyyy-MM-dd HH:mm:ss
 
   SNSEndpoint:
-    Description: Provide a value e-mail address to receive task notifications
+    Description: Provide a valid e-mail address to receive task notifications
     Type: String
 
   S3Bucket:
@@ -114,6 +120,38 @@ Parameters:
 
   PredictorForecastFrequency:
     Description: What period are forecasts generated at
+    Type: String
+    Default: W
+    AllowedValues:
+      - Y
+      - M
+      - W
+      - D
+      - H
+      - 30min
+      - 15min
+      - 10min
+      - 5min
+      - 1min
+
+  DatasetGroupFrequencyTTS:
+    Description: The frequency of data collection for TARGET TIME SERIES dataset
+    Type: String
+    Default: W
+    AllowedValues:
+      - Y
+      - M
+      - W
+      - D
+      - H
+      - 30min
+      - 15min
+      - 10min
+      - 5min
+      - 1min
+
+  DatasetGroupFrequencyRTS:
+    Description: The frequency of data collection for RELATED TIME SERIES dataset
     Type: String
     Default: W
     AllowedValues:
@@ -240,20 +278,24 @@ Resources:
             "Comment": "An automation pipeline to create Amazon Forecast datasets and associate dataset group",
             "StartAt": "ParametersDatasetGroup",
             "States": {
+
               "ParametersDatasetGroup": {
                 "Type": "Task",
                 "Next": "Create Datasets",
                 "Parameters": {
                   "Names": [
-                    "/forecast/${AWS::StackName}/DatasetGroup/DataDomain"
+                    "/forecast/${AWS::StackName}/DatasetGroup/DataDomain",
+                    "/forecast/${AWS::StackName}/DatasetGroup/DatasetGroupName"
                   ]
                 },
                 "Resource": "arn:aws:states:::aws-sdk:ssm:getParameters",
                 "ResultSelector": {
-                  "Data_Domain.$": "$.Parameters[0].Value"
+                  "Data_Domain.$": "$.Parameters[0].Value",
+                  "DatasetGroupName.$": "$.Parameters[1].Value"
                 },
                 "ResultPath": "$.GetParameters"
               },
+
               "Create Datasets": {
                 "Type": "Parallel",
                 "Next": "CreateDatasetGroup",
@@ -266,8 +308,8 @@ Resources:
                         "Next": "TTS",
                         "Parameters": {
                           "Names": [
-                            "/forecast/${AWS::StackName}/DatasetGroup/SchemaTTS",
-                            "/forecast/${AWS::StackName}/DatasetGroup/FrequencyTTS"
+                            "/forecast/${AWS::StackName}/DatasetGroup/FrequencyTTS",
+                            "/forecast/${AWS::StackName}/DatasetGroup/SchemaTTS"
                           ]
                         },
                         "Resource": "arn:aws:states:::aws-sdk:ssm:getParameters",
@@ -280,7 +322,7 @@ Resources:
                       "TTS": {
                         "Type": "Task",
                         "Parameters": {
-                          "DatasetName": "${AWS::StackName}_TTS",
+                          "DatasetName.$": "States.Format('{}{}',$.GetParameters.DatasetGroupName,'_TTS')",
                           "Domain.$": "$.GetParameters.Data_Domain",
                           "DatasetType": "TARGET_TIME_SERIES",
                           "DataFrequency.$": "$.GetTTSParameters.TTS_Data_Frequency",
@@ -315,8 +357,8 @@ Resources:
                         "Next": "RTS",
                         "Parameters": {
                           "Names": [
-                            "/forecast/${AWS::StackName}/DatasetGroup/SchemaRTS",
-                            "/forecast/${AWS::StackName}/DatasetGroup/FrequencyRTS"
+                            "/forecast/${AWS::StackName}/DatasetGroup/FrequencyRTS",
+                            "/forecast/${AWS::StackName}/DatasetGroup/SchemaRTS"
                           ]
                         },
                         "Resource": "arn:aws:states:::aws-sdk:ssm:getParameters",
@@ -329,7 +371,7 @@ Resources:
                       "RTS": {
                         "Type": "Task",
                         "Parameters": {
-                          "DatasetName": "${AWS::StackName}_RTS",
+                          "DatasetName.$": "States.Format('{}{}',$.GetParameters.DatasetGroupName,'_RTS')",
                           "Domain.$": "$.GetParameters.Data_Domain",
                           "DatasetType": "RELATED_TIME_SERIES",
                           "DataFrequency.$": "$.GetRTSParameters.RTS_Data_Frequency",
@@ -376,7 +418,7 @@ Resources:
                       "ITEM Metadata": {
                         "Type": "Task",
                         "Parameters": {
-                          "DatasetName": "${AWS::StackName}_ITEM",
+                          "DatasetName.$": "States.Format('{}{}',$.GetParameters.DatasetGroupName,'_ITEM')",
                           "Domain.$": "$.GetParameters.Data_Domain",
                           "DatasetType": "ITEM_METADATA",
                           "Schema.$": "States.StringToJson($.GetITEMParameters.ITEM_Schema)"
@@ -407,27 +449,27 @@ Resources:
               },
               "CreateDatasetGroup": {
                 "Type": "Task",
+                "Resource": "arn:aws:states:::lambda:invoke",
+                "OutputPath": "$.Payload",
                 "Parameters": {
-                  "DatasetGroupName": "${AWS::StackName}_DSG",
-                  "Domain.$": "$.GetParameters.Data_Domain",
-                  "DatasetArns": [
-                    "arn:aws:forecast:${AWS::Region}:${AWS::AccountId}:dataset/${AWS::StackName}_RTS",
-                    "arn:aws:forecast:${AWS::Region}:${AWS::AccountId}:dataset/${AWS::StackName}_TTS",
-                    "arn:aws:forecast:${AWS::Region}:${AWS::AccountId}:dataset/${AWS::StackName}_ITEM"
-                  ]
+                  "FunctionName": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:ForecastCreateDatasetGroup:$LATEST",
+                  "Payload": {
+                    "StackName": "${AWS::StackName}"
+                  }
                 },
-                "Resource": "arn:aws:states:::aws-sdk:forecast:createDatasetGroup",
-                "Catch": [
+                "Retry": [
                   {
                     "ErrorEquals": [
-                      "Forecast.ResourceAlreadyExistsException"
+                      "Lambda.ServiceException",
+                      "Lambda.AWSLambdaException",
+                      "Lambda.SdkClientException"
                     ],
-                    "Comment": "Forecast.ResourceAlreadyExistsException",
-                    "Next": "Success"
+                    "IntervalSeconds": 2,
+                    "MaxAttempts": 6,
+                    "BackoffRate": 2
                   }
                 ],
-                "Next": "Success",
-                "HeartbeatSeconds": 5
+                "Next": "Success"
               },
               "Success": {
                 "Type": "Succeed"
@@ -494,12 +536,14 @@ Resources:
                         "Next": "TTS Import",
                         "Parameters": {
                           "Names": [
+                            "/forecast/${AWS::StackName}/DatasetGroup/DatasetArnTTS",
                             "/forecast/${AWS::StackName}/DatasetGroup/TimestampFormatTTS"
                           ]
                         },
                         "Resource": "arn:aws:states:::aws-sdk:ssm:getParameters",
                         "ResultSelector": {
-                          "TimestampFormatTTS.$": "$.Parameters[0].Value"
+                          "DatasetArnTTS.$": "$.Parameters[0].Value",
+                          "TimestampFormatTTS.$": "$.Parameters[1].Value"
                         },
                         "ResultPath": "$.GetParametersTTS"
                       },
@@ -513,29 +557,21 @@ Resources:
                               "RoleArn": "arn:aws:iam::${AWS::AccountId}:role/ForecastProcessorLambdaExecutionRole"
                             }
                           },
-                          "DatasetArn": "arn:aws:forecast:${AWS::Region}:${AWS::AccountId}:dataset/${AWS::StackName}_TTS",
+                          "DatasetArn.$": "$.GetParametersTTS.DatasetArnTTS",
                           "DatasetImportJobName.$": "States.Format('{}_{}', 'TTSImport',$.timeKey)"
                         },
                         "Resource": "arn:aws:states:::aws-sdk:forecast:createDatasetImportJob",
                         "ResultPath": "$.TTSImportJob",
-                        "Next": "ListTTSDataset"
+                        "Next": "DescribeDatasetImportJobTTS"
                       },
-                      "ListTTSDataset": {
+                      "DescribeDatasetImportJobTTS": {
                         "Type": "Task",
+                        "Next": "Evaluate TTS Status",
                         "Parameters": {
-                          "Filters": [
-                            {
-                              "Condition": "IS",
-                              "Key": "DatasetArn",
-                              "Value": "arn:aws:forecast:${AWS::Region}:${AWS::AccountId}:dataset/${AWS::StackName}_TTS"
-                            }
-                          ]
+                          "DatasetImportJobArn.$": "$.TTSImportJob.DatasetImportJobArn"
                         },
-                        "Resource": "arn:aws:states:::aws-sdk:forecast:listDatasetImportJobs",
-                        "ResultSelector": {
-                          "Status.$": "$.DatasetImportJobs[0].Status"
-                        },
-                        "Next": "Evaluate TTS Status"
+                        "Resource": "arn:aws:states:::aws-sdk:forecast:describeDatasetImportJob",
+                        "ResultPath": "$.describeDatasetImportJobResultTTS"
                       },
                       "Evaluate TTS Status": {
                         "Type": "Choice",
@@ -543,18 +579,18 @@ Resources:
                           {
                             "Or": [
                               {
-                                "Variable": "$.Status",
+                                "Variable": "$.describeDatasetImportJobResultTTS.Status",
                                 "StringEquals": "CREATE_PENDING"
                               },
                               {
-                                "Variable": "$.Status",
+                                "Variable": "$.describeDatasetImportJobResultTTS.Status",
                                 "StringEquals": "CREATE_IN_PROGRESS"
                               }
                             ],
                             "Next": "Retry TTS Not Active"
                           },
                           {
-                            "Variable": "$.Status",
+                            "Variable": "$.describeDatasetImportJobResultTTS.Status",
                             "StringEquals": "ACTIVE",
                             "Next": "TTS Active"
                           }
@@ -566,8 +602,8 @@ Resources:
                       },
                       "Retry TTS Not Active": {
                         "Type": "Wait",
-                        "Seconds": 120,
-                        "Next": "ListTTSDataset"
+                        "Seconds": 90,
+                        "Next": "DescribeDatasetImportJobTTS"
                       },
                       "TTS Active": {
                         "Type": "Wait",
@@ -584,12 +620,14 @@ Resources:
                         "Next": "RTS Import",
                         "Parameters": {
                           "Names": [
+                            "/forecast/${AWS::StackName}/DatasetGroup/DatasetArnRTS",
                             "/forecast/${AWS::StackName}/DatasetGroup/TimestampFormatRTS"
                           ]
                         },
                         "Resource": "arn:aws:states:::aws-sdk:ssm:getParameters",
                         "ResultSelector": {
-                          "TimestampFormatRTS.$": "$.Parameters[0].Value"
+                          "DatasetArnRTS.$": "$.Parameters[0].Value",
+                          "TimestampFormatRTS.$": "$.Parameters[1].Value"
                         },
                         "ResultPath": "$.GetParametersRTS"
                       },
@@ -603,29 +641,21 @@ Resources:
                               "RoleArn": "arn:aws:iam::${AWS::AccountId}:role/ForecastProcessorLambdaExecutionRole"
                             }
                           },
-                          "DatasetArn": "arn:aws:forecast:${AWS::Region}:${AWS::AccountId}:dataset/${AWS::StackName}_RTS",
+                          "DatasetArn.$": "$.GetParametersRTS.DatasetArnRTS",
                           "DatasetImportJobName.$": "States.Format('{}_{}', 'RTSImport',$.timeKey)"
                         },
                         "Resource": "arn:aws:states:::aws-sdk:forecast:createDatasetImportJob",
                         "ResultPath": "$.RTSImportJob",
-                        "Next": "ListRTSDataset"
+                        "Next": "DescribeDatasetImportJobRTS"
                       },
-                      "ListRTSDataset": {
+                      "DescribeDatasetImportJobRTS": {
                         "Type": "Task",
                         "Next": "Evaluate RTS Status",
                         "Parameters": {
-                          "Filters": [
-                            {
-                              "Condition": "IS",
-                              "Key": "DatasetArn",
-                              "Value": "arn:aws:forecast:${AWS::Region}:${AWS::AccountId}:dataset/${AWS::StackName}_RTS"
-                            }
-                          ]
+                          "DatasetImportJobArn.$": "$.RTSImportJob.DatasetImportJobArn"
                         },
-                        "Resource": "arn:aws:states:::aws-sdk:forecast:listDatasetImportJobs",
-                        "ResultSelector": {
-                          "Status.$": "$.DatasetImportJobs[0].Status"
-                        }
+                        "Resource": "arn:aws:states:::aws-sdk:forecast:describeDatasetImportJob",
+                        "ResultPath": "$.describeDatasetImportJobResultRTS"
                       },
                       "Evaluate RTS Status": {
                         "Type": "Choice",
@@ -633,18 +663,18 @@ Resources:
                           {
                             "Or": [
                               {
-                                "Variable": "$.Status",
+                                "Variable": "$.describeDatasetImportJobResultRTS.Status",
                                 "StringEquals": "CREATE_PENDING"
                               },
                               {
-                                "Variable": "$.Status",
+                                "Variable": "$.describeDatasetImportJobResultRTS.Status",
                                 "StringEquals": "CREATE_IN_PROGRESS"
                               }
                             ],
                             "Next": "Retry RTS Not Active"
                           },
                           {
-                            "Variable": "$.Status",
+                            "Variable": "$.describeDatasetImportJobResultRTS.Status",
                             "StringEquals": "ACTIVE",
                             "Next": "RTS Active"
                           }
@@ -653,8 +683,8 @@ Resources:
                       },
                       "Retry RTS Not Active": {
                         "Type": "Wait",
-                        "Seconds": 120,
-                        "Next": "ListRTSDataset"
+                        "Seconds": 90,
+                        "Next": "DescribeDatasetImportJobRTS"
                       },
                       "RTS Fail": {
                         "Type": "Fail"
@@ -667,8 +697,22 @@ Resources:
                     }
                   },
                   {
-                    "StartAt": "ITEM Import",
+                    "StartAt": "GetParametersItem",
                     "States": {
+                      "GetParametersItem": {
+                        "Type": "Task",
+                        "Next": "ITEM Import",
+                        "Parameters": {
+                          "Names": [
+                            "/forecast/${AWS::StackName}/DatasetGroup/DatasetArnItem"
+                          ]
+                        },
+                        "Resource": "arn:aws:states:::aws-sdk:ssm:getParameters",
+                        "ResultSelector": {
+                          "DatasetArnItem.$": "$.Parameters[0].Value"
+                        },
+                        "ResultPath": "$.GetParametersItem"
+                      },
                       "ITEM Import": {
                         "Type": "Task",
                         "Parameters": {
@@ -678,29 +722,21 @@ Resources:
                               "RoleArn": "arn:aws:iam::${AWS::AccountId}:role/ForecastProcessorLambdaExecutionRole"
                             }
                           },
-                          "DatasetArn": "arn:aws:forecast:${AWS::Region}:${AWS::AccountId}:dataset/${AWS::StackName}_ITEM",
+                          "DatasetArn.$": "$.GetParametersItem.DatasetArnItem",
                           "DatasetImportJobName.$": "States.Format('{}_{}', 'ITEMImport',$.timeKey)"
                         },
                         "Resource": "arn:aws:states:::aws-sdk:forecast:createDatasetImportJob",
                         "ResultPath": "$.ITEMImportJob",
-                        "Next": "ListITEMDataset"
+                        "Next": "DescribeDatasetImportJobItem"
                       },
-                      "ListITEMDataset": {
+                      "DescribeDatasetImportJobItem": {
                         "Type": "Task",
                         "Next": "Evaluate ITEM Status",
                         "Parameters": {
-                          "Filters": [
-                            {
-                              "Condition": "IS",
-                              "Key": "DatasetArn",
-                              "Value": "arn:aws:forecast:${AWS::Region}:${AWS::AccountId}:dataset/${AWS::StackName}_ITEM"
-                            }
-                          ]
+                          "DatasetImportJobArn.$": "$.ITEMImportJob.DatasetImportJobArn"
                         },
-                        "Resource": "arn:aws:states:::aws-sdk:forecast:listDatasetImportJobs",
-                        "ResultSelector": {
-                          "Status.$": "$.DatasetImportJobs[0].Status"
-                        }
+                        "Resource": "arn:aws:states:::aws-sdk:forecast:describeDatasetImportJob",
+                        "ResultPath": "$.describeDatasetImportJobResultItem"
                       },
                       "Evaluate ITEM Status": {
                         "Type": "Choice",
@@ -708,18 +744,18 @@ Resources:
                           {
                             "Or": [
                               {
-                                "Variable": "$.Status",
+                                "Variable": "$.describeDatasetImportJobResultItem.Status",
                                 "StringEquals": "CREATE_PENDING"
                               },
                               {
-                                "Variable": "$.Status",
+                                "Variable": "$.describeDatasetImportJobResultItem.Status",
                                 "StringEquals": "CREATE_IN_PROGRESS"
                               }
                             ],
                             "Next": "Retry ITEM Not Active"
                           },
                           {
-                            "Variable": "$.Status",
+                            "Variable": "$.describeDatasetImportJobResultItem.Status",
                             "StringEquals": "ACTIVE",
                             "Next": "ITEM Active"
                           }
@@ -728,8 +764,8 @@ Resources:
                       },
                       "Retry ITEM Not Active": {
                         "Type": "Wait",
-                        "Seconds": 120,
-                        "Next": "ListITEMDataset"
+                        "Seconds": 90,
+                        "Next": "DescribeDatasetImportJobItem"
                       },
                       "ITEM Fail": {
                         "Type": "Fail"
@@ -747,6 +783,7 @@ Resources:
               }
             }
           }
+
       RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/ForecastStepFunctionExecutionRole"
 
 
@@ -876,7 +913,7 @@ Resources:
       Description: Valid intervals are Y (Year), M (Month), W (Week), D (Day), H (Hour), 30min (30 minutes), 15min (15 minutes), 10min (10 minutes), 5min (5 minutes), and 1min (1 minute)
       Name:  !Sub "/forecast/${AWS::StackName}/DatasetGroup/FrequencyTTS"
       Type: String
-      Value: W
+      Value: !Ref DatasetGroupFrequencyTTS
 
   PDatasetGroupFrequencyRTS:
     Type: AWS::SSM::Parameter
@@ -884,7 +921,7 @@ Resources:
       Description: Valid intervals are Y (Year), M (Month), W (Week), D (Day), H (Hour), 30min (30 minutes), 15min (15 minutes), 10min (10 minutes), 5min (5 minutes), and 1min (1 minute)
       Name:  !Sub "/forecast/${AWS::StackName}/DatasetGroup/FrequencyRTS"
       Type: String
-      Value: W
+      Value: !Ref DatasetGroupFrequencyRTS
 
   PDatasetGroupSchemaITEM:
     Type: AWS::SSM::Parameter
@@ -918,6 +955,14 @@ Resources:
       Type: String
       Value: !Ref S3Bucket
 
+  PDatasetGroupName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: Name for dataset group
+      Name:  !Sub "/forecast/${AWS::StackName}/DatasetGroup/DatasetGroupName"
+      Type: String
+      Value: !Ref DatasetGroupName
+
   StateMachineSNSTopic:
     Type: AWS::SNS::Topic
     Properties:
@@ -941,6 +986,8 @@ Resources:
                 "Next": "Retrain Get Runtime Metadata",
                 "Parameters": {
                   "Names": [
+                    "/forecast/${AWS::StackName}/DatasetGroup/DatasetGroupArn",
+                    "/forecast/${AWS::StackName}/DatasetGroup/DatasetGroupName",
                     "/forecast/${AWS::StackName}/Predictor/AttributeConfigs",
                     "/forecast/${AWS::StackName}/Predictor/ExplainPredictor",
                     "/forecast/${AWS::StackName}/Predictor/ForecastDimensions",
@@ -953,14 +1000,16 @@ Resources:
                 },
                 "Resource": "arn:aws:states:::aws-sdk:ssm:getParameters",
                 "ResultSelector": {
-                  "AttributeConfigs.$": "$.Parameters[0].Value",
-                  "ExplainPredictor.$": "$.Parameters[1].Value",
-                  "ForecastDimensions.$": "$.Parameters[2].Value",
-                  "ForecastFrequency.$": "$.Parameters[3].Value",
-                  "ForecastHorizon.$": "$.Parameters[4].Value",
-                  "ForecastOptimizationMetric.$": "$.Parameters[5].Value",
-                  "ForecastTypes.$": "$.Parameters[6].Value",
-                  "Strategy.$": "$.Parameters[7].Value"
+                  "DatasetGroupArn.$": "$.Parameters[0].Value",
+                  "DatasetGroupName.$": "$.Parameters[1].Value",
+                  "AttributeConfigs.$": "$.Parameters[2].Value",
+                  "ExplainPredictor.$": "$.Parameters[3].Value",
+                  "ForecastDimensions.$": "$.Parameters[4].Value",
+                  "ForecastFrequency.$": "$.Parameters[5].Value",
+                  "ForecastHorizon.$": "$.Parameters[6].Value",
+                  "ForecastOptimizationMetric.$": "$.Parameters[7].Value",
+                  "ForecastTypes.$": "$.Parameters[8].Value",
+                  "Strategy.$": "$.Parameters[9].Value"
                 }
               },
               "Retrain Get Runtime Metadata": {
@@ -1005,9 +1054,9 @@ Resources:
                 "Type": "Task",
                 "Next": "List New Predictor",
                 "Parameters": {
-                  "PredictorName.$": "States.Format('{}_{}', '${AWS::StackName}',$.CreateRuntimeMetadata.Payload.timeKey)",
+                  "PredictorName.$": "States.Format('{}_{}', $.DatasetGroupName,$.CreateRuntimeMetadata.Payload.timeKey)",
                   "DataConfig": {
-                    "DatasetGroupArn": "arn:aws:forecast:${AWS::Region}:${AWS::AccountId}:dataset-group/${AWS::StackName}_DSG",
+                    "DatasetGroupArn.$": "$.DatasetGroupArn",
                     "AttributeConfigs.$": "States.StringToJson($.AttributeConfigs)"
                   },
                   "ForecastFrequency.$": "$.ForecastFrequency",
@@ -1066,7 +1115,7 @@ Resources:
                     {
                       "Condition": "IS",
                       "Key": "DatasetGroupArn",
-                      "Value": "arn:aws:forecast:${AWS::Region}:${AWS::AccountId}:dataset-group/${AWS::StackName}_DSG"
+                      "Value.$": "$.DatasetGroupArn"
                     }
                   ]
                 },
@@ -1135,7 +1184,7 @@ Resources:
                             }
                           },
                           "PredictorArn.$": "$.ListPredictors.PredictorArn",
-                          "PredictorBacktestExportJobName.$": "States.Format('{}_{}', '${AWS::StackName}',$.CreateRuntimeMetadata.Payload.timeKey)"
+                          "PredictorBacktestExportJobName.$": "States.Format('{}_{}', $.DatasetGroupName, $.CreateRuntimeMetadata.Payload.timeKey)"
                         },
                         "Resource": "arn:aws:states:::aws-sdk:forecast:createPredictorBacktestExportJob",
                         "Next": "ListPredictorBacktestExportJobs",
@@ -1253,7 +1302,7 @@ Resources:
               "Attempt Retrain Predictor": {
                 "Type": "Task",
                 "Parameters": {
-                  "PredictorName.$": "States.Format('{}_{}', '${AWS::StackName}',$.CreateRuntimeMetadata.Payload.timeKey)",
+                  "PredictorName.$": "States.Format('{}_{}', $.DatasetGroupName ,$.CreateRuntimeMetadata.Payload.timeKey)",
                   "ReferencePredictorArn.$": "$.GetReference.Parameter.Value"
                 },
                 "Resource": "arn:aws:states:::aws-sdk:forecast:createAutoPredictor.waitForTaskToken",
@@ -1297,7 +1346,7 @@ Resources:
                     {
                       "Condition": "IS",
                       "Key": "DatasetGroupArn",
-                      "Value": "arn:aws:forecast:${AWS::Region}:${AWS::AccountId}:dataset-group/${AWS::StackName}_DSG"
+                      "Value.$": "$.DatasetGroupArn"
                     }
                   ]
                 },
@@ -1355,6 +1404,7 @@ Resources:
                 "Next": "Produce Forecast",
                 "Parameters": {
                   "Names": [
+                    "/forecast/${AWS::StackName}/DatasetGroup/DatasetGroupName",
                     "/forecast/${AWS::StackName}/DatasetGroup/S3Bucket",
                     "/forecast/${AWS::StackName}/Forecast/ForecastTypes",
                     "/forecast/${AWS::StackName}/Forecast/Generate",
@@ -1363,10 +1413,11 @@ Resources:
                 },
                 "Resource": "arn:aws:states:::aws-sdk:ssm:getParameters",
                 "ResultSelector": {
-                  "S3Bucket.$": "$.Parameters[0].Value",
-                  "ForecastTypes.$": "$.Parameters[1].Value",
-                  "GenerateForecast.$": "$.Parameters[2].Value",
-                  "PredictorArn.$": "$.Parameters[3].Value"
+                  "DatasetGroupName.$": "$.Parameters[0].Value",
+                  "S3Bucket.$": "$.Parameters[1].Value",
+                  "ForecastTypes.$": "$.Parameters[2].Value",
+                  "GenerateForecast.$": "$.Parameters[3].Value",
+                  "PredictorArn.$": "$.Parameters[4].Value"
                 }
               },
               "Produce Forecast": {
@@ -1409,7 +1460,7 @@ Resources:
                 "Type": "Task",
                 "Parameters": {
                   "PredictorArn.$": "$.PredictorArn",
-                  "ForecastName.$": "States.Format('{}_{}', '${AWS::StackName}',$.CreateRuntimeMetadata.Payload.timeKey)",
+                  "ForecastName.$": "States.Format('{}_{}', $.DatasetGroupName, $.CreateRuntimeMetadata.Payload.timeKey)",
                   "ForecastTypes.$": "States.StringToJson($.ForecastTypes)"
                 },
                 "Resource": "arn:aws:states:::aws-sdk:forecast:createForecast.waitForTaskToken",

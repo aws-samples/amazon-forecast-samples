@@ -58,10 +58,24 @@ Resources:
       - PolicyDocument:
           Statement:
           - Action:
-            - forecast:*
+            - ssm:Get*
+            - ssm:PutParameter*
             Effect: Allow
             Resource:
-            - !Sub 'arn:aws:forecast:::*'
+            - !Sub 'arn:aws:ssm:*:${AWS::AccountId}:parameter/forecast/*'
+          Version: '2012-10-17'
+        PolicyName: !Sub '${AWS::StackName}-ssm-ops'
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - forecast:*
+            - forecast:DescribeDataset
+            - forecast:CreateDatasetGroup
+            - forecast:TagResource
+            - forecast:ListDatasets
+            - forecast:UpdateDatasetGroup
+            Effect: Allow
+            Resource: '*'
           Version: '2012-10-17'
         PolicyName: !Sub '${AWS::StackName}-forecast-ops'
       - PolicyDocument:
@@ -126,6 +140,121 @@ Resources:
               }
       Description: Simple function that provides variables for unique Predictors, Forecasts and job names.
 
+  ForecastCreateDatasetGroup:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: ForecastCreateDatasetGroup
+      Handler: index.lambda_handler
+      Runtime: python3.9
+      Role: !GetAtt ForecastProcessorLambdaExecutionRole.Arn
+      Timeout: 30
+      MemorySize: 128
+      Code:
+        ZipFile: |
+          import os
+          import boto3
+
+          def lambda_handler(event, context):
+              
+              StackName = event.get('StackName')
+
+              ssm = boto3.client('ssm')
+
+              region= os.environ['AWS_REGION']
+              aws_account_id = context.invoked_function_arn.split(":")[4]
+              
+              session = boto3.Session(region_name=region) 
+              forecast = session.client(service_name='forecast')
+              
+              ParameterPrefix = '/forecast/'+StackName+'/DatasetGroup/'
+              
+              parameter = ssm.get_parameter(Name=ParameterPrefix+'DatasetGroupName')
+              DatasetGroupName = parameter['Parameter']['Value']
+              
+              parameter = ssm.get_parameter(Name=ParameterPrefix+'DataDomain')
+              DataDomain = parameter['Parameter']['Value']
+
+              DatasetArns = []
+
+              BaseArnPrefix='arn:aws:forecast:'+region+':'+aws_account_id+':dataset/'
+
+              try:
+                  response = forecast.describe_dataset(DatasetArn=BaseArnPrefix+DatasetGroupName+'_ITEM')
+                  item_arn=response['DatasetArn']
+                  DatasetArns.append(item_arn)
+                  
+                  response = ssm.put_parameter(Name=ParameterPrefix+'DatasetArnItem',
+                      Value=item_arn,
+                      Type='String',
+                      Overwrite=True)
+                      
+              except forecast.exceptions.ResourceNotFoundException:
+                  item_arn=None
+
+              try:
+                  response = forecast.describe_dataset(DatasetArn=BaseArnPrefix+DatasetGroupName+'_RTS')
+                  rts_arn=response['DatasetArn']
+                  DatasetArns.append(rts_arn)
+
+                  response = ssm.put_parameter(Name=ParameterPrefix+'DatasetArnRTS',
+                      Value=rts_arn,
+                      Type='String',
+                      Overwrite=True)
+
+              except forecast.exceptions.ResourceNotFoundException:
+                  rts_arn=None
+
+              try:
+                  response = forecast.describe_dataset(DatasetArn=BaseArnPrefix+DatasetGroupName+'_TTS')
+                  tts_arn=response['DatasetArn']
+                  DatasetArns.append(tts_arn)
+
+                  response = ssm.put_parameter(Name=ParameterPrefix+'DatasetArnTTS',
+                      Value=tts_arn,
+                      Type='String',
+                      Overwrite=True)
+
+              except forecast.exceptions.ResourceNotFoundException:
+                  tts_arn=None
+
+              try:
+                  response = forecast.create_dataset_group(
+                      DatasetGroupName=DatasetGroupName,
+                      Domain=DataDomain,
+                      DatasetArns=DatasetArns,
+                          Tags=[
+                              {
+                                  'Key': 'Createdby',
+                                  'Value': 'MLOps'
+                              },
+                          ]
+                      )
+              
+                  DatasetGroupArn = response['DatasetGroupArn']
+                  
+                  response = ssm.put_parameter(Name=ParameterPrefix+'DatasetGroupArn',
+                      Value=DatasetGroupArn,
+                      Type='String',
+                      Overwrite=True)
+              
+                  return {
+                  'DatasetGroupArn': DatasetGroupArn
+                  } 
+                  
+              except forecast.exceptions.ResourceAlreadyExistsException:
+                  pass
+                  
+                  return {
+                      'DatasetGroupArn': None
+                  }
+                  
+              except:
+                  raise
+              
+                  return {
+                      'DatasetGroupArn': None
+                  }
+      Description: Simple function that creates a variable dataset group based on dataset member existence
 
   StateMachineExecutionRole:
     Type: AWS::IAM::Role
@@ -209,10 +338,11 @@ Resources:
       - PolicyDocument:
           Statement:
           - Action:
-            - ssm:Get*
+            - ssm:GetParameter
+            - ssm:GetParameters
+            - ssm:PutParameter
             Effect: Allow
-            Resource:
-            - !Sub 'arn:aws:ssm:*:${AWS::AccountId}:parameter/forecast/*'
+            Resource: '*'
           Version: '2012-10-17'
         PolicyName: !Sub '${AWS::StackName}-ssm-ops'
       - PolicyDocument:
@@ -222,8 +352,7 @@ Resources:
             - states:DescribeExecution
             - states:StopExecution
             Effect: Allow
-            Resource:
-            - !Sub 'arn:aws:states:*:${AWS::AccountId}:stateMachine:${AWS::StackName}*'
+            Resource: '*'
           Version: '2012-10-17'
         PolicyName: !Sub '${AWS::StackName}-state-machine-ops'
       RoleName: !Sub 'ForecastStepFunctionExecutionRole'

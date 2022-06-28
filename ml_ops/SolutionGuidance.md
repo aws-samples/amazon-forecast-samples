@@ -16,6 +16,9 @@ The following table helps define each parameter.
 | Parameter | Description | More Information |
 |--|--|--|
 | Stack name |  Provide the stack name as a short name that represents the use case.  This must be unique, please take care not to include characters other than A through Z and numbers 0 through 9.  Example stack names are:  workload1, RegionXYZWeeklyDemand. |
+|DatasetGroupFrequencyRTS|The frequency of data collection for RELATED TIME SERIES dataset||
+|DatasetGroupFrequencyTTS|The frequency of data collection for TARGET TIME SERIES dataset||
+|DatasetGroupName|Short name for dataset group, a self-contained workload.|[CreateDatasetGroup](https://github.com/awsdocs/amazon-forecast-developer-guide/blob/main/doc_source/API_CreateDatasetGroup.md)|
 | ForecastForecastTypes| When a CreateForecast job runs, this declares which quantiles to produce predictions for.  You may choose up to 5 values in this array.  Edit this value to include values according to need.| [CreateForecast](https://github.com/awsdocs/amazon-forecast-developer-guide/blob/main/doc_source/API_CreateForecast.md)
 |PredictorAttributeConfigs | For the target variable in Target Time Series each numeric field in the Related Time Series datasets, a record must be created for each time-interval for each item.  This configuration helps determine how missing records are filled in, with zeros, will NaN or otherwise. We recommend that you fill the gaps in the target time series with NaN instead of 0. Filling with 0, the model might learn wrongly to bias forecasts toward 0. NaN is how the guidance is delivered.  Consult with your AWS Solution Architect with any questions on this. | [CreateAutoPredictor](https://github.com/awsdocs/amazon-forecast-developer-guide/blob/main/doc_source/API_CreateAutoPredictor.md)
 |PredictorExplainPredictor| Valid values are TRUE or FALSE. These determine if Explainability is enabled for your predictor.  This can help you understand how values in the RTS and Item Metadata influence the model. | [Explainability](https://docs.aws.amazon.com/forecast/latest/dg/forecast-explainability.html)
@@ -30,13 +33,12 @@ The following table helps define each parameter.
 |SchemaRTS |This defines the physical order, column names and data types for your Related Time Series dataset. The dimensions must agree with your Target Time Series.  The time-grain of this file governs the time-grain at which  predictions can be made.  This is an optional file provided in the Solution Guidance example. |[CreateDataset](https://github.com/awsdocs/amazon-forecast-developer-guide/blob/main/doc_source/API_CreateDataset.md)
 |SchemaTTS| This defines the physical order, column names, and data types for your Target Time Series dataset, the only required dataset.  The file must contain a target value, timestamp, and item at a minimum. |[CreateDataset](https://github.com/awsdocs/amazon-forecast-developer-guide/blob/main/doc_source/API_CreateDataset.md)
 |TimestampFormatRTS | Defines the timestamp format provided in the RTS file. | [CreateDatasetImportJob](https://github.com/awsdocs/amazon-forecast-developer-guide/blob/main/doc_source/API_CreateDatasetImportJob.md)
-|TimestampFormatTTS | Defines the timestamp format provided in the TTS file. |[CreateDatasetImportJob](https://github.com/awsdocs/amazon-forecast-developer-guide/blob/main/doc_source/API_CreateDatasetImportJob.md)
-<br> Be sure to ask your AWS Solutions Architect for clarity, when in doubt.<br>
-<br>
+|TimestampFormatTTS | Defines the timestamp format provided in the TTS file. |[CreateDatasetImportJob](https://github.com/awsdocs/amazon-forecast-developer-guide/blob/main/doc_source/API_CreateDatasetImportJob.md)|
+
+<br> Be sure to ask your AWS Solutions Architect for clarity, when in doubt.
 
 5. At stack creation, "Step 3: Configure stack options", go to the bottom of the page and click next.
-
-7. At stack creation, "Step 4: Review", there is no check the box with this iteration because there are no IAM resources created.   Click next.
+6. At stack creation, "Step 4: Review", there is no check the box with this iteration because there are no IAM resources created.   Click next.
 
 ## Confirm E-mail Subscription
 
