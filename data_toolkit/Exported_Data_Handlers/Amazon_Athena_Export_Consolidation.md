@@ -2,14 +2,13 @@
 
 The [Amazon Forecast](https://aws.amazon.com/forecast/) service was built to serve customer forecasting needs at every scale.  As such, the service often provisions clusters of various sizes (vertical scaling) and nodes (horizontal scaling) handle all aspects of data imports, model training, and time-series predictions.  **Figure 1** depicts the distributed architecture in action with shared-nothing readers generating forecasted data points and writing them to S3.
 
-The purpose of this page is to demonstrate methods that allow multiple outputs to be consolidated into a single entity, as depicted in **Figure 2** for ease of consumption.
+The purpose of this page is to demonstrate methods that allow multiple outputs to be consolidated into a single entity, as depicted in **Figure 1** for ease of consumption.
 
-![Distributed Computing](./images/forecast-distributed-computing.jpg)
-*Figure 1: Parallel Reader and [S3] Writer Processes Reduce Total Runtime*
-<br>
 ![File Consolidation](./images/forecast-file-consolidation.jpg)
-*Figure 2: Concept Diagram where multiple outputs are consolidated into a singleton for easy consumption*
 <br>
+*Figure 1: Parallel Reader and [S3] Writer Processes Reduce Total Runtime with consolidation*
+
+
 ## Use Amazon Athena to read raw CSV (or Parquet)
 Start by selecting the Athena service in the region where your AWS S3 bucket exists that holds your Amazon Forecast input or output datasets.  This example shows reading output Forecast data points, but the same concept would apply to query your input TTS, RTS, Item metadata -- or also query your backtest exports or explainability.
 
