@@ -1,12 +1,12 @@
 ﻿## Using Amazon Athena to consolidate data exported by Amazon Forecast
 
-The [Amazon Forecast](https://aws.amazon.com/forecast/) service was built to serve customer forecasting needs at every scale.  As such, the service often provisions clusters of various sizes (vertical scaling) and nodes (horizontal scaling) handle all aspects of data imports, model training, and time-series predictions.  **Figure 1** depicts the distributed architecture in action with shared-nothing readers generating forecasted data points and writing them to S3.
+The [Amazon Forecast](https://aws.amazon.com/forecast/) service was built to serve customer forecasting needs at every scale.  As such, the service often provisions clusters of various sizes (vertical scaling) and nodes (horizontal scaling) to handle all aspects of data imports, model training, and time-series predictions.  **Figure 1** depicts the distributed architecture in action with shared-nothing readers generating forecasted data points and writing them to S3 in parallel.
 
-The purpose of this page is to demonstrate methods that allow multiple outputs to be consolidated into a single entity, as depicted in **Figure 1** for ease of consumption.
+The purpose of this page is to demonstrate methods that allow multiple outputs to be consolidated into a single entity, where the right side of the illustration represents a single consolidated dataset.
 
 ![File Consolidation](./images/forecast-file-consolidation.jpg)
 <br>
-*Figure 1: Parallel Reader and [S3] Writer Processes Reduce Total Runtime with consolidation*
+*Figure 1: Parallel Readers and [S3] Writer Processes Reduce Total Runtime*
 
 
 ## Use Amazon Athena to read raw CSV (or Parquet)
@@ -39,10 +39,11 @@ TBLPROPERTIES (
   'skip.header.line.count'='1', 
   'typeOfData'='file');
 ```
-3. Now you can issue ad-hoc SQL queries against your data!  Use it to consolidate data or use this table as a source for your BI platform.  As a note it is possible for Athena to compress your data into Parquet form too.
-4. Once you have executed an Amazon Athena query, you can download the results set too from the user interface.  This would allow you to bring all of your consolidated data locally.   You can also consume the data from S3, as all results are written to S3.
+3. Now you can issue ad-hoc SQL queries against your raw data!
+4. Once you have executed an Amazon Athena query, you can download the results from the Athena user interface or leverage the consolidated output in S3.
+5. You might also choose to analyze this data in [Amazon QuickSight](https://aws.amazon.com/quicksight/) or your BI tool of choice.
 
-## Example Queries
+## Example Ad-hoc Queries
 
 Are you curious about how many records are in the final set you're creating or how many single CSV (Parquet) input files were found on S3?
 ```
@@ -52,7 +53,7 @@ count(1) as record_count
 from forecast.forecast_export_raw
 ```
 
-A basic example to read all columns, all rows
+This is the most basic example to read all columns, all rows.
 ```
 select 
 *
