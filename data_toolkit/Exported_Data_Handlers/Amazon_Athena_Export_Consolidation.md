@@ -8,6 +8,11 @@ The purpose of this page is to demonstrate methods that allow multiple outputs t
 <br>
 *Figure 1: Parallel Readers and [S3] Writer Processes Reduce Total Runtime*
 
+## Video Demonstration
+
+[<img src="./images/thumbnail.jpg" width="75%">](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/demo_videos/Amazon_Athena_Export_Consolidation.mp4)
+
+
 
 ## Use Amazon Athena to read raw CSV (or Parquet)
 Start by selecting the Athena service in the region where your AWS S3 bucket exists that holds your Amazon Forecast input or output datasets.  This example shows reading output Forecast data points, but the same concept would apply to query your input TTS, RTS, Item metadata -- or also query your backtest exports or explainability.
