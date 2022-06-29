@@ -1,4 +1,4 @@
-﻿## Using Amazon Athena to consolidating data exported by Amazon Forecast
+﻿## Using Amazon Athena to consolidate data exported by Amazon Forecast
 
 The [Amazon Forecast](https://aws.amazon.com/forecast/) service was built to serve customer forecasting needs at every scale.  As such, the service often provisions clusters of various sizes (vertical scaling) and nodes (horizontal scaling) handle all aspects of data imports, model training, and time-series predictions.  **Figure 1** depicts the distributed architecture in action with shared-nothing readers generating forecasted data points and writing them to S3.
 
