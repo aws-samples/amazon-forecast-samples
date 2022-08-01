@@ -22,28 +22,21 @@ Your feedback for making this even easier is appreciated.
 
 The solution guidance is deployed with [AWS CloudFormation](https://aws.amazon.com/cloudformation/), which allows customers to speed up the building and deployment of AWS infrastructure, in a repeatable way, without having to point and click each step along the way.  CloudFormation makes it easy to deploy as many Amazon Forecast workloads as you need in many parts of your business.  
 
-There are two AWS CloudFormation templates as part of this solutions guidance.  The resulting objects created by a CloudFormation deployment are called a Stack, representing a unit of work that can be upgraded or removed as needed.
+There are two AWS CloudFormation templates as part of this solutions guidance.  The resulting objects created by a CloudFormation deployment are called a Stack, representing a unit of work that can be upgraded or removed as needed.  Figure 1 depicts the two styles of AWS CloudFormation stacks that are deployed.
+
+
+<i>Figure1: AWS CloudFormation Stacks</i><br>
+![CloudFormation](../images/cloud-formation.jpg)<br>
 
 **Permission Dependency Stack Overview**
 [AWS S3](https://aws.amazon.com/pm/serv-s3/) is essential for holding the input data for Amazon Forecast and optionally receiving forecasted data points produced by the service's inference process.  To address this need, the dependency template is deployed first and is executed only once.   The template makes sure all the permissions necessary to run the solution are in place and can either use an existing AWS S3 bucket or create a new one if requested.
 
-```mermaid
-graph LR
-A(Permission Dependency Stack Deployment) ---> B((End))
-```
-<br><br>
-
 **Workload Deployment Stack Overview**
-The second stack is deployed for each mutually exclusive workload you wish to deploy.  You will provide a short "stack name" for each deployment, which in turn creates several [AWS Step Functions](https://aws.amazon.com/step-functions) that help coordinate the machine learning pipelines which orchestrate all the Amazon Forecast processes for each workload.
+The second stack is deployed for each mutually exclusive workload you wish to deploy.  You will provide a short "stack name" for each deployment, which in turn creates several [AWS Step Functions](https://aws.amazon.com/step-functions), as depicted in Figure 2, that help coordinate the machine learning pipelines which orchestrate all the Amazon Forecast processes for each workload.
 
-```mermaid
-graph LR
-A(Your Workload Deployment Stack Template)--->B[Workload Deployment Stack: Workload 1]---> C[Operationalize]
-A---> D[Workload Deployment Stack: Workload 2] ---> E[Operationalize]
-A---> F[Workload Deployment Stack: Workload 3] ---> G[Operationalize]
-A---> H[Workload Deployment Stack: Workload n] ---> I[Operationalize]
-```
-<br><br>
+<i>Figure1: AWS Step Functions</i><br>
+![StepFunction](../images/step-function.jpg)<br>
+
 
 Begin here, with the one-time deployment of the [Dependency Stack](./docs/DependencyStack.md)
 
