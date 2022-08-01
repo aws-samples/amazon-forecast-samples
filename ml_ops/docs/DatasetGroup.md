@@ -15,7 +15,7 @@ This step guides how to create a dataset group as a one-time event for each work
 7. Drag the three folders from your laptop and drop them in the S3 window waiting for the upload.
 8. You should see 3 files in the list of files and folders.  Click on Upload at the bottom of this page.
 <br><br>
-![Create-dataset-group](./images/step-function-dataset-group.jpg)
+![Create-dataset-group](../images/step-function-dataset-group.jpg)
 <br><br>
 
 NEXT: Now it's time to import your staged S3 data into [Amazon Forecast](ImportData.md).

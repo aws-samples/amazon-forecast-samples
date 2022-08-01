@@ -5,9 +5,11 @@ You may repeat this process as a quick start for each use case you intend to dep
 1. In the AWS console, select the desired region for workload deployment.  The Amazon Forecast service is available in these [AWS Regions](https://docs.aws.amazon.com/general/latest/gr/forecast.html).  The region selector can be found, as a dropdown, right-of-center on the black menu bar in the AWS Console.  Choose the option that best meets your needs, but do take care to choose a region where AWS Forecast is available.
 2. From the AWS Console, navigate to the CloudFormation service.  You can do this by tying CloudFormation in the "search for services" control in the black menu bar.  Next, click the orange "Create Stack" button.  If using the drop down, select "with new resources (Standard)" option.
 
-3. At stack creation, "[Step 1: Specify template](./images/create-solution-guidance-stack-1.jpg)", simply paste the URL string into the control as follows:
+3. At stack creation, "[Step 1: Specify template](../images/create-solution-guidance-stack-1.jpg)", simply paste the URL string into the control as follows:
 
-	 ```https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/forecast-mlops-solution-guidance.yaml```
+	 ```
+     https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/forecast-mlops-solution-guidance.yaml
+     ```
 
 	If needed, you may [download the file](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/forecast-mlops-solution-guidance.yaml) locally or clone using git.
 4. Click Next to continue.

@@ -13,13 +13,13 @@ Ongoing, you should plan on running this task just ahead of create predictor and
 5. Click Start Execution on the secondary screen without changing anything.
 6. Allow the state machine to run, the amount of runtime can be dependent on the dataset being processed.  When it's done, the Execution Status should move from a blue-colored Running to a green-colored Succeeded.
 <br><br>
-![Step Function Running](./images/step-function-import-running.jpg)
+![Step Function Running](../images/step-function-import-running.jpg)
 <br><br>
 7. While this is running, in your browser, open another tab and use the AWS Console to navigate to Amazon Forecast by typing Forecast in the search control in the black menu bar and hitting enter.
 8. In Forecast, navigate to the dataset group with your **StackName** and you should see data imports are in progress.  The interface will look similar to this screenshot.
 
 <br><br>
-![Data Import](./images/dataset-update-in-progress.jpg)
+![Data Import](../images/dataset-update-in-progress.jpg)
 <br><br>
 
 9. When the state machine for Import-Dataset is complete, you can proceed to the next step.  You may use the state of your state machine and/or the status of your AWS console to know when to move forward.

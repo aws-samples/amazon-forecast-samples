@@ -1,6 +1,9 @@
 ﻿## Amazon Forecast End-to-End Deployments Made Simple
 
-**Purpose of this Solution Guidance**  
+Begin here, with the one-time deployment of the [Dependency Stack](./docs/DependencyStack.md)
+
+
+## **Purpose of this Solution Guidance**  
 Each week, AWS partners and customers from a wide variety of industries rely on Amazon Forecast to execute forecasting jobs and use those outcomes to make better, informed decisions to run their businesses.  
   
 We are constantly innovating on behalf of customers helping to remove friction and undifferentiated heavy lifting — which in turn allows customers more time to iterate on planning from forecasted outcomes instead of focusing on the complexities of writing code to orchestrate and monitor machine learning pipelines.  
@@ -42,7 +45,7 @@ A---> H[Workload Deployment Stack: Workload n] ---> I[Operationalize]
 ```
 <br><br>
 
-Begin here, with the one-time deployment of the [Dependency Stack](./DependencyStack.md)
+Begin here, with the one-time deployment of the [Dependency Stack](./docs/DependencyStack.md)
 
 ## License Summary
 This sample code is made available under a modified MIT license. See the [LICENSE](../LICENSE) file.

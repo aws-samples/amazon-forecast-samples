@@ -29,7 +29,7 @@ E-->I[Integrate results with BI system]
 6. Allow the state machine to run.  It will complete very fast because, as delivered, because the system is not configured to generate a forecast.  It does not know which Predictor model you, the customer, have approved for inference.
 7. Let's configure the system to use your trained predictor.  In Amazon Forecast, locate the ARN for your predictor, as seen in this screenshot.  You can click on the copy icon next to the ARN name.  Have this clipboard value ready in the steps ahead.
 
-![Predictor](./images/predictor-arn.jpg)
+![Predictor](../images/predictor-arn.jpg)
 <br>
 
 8. In your browser, open another tab and use the AWS Console to navigate to Systems Manager by searching for it in the search control in the black menu bar and hitting enter.
@@ -41,7 +41,7 @@ E-->I[Integrate results with BI system]
 13. You are ready to run a forecast job for this dataset group.  Follow steps 1-5 again, this time, the CreateForecast job will run because you have provided a Predictor ARN and set the Generate value to TRUE.
 14. As part of the state machine, the system will create a forecast and also run a ForecastExport job which writes out time-series predictions to S3.  These are files located in S3 "forecast" folder as shown.
 <br><br>
-![S3 post forecast](./images/s3-post-forecast.jpg)
+![S3 post forecast](../images/s3-post-forecast.jpg)
 <br><br>
 10. Inside the forecast folder, you will find predictions for your items, located in many CSV or Parquet files, depending on your selection.  The predictions for each time-step and selected time-series exist with all your chosen quantile values per record. You may download these files from S3, query them in place with Amazon Athena or choose another strategy to leverage the data.
 

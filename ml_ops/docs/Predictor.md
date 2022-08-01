@@ -26,12 +26,12 @@ This page guides how to train an initial predictor with Amazon Forecast.  Lookin
 8. In Forecast, navigate to the dataset group with your **StackName** and then find the predictors from the left pane.
 9. When the state machine for Create-Predictor is complete, you will evaluate its performance.  
 <br><br>
-![Predictor](./images/predictor.jpg)
+![Predictor](../images/predictor.jpg)
 <br><br>
 
 10. As part of the state machine, the system will create a predictor and also run a BacktestExport job which writes out time-series level predictor metrics to S3.  These are files located in two S3 folders the under backtest-export folder.
 <br><br>
-![S3 post predictor](./images/s3-post-predictor.jpg)
+![S3 post predictor](../images/s3-post-predictor.jpg)
 <br><br>
 10. Inside backtest-export are two folders:
 	 - [ ] **accuracy-metrics-values** provide item-level accuracy metric computations so you can understand the performance of single time-series.  This allows you to investigate the spread rather than focusing on the global metrics alone.

@@ -22,7 +22,7 @@ This step guides how to deposit files on S3 in a structure the deployment is exp
 
 8. Once the upload is complete, your AWS Console should look like this screenshot below.  In the example, the StackName is aiml42.
 <br><br>
-![S3 Upload](./images/s3-inputs.jpg)
+![S3 Upload](../images/s3-inputs.jpg)
 <br><br>
 
 NEXT: Now it's time to build your [Amazon Forecast Dataset Group](DatasetGroup.md).
