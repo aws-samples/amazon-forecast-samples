@@ -4,6 +4,23 @@ Description: Creation for Amazon Forecast Solution Guidance
 
 Parameters:
 
+  DatasetIncludeRTS:
+    Description: Do you wish to provide a related time series (RTS) for this use-case?
+    Default: true
+    Type: String
+    AllowedValues:
+        - true
+        - false
+    ConstraintDescription: must specify true or false
+
+  DatasetIncludeItem:
+    Description: Do you wish to provide item metadata for this use-case?
+    Default: true
+    Type: String
+    AllowedValues:
+        - true
+        - false
+    ConstraintDescription: must specify true or false
 
   DatasetGroupName:
     Description: Short name for dataset group, a self-contained workload
@@ -203,11 +220,11 @@ Parameters:
     Type: String
     Default: 
       '[
-        "0.10",
         "0.30",
+        "0.40",
         "0.50",
-        "0.70",
-        "0.90"
+        "0.60",
+        "0.70"
       ]'
 
   PredictorAttributeConfigs:
@@ -278,24 +295,26 @@ Resources:
             "Comment": "An automation pipeline to create Amazon Forecast datasets and associate dataset group",
             "StartAt": "ParametersDatasetGroup",
             "States": {
-
               "ParametersDatasetGroup": {
                 "Type": "Task",
                 "Next": "Create Datasets",
                 "Parameters": {
                   "Names": [
                     "/forecast/${AWS::StackName}/DatasetGroup/DataDomain",
-                    "/forecast/${AWS::StackName}/DatasetGroup/DatasetGroupName"
+                    "/forecast/${AWS::StackName}/DatasetGroup/DatasetGroupName",
+                    "/forecast/${AWS::StackName}/DatasetGroup/DatasetIncludeItem",
+                    "/forecast/${AWS::StackName}/DatasetGroup/DatasetIncludeRTS"
                   ]
                 },
                 "Resource": "arn:aws:states:::aws-sdk:ssm:getParameters",
                 "ResultSelector": {
                   "Data_Domain.$": "$.Parameters[0].Value",
-                  "DatasetGroupName.$": "$.Parameters[1].Value"
+                  "DatasetGroupName.$": "$.Parameters[1].Value",
+                  "DatasetIncludeItem.$": "$.Parameters[2].Value",
+                  "DatasetIncludeRTS.$": "$.Parameters[3].Value"
                 },
                 "ResultPath": "$.GetParameters"
               },
-
               "Create Datasets": {
                 "Type": "Parallel",
                 "Next": "CreateDatasetGroup",
@@ -350,8 +369,23 @@ Resources:
                     }
                   },
                   {
-                    "StartAt": "ParametersRTS",
+                    "StartAt": "IncludeRTS",
                     "States": {
+                      "IncludeRTS": {
+                        "Type": "Choice",
+                        "Choices": [
+                          {
+                            "Variable": "$.GetParameters.DatasetIncludeRTS",
+                            "StringEquals": "true",
+                            "Next": "ParametersRTS"
+                          },
+                          {
+                            "Variable": "$.GetParameters.DatasetIncludeRTS",
+                            "StringEquals": "false",
+                            "Next": "RTS Exit"
+                          }
+                        ]
+                      },
                       "ParametersRTS": {
                         "Type": "Task",
                         "Next": "RTS",
@@ -399,11 +433,25 @@ Resources:
                     }
                   },
                   {
-                    "StartAt": "ParametersITEM",
+                    "StartAt": "IncludeItem",
                     "States": {
+                      "IncludeItem": {
+                        "Type": "Choice",
+                        "Choices": [
+                          {
+                            "Variable": "$.GetParameters.DatasetIncludeItem",
+                            "StringEquals": "true",
+                            "Next": "ParametersITEM"
+                          },
+                          {
+                            "Variable": "$.GetParameters.DatasetIncludeItem",
+                            "StringEquals": "false",
+                            "Next": "Item Exit"
+                          }
+                        ]
+                      },
                       "ParametersITEM": {
                         "Type": "Task",
-                        "Next": "ITEM Metadata",
                         "Parameters": {
                           "Names": [
                             "/forecast/${AWS::StackName}/DatasetGroup/SchemaITEM"
@@ -413,7 +461,8 @@ Resources:
                         "ResultSelector": {
                           "ITEM_Schema.$": "$.Parameters[0].Value"
                         },
-                        "ResultPath": "$.GetITEMParameters"
+                        "ResultPath": "$.GetITEMParameters",
+                        "Next": "ITEM Metadata"
                       },
                       "ITEM Metadata": {
                         "Type": "Task",
@@ -424,18 +473,18 @@ Resources:
                           "Schema.$": "States.StringToJson($.GetITEMParameters.ITEM_Schema)"
                         },
                         "Resource": "arn:aws:states:::aws-sdk:forecast:createDataset",
-                        "Next": "Item Exit",
                         "Catch": [
                           {
                             "ErrorEquals": [
                               "Forecast.ResourceAlreadyExistsException"
                             ],
                             "Comment": "Forecast.ResourceAlreadyExistsException",
-                            "Next": "Item Exit",
-                            "ResultPath": "$.CreateDatasetITEMCatcher"
+                            "ResultPath": "$.CreateDatasetITEMCatcher",
+                            "Next": "Item Exit"
                           }
                         ],
-                        "ResultPath": "$.CreateDatasetITEM"
+                        "ResultPath": "$.CreateDatasetITEM",
+                        "Next": "Item Exit"
                       },
                       "Item Exit": {
                         "Type": "Wait",
@@ -516,12 +565,16 @@ Resources:
                 "Next": "Prepare Datasets",
                 "Parameters": {
                   "Names": [
+                    "/forecast/${AWS::StackName}/DatasetGroup/DatasetIncludeItem",
+                    "/forecast/${AWS::StackName}/DatasetGroup/DatasetIncludeRTS",
                     "/forecast/${AWS::StackName}/DatasetGroup/S3Bucket"
                   ]
                 },
                 "Resource": "arn:aws:states:::aws-sdk:ssm:getParameters",
                 "ResultSelector": {
-                  "DatasetS3Bucket.$": "$.Parameters[0].Value"
+                  "DatasetIncludeItem.$": "$.Parameters[0].Value",
+                  "DatasetIncludeRTS.$": "$.Parameters[1].Value",
+                  "DatasetS3Bucket.$": "$.Parameters[2].Value"
                 },
                 "ResultPath": "$.GetParameters"
               },
@@ -613,11 +666,25 @@ Resources:
                     }
                   },
                   {
-                    "StartAt": "GetParametersRTS",
+                    "StartAt": "Include RTS",
                     "States": {
+                      "Include RTS": {
+                        "Type": "Choice",
+                        "Choices": [
+                          {
+                            "Variable": "$.GetParameters.DatasetIncludeRTS",
+                            "StringEquals": "true",
+                            "Next": "GetParametersRTS"
+                          },
+                          {
+                            "Variable": "$.GetParameters.DatasetIncludeRTS",
+                            "StringEquals": "false",
+                            "Next": "RTS Active"
+                          }
+                        ]
+                      },
                       "GetParametersRTS": {
                         "Type": "Task",
-                        "Next": "RTS Import",
                         "Parameters": {
                           "Names": [
                             "/forecast/${AWS::StackName}/DatasetGroup/DatasetArnRTS",
@@ -629,7 +696,8 @@ Resources:
                           "DatasetArnRTS.$": "$.Parameters[0].Value",
                           "TimestampFormatRTS.$": "$.Parameters[1].Value"
                         },
-                        "ResultPath": "$.GetParametersRTS"
+                        "ResultPath": "$.GetParametersRTS",
+                        "Next": "RTS Import"
                       },
                       "RTS Import": {
                         "Type": "Task",
@@ -650,12 +718,12 @@ Resources:
                       },
                       "DescribeDatasetImportJobRTS": {
                         "Type": "Task",
-                        "Next": "Evaluate RTS Status",
                         "Parameters": {
                           "DatasetImportJobArn.$": "$.RTSImportJob.DatasetImportJobArn"
                         },
                         "Resource": "arn:aws:states:::aws-sdk:forecast:describeDatasetImportJob",
-                        "ResultPath": "$.describeDatasetImportJobResultRTS"
+                        "ResultPath": "$.describeDatasetImportJobResultRTS",
+                        "Next": "Evaluate RTS Status"
                       },
                       "Evaluate RTS Status": {
                         "Type": "Choice",
@@ -697,11 +765,25 @@ Resources:
                     }
                   },
                   {
-                    "StartAt": "GetParametersItem",
+                    "StartAt": "Include Item",
                     "States": {
+                      "Include Item": {
+                        "Type": "Choice",
+                        "Choices": [
+                          {
+                            "Variable": "$.GetParameters.DatasetIncludeItem",
+                            "StringEquals": "true",
+                            "Next": "GetParametersItem"
+                          },
+                          {
+                            "Variable": "$.GetParameters.DatasetIncludeItem",
+                            "StringEquals": "false",
+                            "Next": "ITEM Active"
+                          }
+                        ]
+                      },
                       "GetParametersItem": {
                         "Type": "Task",
-                        "Next": "ITEM Import",
                         "Parameters": {
                           "Names": [
                             "/forecast/${AWS::StackName}/DatasetGroup/DatasetArnItem"
@@ -711,7 +793,8 @@ Resources:
                         "ResultSelector": {
                           "DatasetArnItem.$": "$.Parameters[0].Value"
                         },
-                        "ResultPath": "$.GetParametersItem"
+                        "ResultPath": "$.GetParametersItem",
+                        "Next": "ITEM Import"
                       },
                       "ITEM Import": {
                         "Type": "Task",
@@ -731,12 +814,12 @@ Resources:
                       },
                       "DescribeDatasetImportJobItem": {
                         "Type": "Task",
-                        "Next": "Evaluate ITEM Status",
                         "Parameters": {
                           "DatasetImportJobArn.$": "$.ITEMImportJob.DatasetImportJobArn"
                         },
                         "Resource": "arn:aws:states:::aws-sdk:forecast:describeDatasetImportJob",
-                        "ResultPath": "$.describeDatasetImportJobResultItem"
+                        "ResultPath": "$.describeDatasetImportJobResultItem",
+                        "Next": "Evaluate ITEM Status"
                       },
                       "Evaluate ITEM Status": {
                         "Type": "Choice",
@@ -765,7 +848,7 @@ Resources:
                       "Retry ITEM Not Active": {
                         "Type": "Wait",
                         "Seconds": 90,
-                        "Next": "DescribeDatasetImportJobItem"
+                        "Next": "Evaluate ITEM Status"
                       },
                       "ITEM Fail": {
                         "Type": "Fail"
@@ -782,8 +865,7 @@ Resources:
                 "End": true
               }
             }
-          }
-
+          }          
       RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/ForecastStepFunctionExecutionRole"
 
 
@@ -946,7 +1028,23 @@ Resources:
       Name:  !Sub "/forecast/${AWS::StackName}/DatasetGroup/SchemaTTS"
       Type: String
       Value: !Ref SchemaTTS
+
+  PDatasetIncludeRTS:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: Determines if RTS creation and import are attempted
+      Name:  !Sub "/forecast/${AWS::StackName}/DatasetGroup/DatasetIncludeRTS"
+      Type: String
+      Value: !Ref DatasetIncludeRTS
   
+  PDatasetIncludeItem:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: Determines if Item Metadata creation and import are attempted
+      Name:  !Sub "/forecast/${AWS::StackName}/DatasetGroup/DatasetIncludeItem"
+      Type: String
+      Value: !Ref DatasetIncludeItem
+
   PS3Bucket:
     Type: AWS::SSM::Parameter
     Properties:
