@@ -1,9 +1,14 @@
 ﻿## Deploy the Amazon Forecast CloudFormation Permission Dependency Stack
 
-1. Download the two YAML files in this repository to your laptop.  You will upload them to AWS a few steps ahead.
-2. In the AWS console, select the desired region for workload deployment.  The Amazon Forecast service is available in these [AWS Regions](https://docs.aws.amazon.com/general/latest/gr/forecast.html).  The region selector can be found, as a dropdown, right-of-center on the black menu bar in the AWS Console.  Choose the option that best meets your needs, but do take care to choose a region where AWS Forecast is available.
-3. From the AWS Console, navigate to the CloudFormation service.  You can do this by tying CloudFormation in the "search for services" control in the black menu bar.  Next, click the orange "Create Stack" button.
-4. At stack creation, "[Step 1: Specify template](./images/create-dependency-stack-1.jpg)", in the specify template section, click upload template radio control and then provide the filename as forecast-mlops-dependency.yaml.  If you haven't already, you may [download the file](forecast-mlops-dependency.yaml) locally, and then specify the location of the files.  Click Next to continue.
+1. In the AWS console, select the desired region for workload deployment.  The Amazon Forecast service is available in these [AWS Regions](https://docs.aws.amazon.com/general/latest/gr/forecast.html).  The region selector can be found, as a dropdown, right-of-center on the black menu bar in the AWS Console.  Choose the option that best meets your needs, but do take care to choose a region where AWS Forecast is available.
+2.  From the AWS Console, navigate to the CloudFormation service.  You can do this by tying CloudFormation in the "search for services" control in the black menu bar.  Next, click the orange "Create Stack" button.
+3. At stack creation, "[Step 1: Specify template](./images/create-solution-guidance-stack-1.jpg)", simply paste the URL string into the control as follows:
+
+	 ```https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/forecast-mlops-dependency.yaml```
+
+	If needed, you may [download the file](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/forecast-mlops-dependency.yaml) locally or clone using git.
+
+4. Click Next to continue.
 5. At stack creation, "[Step 2: Specify stack details](./images/create-dependency-stack-2.jpg)" complete page details as follows:
 	
 	 - [ ] Stack name should be forecast-mlops-dependency
