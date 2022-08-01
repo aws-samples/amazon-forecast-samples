@@ -14,7 +14,7 @@ You may repeat this process as a quick start for each use case you intend to dep
 
 5. At stack creation, "Step 2: Specify stack details", several parameters are collected that define how the entire workload behaves.  You can edit these according to each use case.  You might also elect to save a template with your own desired default values.  
 
-As delivered, there is a demo set of data.  For learning, you may accept all these fields as-is, but you will need to provide a S3Bucket and SNSEndpoint value -- these are the only two blank items below.  If you are learning, you can skip to step 5; however, if you are configuring this for your use case, pay particular attention to each.  Many of these fields are editable later, to change how your workload behaves at runtime.
+As delivered, there is a demo set of data.  For learning, you may accept all these fields as-is, but you will need to provide a S3Bucket and SNSEndpoint value -- these are the only two blank items below.  If you are learning, you can skip to step 6; however, if you are configuring this for your use case, pay particular attention to each.  Many of these fields are editable later, to change how your workload behaves at runtime.
 
 The following table helps define each parameter.
 
