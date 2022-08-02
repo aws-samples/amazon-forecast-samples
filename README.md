@@ -21,6 +21,8 @@ Please [visit our growing library](./library/README.md) which serves as a guide 
 
 ## MLOps: Run a proof of concept (PoC) and learn how to automate production workloads
 
+![MLOps Automation](./ml_ops/images/forecast-cycle.jpg)<br>
+
 The purpose of this guidance is to provide customers with a complete end-to-end workflow that serves as an example -- a model to follow.  As delivered, the guidance creates forecasted data points from an open-source input data set.  The template can be used to create Amazon Forecast Dataset Groups, import data, train machine learning models, and produce forecasted data points, on future unseen time horizons from raw data.  All of this is possible without having to write or compile code.  [Get Started Here](./ml_ops/README.md)
 
 ## Notebooks
