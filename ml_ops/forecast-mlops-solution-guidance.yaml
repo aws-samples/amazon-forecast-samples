@@ -848,7 +848,7 @@ Resources:
                       "Retry ITEM Not Active": {
                         "Type": "Wait",
                         "Seconds": 90,
-                        "Next": "Evaluate ITEM Status"
+                        "Next": "DescribeDatasetImportJobItem"
                       },
                       "ITEM Fail": {
                         "Type": "Fail"
