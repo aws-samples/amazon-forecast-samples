@@ -69,11 +69,6 @@ Resources:
           Statement:
           - Action:
             - forecast:*
-            - forecast:DescribeDataset
-            - forecast:CreateDatasetGroup
-            - forecast:TagResource
-            - forecast:ListDatasets
-            - forecast:UpdateDatasetGroup
             Effect: Allow
             Resource: '*'
           Version: '2012-10-17'
@@ -113,7 +108,7 @@ Resources:
         PolicyName: !Sub '${AWS::StackName}-glue-ops'
       RoleName: !Sub 'ForecastProcessorLambdaExecutionRole'
   
-  MetadataLambda:
+  LambdaGetForecastMetadata:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: GetForecastMetadata
@@ -140,7 +135,7 @@ Resources:
               }
       Description: Simple function that provides variables for unique Predictors, Forecasts and job names.
 
-  ForecastCreateDatasetGroup:
+  LambdaForecastCreateDatasetGroup:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: ForecastCreateDatasetGroup
@@ -256,6 +251,297 @@ Resources:
                   }
       Description: Simple function that creates a variable dataset group based on dataset member existence
 
+  LambdaForecastSelectPredictor:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: ForecastSelectPredictor
+      Handler: index.lambda_handler
+      Runtime: python3.9
+      Role: !GetAtt ForecastProcessorLambdaExecutionRole.Arn
+      Timeout: 30
+      MemorySize: 128
+      Code:
+        ZipFile: |
+          #THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+          #INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+          #PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+          #HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+          #OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+          #SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+          import os
+          import boto3
+          from datetime import datetime, timezone
+
+
+          def lambda_handler(event, context):
+              
+              try:
+              
+                  StackName = event.get('StackName')
+              
+                  ssm = boto3.client('ssm')
+              
+                  region= os.environ['AWS_REGION']
+                  
+                  session = boto3.Session(region_name=region) 
+                  forecast = session.client(service_name='forecast')
+                  
+                  ParameterPrefix = '/forecast/'+StackName
+                  
+                  try:
+                      parameter = ssm.get_parameter(Name=ParameterPrefix+'/Forecast/PredictorCutoffAge')
+                      PredictorCutoffAge = int(parameter['Parameter']['Value'])
+                  except:
+                      PredictorCutoffAge = 14
+                      response = ssm.put_parameter(Name=ParameterPrefix+'/Predictor/PredictorCutoffAge',
+                          Value=str(PredictorCutoffAge),
+                          Type='String',
+                          Overwrite=True)
+
+                  try:
+                      parameter = ssm.get_parameter(Name=ParameterPrefix+'/Forecast/ForecastOptimizationMetric')
+                      ForecastOptimizationMetric = parameter['Parameter']['Value']
+                  except:
+                      
+                      parameter = ssm.get_parameter(Name=ParameterPrefix+'/Predictor/ForecastOptimizationMetric')
+                      ForecastOptimizationMetric = parameter['Parameter']['Value']
+
+                      response = ssm.put_parameter(Name=ParameterPrefix+'/Forecast/ForecastOptimizationMetric',
+                          Value=ForecastOptimizationMetric,
+                          Type='String',
+                          Overwrite=True)
+
+                  print('Evaluating Predictors under %s days aged, using lowest error metric of %s' % ( str(PredictorCutoffAge), ForecastOptimizationMetric))
+              
+
+                  parameter = ssm.get_parameter(Name=ParameterPrefix+'/DatasetGroup/DatasetGroupArn')
+                  DatasetGroupArn = parameter['Parameter']['Value']
+                  
+                  response = forecast.list_predictors(
+                          Filters=[
+                              {
+                                  'Key': 'DatasetGroupArn',
+                                  'Value': DatasetGroupArn,
+                                  'Condition': 'IS'
+                              },
+                          ]
+                      )
+                  
+                  lowest_metric = 2**32
+                  lowest_arn = ''
+                  
+                      
+                  for i in response['Predictors']:
+                      
+                      
+                      if i['Status'] == 'ACTIVE':
+                          eligible = True
+                          
+                          # first evalate tags in case you want to exclude items because of tag value
+                          response = forecast.list_tags_for_resource(ResourceArn=i['PredictorArn'])
+                  
+                          for t in response['Tags']:
+                              
+                              # setup any other tags desired, this is an example
+                              if t['Key']=='ELIGIBLE' and t['Value']=='FALSE':
+                                  eligible = False
+
+                      else:
+                          eligible = False
+                      
+                      
+                      # second, evaluate any criteria about the predictor to disqualify it
+              
+                      if eligible:
+                          
+                          # consider other options avaialble with the payload response documented here
+                          # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/forecast.html#ForecastService.Client.describe_auto_predictor
+                          predictor = forecast.describe_auto_predictor(PredictorArn=i['PredictorArn'])
+                          delta = datetime.now(timezone.utc) - predictor['CreationTime']
+                      
+                          if delta.days > PredictorCutoffAge:
+                              
+                              print('Disqualifying ARN %s due to age of %s' % (i['PredictorArn'], delta.days))
+                              eligible = False
+                          
+                      # if not disqualified by tag or predictor attributes, consider this predictor for CreateForecast operation
+                      if eligible:        
+                          
+                          # consider other options avaialble with the payload response documented here
+                          # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/forecast.html#ForecastService.Client.get_accuracy_metrics
+                          predictor = forecast.get_accuracy_metrics(PredictorArn=i['PredictorArn'])
+                          
+                          for p in predictor['PredictorEvaluationResults']:
+                              
+                              for tw in p['TestWindows']:
+                              
+                                  
+                                  if ForecastOptimizationMetric != 'AverageWeightedQuantileLoss':
+                                      for em in tw['Metrics']['ErrorMetrics']:
+                                          
+                                          error =  float(em[ForecastOptimizationMetric])
+                                          print('Evaluating ARN %s with error %s' % ( i['PredictorArn'], error))
+                                          
+                                          if error > 0 and error < lowest_metric:
+                                              lowest_metric = error
+                                              lowest_arn = i['PredictorArn']
+                                  else:
+                                  
+                                      AWQL = float(tw['Metrics']['AverageWeightedQuantileLoss'])
+                                      print('Evaluating ARN %s with AWQL %s' % ( i['PredictorArn'], AWQL))
+                                      if AWQL > 0 and AWQL < lowest_metric:
+                                          lowest_metric = AWQL
+                                          lowest_arn = i['PredictorArn']
+                                      
+                  # determine existing CreateAutoPredictor ARN        
+                  parameter = ssm.get_parameter(Name=ParameterPrefix+'/Forecast/PredictorArn')
+                  ExistingPredictorArn = parameter['Parameter']['Value']
+              
+              
+                  # if a new ARN was discovered
+                  if lowest_metric > 0 and len(lowest_arn)>0 and ExistingPredictorArn != str(lowest_arn):
+                      
+                      print('Setting Predictor ARN for loss winner=',lowest_arn,lowest_metric )
+              
+                      # Set the ARN of winning Predictor        
+                      response = ssm.put_parameter(Name=ParameterPrefix+'/Forecast/PredictorArn',
+                          Value=lowest_arn,
+                          Type='String',
+                          Overwrite=True)
+              
+                      # Turn on forecasting in case disabled       
+                      response = ssm.put_parameter(Name=ParameterPrefix+'/Forecast/Generate',
+                          Value='TRUE',
+                          Type='String',
+                          Overwrite=True)
+
+                      # Set reference ARN and move to RETRAIN strategy      
+                      response = ssm.put_parameter(Name=ParameterPrefix+'/Predictor/ReferenceArn',
+                          Value=lowest_arn,
+                          Type='String',
+                          Overwrite=True)
+
+                      # Turn on forecasting in case disabled       
+                      response = ssm.put_parameter(Name=ParameterPrefix+'/Predictor/Strategy',
+                          Value='RETRAIN',
+                          Type='String',
+                          Overwrite=True)
+                         
+                  else:
+                      print('No new or additional predictors were found for CreateForecast operation')
+                      
+              except:
+                  raise
+      Description: Function to choose a predictor based on age and accuracy conditions
+
+  LambdaForecastPurgeS3Folder:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: ForecastPurgeS3Folder
+      Handler: index.lambda_handler
+      Runtime: python3.9
+      Role: !GetAtt ForecastProcessorLambdaExecutionRole.Arn
+      Timeout: 120
+      MemorySize: 128
+      Code:
+        ZipFile: |
+          #THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+          #INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+          #PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+          #HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+          #OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+          #SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+          import os
+          import json
+          import boto3
+
+          def lambda_handler(event, context):
+
+              #clear S3 location to prevent duplicate inputs
+              
+              s3_client = boto3.client('s3')
+
+              BUCKET = event.get('BucketName')
+              PREFIX = event.get('Prefix')
+              
+              response = s3_client.list_objects_v2(Bucket=BUCKET, Prefix=PREFIX)
+              
+              if int(response['KeyCount'])>0:
+
+                  for object in response['Contents']:
+                      s3_client.delete_object(Bucket=BUCKET, Key=object['Key'])
+
+              return event
+         
+      Description: Function that purges a named S3 bucket and prefix to then allow it to be populated with fresh TTS,RTS,IM for Amazon Forecast to import
+
+  LambdaForecastRemoveAthenaQuotes:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: ForecastRemoveAthenaQuotes
+      Handler: index.lambda_handler
+      Runtime: python3.9
+      Role: !GetAtt ForecastProcessorLambdaExecutionRole.Arn
+      Timeout: 300
+      MemorySize: 8192
+      Code:
+        ZipFile: |
+          #THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+          #INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+          #PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+          #HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+          #OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+          #SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+          import os
+          import json
+          import boto3
+          import re
+
+          def lambda_handler(event, context):
+
+              #clear S3 location to prevent duplicate inputs
+              
+              s3_client = boto3.client('s3')
+
+              BUCKET = event.get('BucketName')
+              PREFIX = event.get('Prefix')
+              
+              response = s3_client.list_objects_v2(Bucket=BUCKET, Prefix=PREFIX)
+              
+              if int(response['KeyCount'])>0:
+                  
+                  for object in response['Contents']:
+                  
+                      # delete metadata files
+                      if object['Key'].endswith('metadata'):
+                          print('Deleted ',object['Key'])
+                          s3_client.delete_object(Bucket=BUCKET, Key=object['Key'])
+
+
+                      if object['Key'].endswith('csv'):
+                          response = s3_client.get_object(Bucket=BUCKET,Key=object['Key'])
+              
+                          content = response['Body'].read()
+                          
+                          b = bytearray(content)
+                          str1 = b.decode()
+                          
+                          # replace double quotes
+                          str1= str1.replace('"','')
+                          
+                          # overwrite edited file to S3
+                          s3_client.put_object(
+                              Bucket=BUCKET,
+                              Key=object['Key'],
+                              Body=str1
+                              )
+
+              return event
+      Description: Function to remove double quotes created by Athena Query during step function execution.
+
   StateMachineExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -284,6 +570,7 @@ Resources:
             - athena:StartQueryExecution
             - athena:GetQueryExecution
             - athena:GetQueryResults
+            - athena:GetDataCatalog
             - glue:GetTable
             - glue:GetPartitions
             Effect: Allow

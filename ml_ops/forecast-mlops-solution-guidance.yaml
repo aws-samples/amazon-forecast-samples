@@ -1061,6 +1061,30 @@ Resources:
       Type: String
       Value: !Ref DatasetGroupName
 
+  PQueryTTS:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: Valid SQL Statement to fetch TTS data
+      Name:  !Sub "/forecast/${AWS::StackName}/DatasetGroup/QueryTTS"
+      Type: String
+      Value: "select x,y,z from table where x=..."
+
+  PQueryRTS:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: Valid SQL Statement to fetch RTS data
+      Name:  !Sub "/forecast/${AWS::StackName}/DatasetGroup/QueryRTS"
+      Type: String
+      Value: "select x,y,z from table where x=..."
+
+  PQueryItem:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: Valid SQL Statement to fetch Item Metadata data
+      Name:  !Sub "/forecast/${AWS::StackName}/DatasetGroup/QueryITEM"
+      Type: String
+      Value: "select x,y,z from table where x=..."
+
   StateMachineSNSTopic:
     Type: AWS::SNS::Topic
     Properties:
@@ -1712,4 +1736,384 @@ Resources:
               }
             }
           }
+      RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/ForecastStepFunctionExecutionRole"
+
+  AthenaConnectorStateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: !Sub "${AWS::StackName}-Athena-Connector"
+      DefinitionString:
+        !Sub |
+          {
+            "Comment": "A description of my state machine",
+            "StartAt": "GetParameters",
+            "States": {
+              "GetParameters": {
+                "Type": "Task",
+                "Next": "Parallel",
+                "Parameters": {
+                  "Names": [
+                    "/forecast/${AWS::StackName}/DatasetGroup/DatasetGroupName",
+                    "/forecast/${AWS::StackName}/DatasetGroup/DatasetIncludeItem",
+                    "/forecast/${AWS::StackName}/DatasetGroup/DatasetIncludeRTS",
+                    "/forecast/${AWS::StackName}/DatasetGroup/QueryITEM",
+                    "/forecast/${AWS::StackName}/DatasetGroup/QueryRTS",
+                    "/forecast/${AWS::StackName}/DatasetGroup/QueryTTS",
+                    "/forecast/${AWS::StackName}/DatasetGroup/S3Bucket"
+                  ]
+                },
+                "Resource": "arn:aws:states:::aws-sdk:ssm:getParameters",
+                "ResultSelector": {
+                  "DatasetGroupName.$": "$.Parameters[0].Value",
+                  "DatasetIncludeItem.$": "$.Parameters[1].Value",
+                  "DatasetIncludeRTS.$": "$.Parameters[2].Value",
+                  "QueryITEM.$": "$.Parameters[3].Value",
+                  "QueryRTS.$": "$.Parameters[4].Value",
+                  "QueryTTS.$": "$.Parameters[5].Value",
+                  "DatasetS3Bucket.$": "$.Parameters[6].Value"
+                },
+                "ResultPath": "$.getParameters"
+              },
+              "Parallel": {
+                "Type": "Parallel",
+                "Branches": [
+                  {
+                    "StartAt": "Reset S3 TTS",
+                    "States": {
+                      "Reset S3 TTS": {
+                        "Type": "Task",
+                        "Resource": "arn:aws:states:::lambda:invoke",
+                        "Parameters": {
+                          "FunctionName": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:ForecastPurgeS3Folder:$LATEST",
+                          "Payload": {
+                            "BucketName.$": "$.getParameters.DatasetS3Bucket",
+                            "Prefix.$": "States.Format('{}{}',$.getParameters.DatasetGroupName,'/tts')"
+                          }
+                        },
+                        "Retry": [
+                          {
+                            "ErrorEquals": [
+                              "Lambda.ServiceException",
+                              "Lambda.AWSLambdaException",
+                              "Lambda.SdkClientException"
+                            ],
+                            "IntervalSeconds": 2,
+                            "MaxAttempts": 6,
+                            "BackoffRate": 2
+                          }
+                        ],
+                        "ResultPath": null,
+                        "Next": "Start TTS Query"
+                      },
+                      "Start TTS Query": {
+                        "Type": "Task",
+                        "Resource": "arn:aws:states:::athena:startQueryExecution",
+                        "Parameters": {
+                          "QueryString.$": "$.getParameters.QueryTTS",
+                          "WorkGroup": "primary",
+                          "ResultConfiguration": {
+                            "OutputLocation.$": "States.Format('{}{}{}{}{}','s3://',$.getParameters.DatasetS3Bucket,'/', $.getParameters.DatasetGroupName,'/tts')"
+                          }
+                        },
+                        "ResultPath": "$.QueryExecutionIdTTS",
+                        "Next": "Get TTS Query Status"
+                      },
+                      "Get TTS Query Status": {
+                        "Type": "Task",
+                        "Resource": "arn:aws:states:::athena:getQueryExecution",
+                        "Parameters": {
+                          "QueryExecutionId.$": "$.QueryExecutionIdTTS.QueryExecutionId"
+                        },
+                        "ResultPath": "$.getTTSQueryExecutionResults",
+                        "Next": "Evaluate TTS Query Status"
+                      },
+                      "Evaluate TTS Query Status": {
+                        "Type": "Choice",
+                        "Choices": [
+                          {
+                            "Variable": "$.getTTSQueryExecutionResults.QueryExecution.Status.State",
+                            "StringEquals": "SUCCEEDED",
+                            "Next": "CSV Process S3 TTS"
+                          },
+                          {
+                            "Variable": "$.getTTSQueryExecutionResults.QueryExecution.Status.State",
+                            "StringEquals": "FAILED",
+                            "Next": "TTS Fail"
+                          }
+                        ],
+                        "Default": "TTS Wait Query"
+                      },
+                      "CSV Process S3 TTS": {
+                        "Type": "Task",
+                        "Resource": "arn:aws:states:::lambda:invoke",
+                        "OutputPath": "$.Payload",
+                        "Parameters": {
+                          "FunctionName": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:ForecastRemoveAthenaQuotes:$LATEST",
+                          "Payload": {
+                            "BucketName.$": "$.getParameters.DatasetS3Bucket",
+                            "Prefix.$": "States.Format('{}{}',$.getParameters.DatasetGroupName,'/tts')"
+                          }
+                        },
+                        "Retry": [
+                          {
+                            "ErrorEquals": [
+                              "Lambda.ServiceException",
+                              "Lambda.AWSLambdaException",
+                              "Lambda.SdkClientException"
+                            ],
+                            "IntervalSeconds": 2,
+                            "MaxAttempts": 6,
+                            "BackoffRate": 2
+                          }
+                        ],
+                        "End": true
+                      },
+                      "TTS Wait Query": {
+                        "Type": "Wait",
+                        "Seconds": 15,
+                        "Next": "Get TTS Query Status"
+                      },
+                      "TTS Fail": {
+                        "Type": "Fail"
+                      }
+                    }
+                  },
+                  {
+                    "StartAt": "Fetch RTS",
+                    "States": {
+                      "Fetch RTS": {
+                        "Type": "Choice",
+                        "Choices": [
+                          {
+                            "Variable": "$.getParameters.DatasetIncludeRTS",
+                            "StringEquals": "true",
+                            "Next": "Reset S3 RTS"
+                          }
+                        ],
+                        "Default": "No RTS Required"
+                      },
+                      "No RTS Required": {
+                        "Type": "Pass",
+                        "End": true
+                      },
+                      "Reset S3 RTS": {
+                        "Type": "Task",
+                        "Resource": "arn:aws:states:::lambda:invoke",
+                        "Parameters": {
+                          "FunctionName": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:ForecastPurgeS3Folder:$LATEST",
+                          "Payload": {
+                            "BucketName.$": "$.getParameters.DatasetS3Bucket",
+                            "Prefix.$": "States.Format('{}{}',$.getParameters.DatasetGroupName,'/rts')"
+                          }
+                        },
+                        "Retry": [
+                          {
+                            "ErrorEquals": [
+                              "Lambda.ServiceException",
+                              "Lambda.AWSLambdaException",
+                              "Lambda.SdkClientException"
+                            ],
+                            "IntervalSeconds": 2,
+                            "MaxAttempts": 6,
+                            "BackoffRate": 2
+                          }
+                        ],
+                        "ResultPath": null,
+                        "Next": "Start RTS Query"
+                      },
+                      "Start RTS Query": {
+                        "Type": "Task",
+                        "Resource": "arn:aws:states:::athena:startQueryExecution",
+                        "Parameters": {
+                          "QueryString.$": "$.getParameters.QueryRTS",
+                          "WorkGroup": "primary",
+                          "ResultConfiguration": {
+                            "OutputLocation.$": "States.Format('{}{}{}{}{}','s3://',$.getParameters.DatasetS3Bucket,'/', $.getParameters.DatasetGroupName,'/rts')"
+                          }
+                        },
+                        "ResultPath": "$.QueryExecutionIdRTS",
+                        "Next": "Get RTS Query Status"
+                      },
+                      "Get RTS Query Status": {
+                        "Type": "Task",
+                        "Resource": "arn:aws:states:::athena:getQueryExecution",
+                        "Parameters": {
+                          "QueryExecutionId.$": "$.QueryExecutionIdRTS.QueryExecutionId"
+                        },
+                        "ResultPath": "$.getRTSQueryExecutionResults",
+                        "Next": "Evaluate RTS Query Status"
+                      },
+                      "Evaluate RTS Query Status": {
+                        "Type": "Choice",
+                        "Choices": [
+                          {
+                            "Variable": "$.getRTSQueryExecutionResults.QueryExecution.Status.State",
+                            "StringEquals": "SUCCEEDED",
+                            "Next": "CSV Process S3 RTS"
+                          },
+                          {
+                            "Variable": "$.getRTSQueryExecutionResults.QueryExecution.Status.State",
+                            "StringEquals": "FAILED",
+                            "Next": "RTS Fail"
+                          }
+                        ],
+                        "Default": "Wait RTS Query"
+                      },
+                      "CSV Process S3 RTS": {
+                        "Type": "Task",
+                        "Resource": "arn:aws:states:::lambda:invoke",
+                        "OutputPath": "$.Payload",
+                        "Parameters": {
+                          "FunctionName": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:ForecastRemoveAthenaQuotes:$LATEST",
+                          "Payload": {
+                            "BucketName.$": "$.getParameters.DatasetS3Bucket",
+                            "Prefix.$": "States.Format('{}{}',$.getParameters.DatasetGroupName,'/rts')"
+                          }
+                        },
+                        "Retry": [
+                          {
+                            "ErrorEquals": [
+                              "Lambda.ServiceException",
+                              "Lambda.AWSLambdaException",
+                              "Lambda.SdkClientException"
+                            ],
+                            "IntervalSeconds": 2,
+                            "MaxAttempts": 6,
+                            "BackoffRate": 2
+                          }
+                        ],
+                        "End": true
+                      },
+                      "Wait RTS Query": {
+                        "Type": "Wait",
+                        "Seconds": 15,
+                        "Next": "Get RTS Query Status"
+                      },
+                      "RTS Fail": {
+                        "Type": "Fail"
+                      }
+                    }
+                  },
+                  {
+                    "StartAt": "Fetch Item",
+                    "States": {
+                      "Fetch Item": {
+                        "Type": "Choice",
+                        "Choices": [
+                          {
+                            "Variable": "$.getParameters.DatasetIncludeItem",
+                            "StringEquals": "true",
+                            "Next": "Reset S3 Item"
+                          }
+                        ],
+                        "Default": "No Item Required"
+                      },
+                      "No Item Required": {
+                        "Type": "Pass",
+                        "End": true
+                      },
+                      "Reset S3 Item": {
+                        "Type": "Task",
+                        "Resource": "arn:aws:states:::lambda:invoke",
+                        "Parameters": {
+                          "FunctionName": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:ForecastPurgeS3Folder:$LATEST",
+                          "Payload": {
+                            "BucketName.$": "$.getParameters.DatasetS3Bucket",
+                            "Prefix.$": "States.Format('{}{}',$.getParameters.DatasetGroupName,'/item')"
+                          }
+                        },
+                        "Retry": [
+                          {
+                            "ErrorEquals": [
+                              "Lambda.ServiceException",
+                              "Lambda.AWSLambdaException",
+                              "Lambda.SdkClientException"
+                            ],
+                            "IntervalSeconds": 2,
+                            "MaxAttempts": 6,
+                            "BackoffRate": 2
+                          }
+                        ],
+                        "ResultPath": null,
+                        "Next": "Start ITEM Query"
+                      },
+                      "Start ITEM Query": {
+                        "Type": "Task",
+                        "Resource": "arn:aws:states:::athena:startQueryExecution",
+                        "Parameters": {
+                          "QueryString.$": "$.getParameters.QueryITEM",
+                          "WorkGroup": "primary",
+                          "ResultConfiguration": {
+                            "OutputLocation.$": "States.Format('{}{}{}{}{}','s3://',$.getParameters.DatasetS3Bucket,'/', $.getParameters.DatasetGroupName,'/item')"
+                          }
+                        },
+                        "ResultPath": "$.QueryExecutionIdITEM",
+                        "Next": "Get ITEM Query Status"
+                      },
+                      "Get ITEM Query Status": {
+                        "Type": "Task",
+                        "Resource": "arn:aws:states:::athena:getQueryExecution",
+                        "Parameters": {
+                          "QueryExecutionId.$": "$.QueryExecutionIdITEM.QueryExecutionId"
+                        },
+                        "ResultPath": "$.getITEMQueryExecutionResults",
+                        "Next": "Evaluate ITEM Query Status"
+                      },
+                      "Evaluate ITEM Query Status": {
+                        "Type": "Choice",
+                        "Choices": [
+                          {
+                            "Variable": "$.getITEMQueryExecutionResults.QueryExecution.Status.State",
+                            "StringEquals": "SUCCEEDED",
+                            "Next": "CSV Process S3 Item"
+                          },
+                          {
+                            "Variable": "$.getITEMQueryExecutionResults.QueryExecution.Status.State",
+                            "StringEquals": "FAILED",
+                            "Next": "ITEM Fail"
+                          }
+                        ],
+                        "Default": "ITEM Wait Query"
+                      },
+                      "CSV Process S3 Item": {
+                        "Type": "Task",
+                        "Resource": "arn:aws:states:::lambda:invoke",
+                        "OutputPath": "$.Payload",
+                        "Parameters": {
+                          "FunctionName": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:ForecastRemoveAthenaQuotes:$LATEST",
+                          "Payload": {
+                            "BucketName.$": "$.getParameters.DatasetS3Bucket",
+                            "Prefix.$": "States.Format('{}{}',$.getParameters.DatasetGroupName,'/item')"
+                          }
+                        },
+                        "Retry": [
+                          {
+                            "ErrorEquals": [
+                              "Lambda.ServiceException",
+                              "Lambda.AWSLambdaException",
+                              "Lambda.SdkClientException"
+                            ],
+                            "IntervalSeconds": 2,
+                            "MaxAttempts": 6,
+                            "BackoffRate": 2
+                          }
+                        ],
+                        "End": true
+                      },
+                      "ITEM Wait Query": {
+                        "Type": "Wait",
+                        "Seconds": 15,
+                        "Next": "Get ITEM Query Status"
+                      },
+                      "ITEM Fail": {
+                        "Type": "Fail"
+                      }
+                    }
+                  }
+                ],
+                "End": true
+              }
+            }
+          }
+
       RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/ForecastStepFunctionExecutionRole"
