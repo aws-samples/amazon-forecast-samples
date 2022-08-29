@@ -1,19 +1,19 @@
 ﻿## Retail Forecasting Use Case
 
-This example is based on a public dataset available through [Kaggle](https://www.kaggle.com/c/walmart-recruiting-store-sales-forecasting) which contains real-world weekly sales data provided by a major retailer.  Departmental level sales data was made available for a small sample of stores for partial periods in years 2010-2012.
+This example is based on a public dataset available through [Kaggle](https://www.kaggle.com/c/walmart-recruiting-store-sales-forecasting) which contains real-world weekly sales data provided by a major retailer.  Departmental level sales data was made available for a small sample of stores for partial periods in years 2010-2012.  The Kaggle competition concluded years ago; the purpose of this page is not to compete but to demonstrate how to forecast a public set of data with Amazon Forecast.  More importantly, this allows you to understand how to adapt your own data for use with Amazon Forecast.
 
-Instead of following the normal set of steps provided for the MLOps workflow, you may use this dataset as an override.
+Instead of following the [normal set of steps provided for the MLOps workflow](https://github.com/aws-samples/amazon-forecast-samples/tree/main/ml_ops), you may use this dataset as an override.
 
-1.  Navigate to [CloudFormation service](https://us-west-2.console.aws.amazon.com/cloudformation) and select your correct region.  Selecting the correct region is important.
-2.  Click the "Create Stack, with new resources (Standard)".
-3.  Provide "retaildemo" as Stack Name and provide the following URL as the Amazon S3 URL.
- 
+1. Complete the [MLOps dependency stack](https://github.com/aws-samples/amazon-forecast-samples/blob/main/ml_ops/docs/DependencyStack.md) prior to attemping the instructions below.  The MLOps dependency stack creates necessary underlying permissions.  This step only needs to occur once per AWS account.
+2.  Once the MLOPs dependency stack is in place, navigate to [CloudFormation service](https://us-west-2.console.aws.amazon.com/cloudformation) and select your desired deployment region.
+3.  Click the "Create Stack, with new resources (Standard)".
+4.  Provide "retaildemo" as Stack Name and provide the following URL as the Amazon S3 URL.  You may [download the file](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/forecast-mlops-solution-guidance.yaml) locally or clone using git.
+
 	 ```
      https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/forecast-mlops-solution-guidance.yaml
      ```
-	If needed, you may [download the file](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/forecast-mlops-solution-guidance.yaml) locally or clone using git.
 
-4.  "Step 2: Specify stack details", several parameters are collected that define how the entire workload behaves.  Use these overrides.
+5.  "Step 2: Specify stack details", several parameters are collected that define how the entire workload behaves.  Use these overrides.
 
 | Parameter | Recommended Value |
 |--|--|
@@ -137,8 +137,9 @@ These next set of values are multi-line and can be copied to your clipboard with
    ]
 }
 ```   
-5. You will need to download the prepared dataset: [RetailData.zip](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/RetailData.zip)
-6. Unzip this file on your laptop and then upload the folders and files to your S3 bucket, inside a child <b>retaildemo</b> folder.  Please note the S3 bucket and child folder that will contain the tts and rts folder should match the Stack Name and S3 bucket name from above.   Stated differently, if your Stack Name is abc123, the top-level folder in your S3 bucket should also be named abc123.
+6. Download the prepared dataset: [RetailData.zip](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/RetailData.zip)
+7. Unzip this file on your laptop and then upload the uncompressed folders and files to your S3 bucket, inside a child <b>retaildemo</b> folder.  Please note the S3 bucket and child stack folder that will contain the tts and rts folder should match the Stack Name and S3 bucket name from above.  Stated differently, if your Stack Name is abc123, the top-level folder in your S3 bucket should also be named abc123.
+8. Resume the overall instruction set for MLOps [here](https://github.com/aws-samples/amazon-forecast-samples/blob/main/ml_ops/docs/UploadData.md).  However; on the next page, instead of using the sample dataset as directed, use the [RetailData.zip](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/RetailData.zip) file obtained on this page as an override.
 
 ## Conclusion
 
