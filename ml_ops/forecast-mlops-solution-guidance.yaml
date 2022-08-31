@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Creation for Amazon Forecast Solution Guidance
+Description: Creation for Amazon Forecast Solution Guidance, publish date 20220830
 
 
 Parameters:
@@ -1174,107 +1174,89 @@ Resources:
               },
               "Attempt New Auto Predictor": {
                 "Type": "Task",
-                "Next": "List New Predictor",
+                "Next": "DescribeAutoPredictor",
                 "Parameters": {
                   "PredictorName.$": "States.Format('{}_{}', $.DatasetGroupName,$.CreateRuntimeMetadata.Payload.timeKey)",
                   "DataConfig": {
                     "DatasetGroupArn.$": "$.DatasetGroupArn",
-                    "AttributeConfigs.$": "States.StringToJson($.AttributeConfigs)"
+                    "AttributeConfigs.$": "States.StringToJson($.AttributeConfigs)",
+                    "AdditionalDatasets": null
                   },
                   "ForecastFrequency.$": "$.ForecastFrequency",
                   "ForecastHorizon.$": "$.CreateRuntimeMetadata.Payload.forecastHorizon",
                   "ForecastDimensions.$": "States.StringToJson($.ForecastDimensions)",
                   "OptimizationMetric.$": "$.ForecastOptimizationMetric",
                   "ExplainPredictor.$": "$.ExplainPredictor",
-                  "ForecastTypes.$": "States.StringToJson($.ForecastTypes)"
+                  "ForecastTypes.$": "States.StringToJson($.ForecastTypes)",
+                  "Tags": [
+                    {
+                      "Key": "MLOpsPublishDate",
+                      "Value": "20220830"
+                    }
+                  ]
                 },
-                "Resource": "arn:aws:states:::aws-sdk:forecast:createAutoPredictor.waitForTaskToken",
+                "Resource": "arn:aws:states:::aws-sdk:forecast:createAutoPredictor",
                 "Catch": [
                   {
                     "ErrorEquals": [
-                      "Forecast.ResourceAlreadyExistsException"
+                      "States.ALL"
                     ],
-                    "Comment": "Forecast.ResourceAlreadyExistsException",
-                    "Next": "List New Predictor",
-                    "ResultPath": "$.CreateAutoPredictorError"
-                  },
-                  {
-                    "ErrorEquals": [
-                      "Forecast.ResourceInUseException"
-                    ],
-                    "Comment": "Forecast.ResourceInUseException",
-                    "Next": "New Predictor Create In Progress Wait",
-                    "ResultPath": "$.CreateAutoPredictorError"
-                  },
-                  {
-                    "ErrorEquals": [
-                      "States.TaskFailed"
-                    ],
-                    "Next": "Fail Train Predictor"
+                    "Next": "SNS Predictor Fail",
+                    "ResultPath": "$.CreateAutoPredictorError",
+                    "Comment": "All Errors"
                   }
                 ],
-                "ResultPath": "$.CreateAutoPredictor",
-                "HeartbeatSeconds": 10,
-                "Retry": [
-                  {
-                    "ErrorEquals": [
-                      "States.HeartbeatTimeout"
-                    ],
-                    "BackoffRate": 1,
-                    "IntervalSeconds": 10,
-                    "MaxAttempts": 1
-                  }
-                ]
+                "ResultPath": "$.CreateAutoPredictor"
+              },
+              "SNS Predictor Fail": {
+                "Type": "Task",
+                "Resource": "arn:aws:states:::sns:publish",
+                "Parameters": {
+                  "Message.$": "$",
+                  "TopicArn": "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${AWS::StackName}"
+                },
+                "Next": "Fail Train Predictor"
               },
               "Fail Train Predictor": {
                 "Type": "Fail"
               },
-              "List New Predictor": {
+              "DescribeAutoPredictor": {
                 "Type": "Task",
                 "Next": "State of New Predictor",
                 "Parameters": {
-                  "Filters": [
-                    {
-                      "Condition": "IS",
-                      "Key": "DatasetGroupArn",
-                      "Value.$": "$.DatasetGroupArn"
-                    }
-                  ]
+                  "PredictorArn.$": "$.CreateAutoPredictor.PredictorArn"
                 },
-                "Resource": "arn:aws:states:::aws-sdk:forecast:listPredictors",
+                "Resource": "arn:aws:states:::aws-sdk:forecast:describeAutoPredictor",
+                "ResultPath": "$.DescribeAutoPredictor",
                 "ResultSelector": {
-                  "PredictorName.$": "$.Predictors[0].PredictorName",
-                  "PredictorStatus.$": "$.Predictors[0].Status",
-                  "PredictorArn.$": "$.Predictors[0].PredictorArn"
-                },
-                "ResultPath": "$.ListPredictors"
+                  "PredictorName.$": "$.PredictorName",
+                  "PredictorStatus.$": "$.Status",
+                  "PredictorArn.$": "$.PredictorArn"
+                }
               },
               "State of New Predictor": {
                 "Type": "Choice",
                 "Choices": [
                   {
-                    "Variable": "$.ListPredictors.PredictorStatus",
+                    "Variable": "$.DescribeAutoPredictor.PredictorStatus",
                     "StringEquals": "ACTIVE",
                     "Next": "Parallel Post Predictor Tasks"
                   },
                   {
                     "Or": [
                       {
-                        "Variable": "$.ListPredictors.PredictorStatus",
+                        "Variable": "$.DescribeAutoPredictor.PredictorStatus",
                         "StringEquals": "CREATE_IN_PROGRESS"
                       },
                       {
-                        "Variable": "$.ListPredictors.PredictorStatus",
+                        "Variable": "$.DescribeAutoPredictor.PredictorStatus",
                         "StringEquals": "CREATE_PENDING"
                       }
                     ],
                     "Next": "New Predictor Create In Progress Wait"
                   }
                 ],
-                "Default": "Unknown List Predictor State Fail"
-              },
-              "Unknown List Predictor State Fail": {
-                "Type": "Fail"
+                "Default": "Fail Train Predictor"
               },
               "Parallel Post Predictor Tasks": {
                 "Type": "Parallel",
@@ -1305,7 +1287,7 @@ Resources:
                               "RoleArn": "arn:aws:iam::${AWS::AccountId}:role/ForecastProcessorLambdaExecutionRole"
                             }
                           },
-                          "PredictorArn.$": "$.ListPredictors.PredictorArn",
+                          "PredictorArn.$": "$.DescribeAutoPredictor.PredictorArn",
                           "PredictorBacktestExportJobName.$": "States.Format('{}_{}', $.DatasetGroupName, $.CreateRuntimeMetadata.Payload.timeKey)"
                         },
                         "Resource": "arn:aws:states:::aws-sdk:forecast:createPredictorBacktestExportJob",
@@ -1320,7 +1302,7 @@ Resources:
                             "Next": "ListPredictorBacktestExportJobs"
                           }
                         ],
-                        "HeartbeatSeconds": 18
+                        "HeartbeatSeconds": 10
                       },
                       "ListPredictorBacktestExportJobs": {
                         "Type": "Task",
@@ -1330,7 +1312,7 @@ Resources:
                             {
                               "Condition": "IS",
                               "Key": "PredictorArn",
-                              "Value.$": "$.ListPredictors.PredictorArn"
+                              "Value.$": "$.DescribeAutoPredictor.PredictorArn"
                             }
                           ]
                         },
@@ -1338,7 +1320,15 @@ Resources:
                         "ResultPath": "$.PredictorBacktestExportJobs",
                         "ResultSelector": {
                           "Status.$": "$.PredictorBacktestExportJobs[0].Status"
-                        }
+                        },
+                        "Catch": [
+                          {
+                            "ErrorEquals": [
+                              "States.ALL"
+                            ],
+                            "Next": "SNS Predictor Backtest Export Fail"
+                          }
+                        ]
                       },
                       "Choice": {
                         "Type": "Choice",
@@ -1362,13 +1352,22 @@ Resources:
                             "Next": "GetAccuracyMetrics"
                           }
                         ],
-                        "Default": "Fail"
+                        "Default": "SNS Predictor Backtest Export Fail"
+                      },
+                      "SNS Predictor Backtest Export Fail": {
+                        "Type": "Task",
+                        "Resource": "arn:aws:states:::sns:publish",
+                        "Parameters": {
+                          "Message.$": "$",
+                          "TopicArn": "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${AWS::StackName}"
+                        },
+                        "Next": "Fail"
                       },
                       "GetAccuracyMetrics": {
                         "Type": "Task",
                         "Next": "SNS Publish",
                         "Parameters": {
-                          "PredictorArn.$": "$.ListPredictors.PredictorArn"
+                          "PredictorArn.$": "$.DescribeAutoPredictor.PredictorArn"
                         },
                         "Resource": "arn:aws:states:::aws-sdk:forecast:getAccuracyMetrics",
                         "ResultPath": "$.AccuracyMetrics",
@@ -1407,7 +1406,7 @@ Resources:
               "New Predictor Create In Progress Wait": {
                 "Type": "Wait",
                 "Seconds": 300,
-                "Next": "Attempt New Auto Predictor"
+                "Next": "DescribeAutoPredictor"
               },
               "Strategy Not Train or Retain Success": {
                 "Type": "Succeed"
@@ -1425,91 +1424,31 @@ Resources:
                 "Type": "Task",
                 "Parameters": {
                   "PredictorName.$": "States.Format('{}_{}', $.DatasetGroupName ,$.CreateRuntimeMetadata.Payload.timeKey)",
-                  "ReferencePredictorArn.$": "$.GetReference.Parameter.Value"
-                },
-                "Resource": "arn:aws:states:::aws-sdk:forecast:createAutoPredictor.waitForTaskToken",
-                "Retry": [
-                  {
-                    "ErrorEquals": [
-                      "States.HeartbeatTimeout"
-                    ],
-                    "BackoffRate": 1,
-                    "IntervalSeconds": 300,
-                    "MaxAttempts": 120
-                  }
-                ],
-                "Catch": [
-                  {
-                    "ErrorEquals": [
-                      "Forecast.ResourceAlreadyExistsException"
-                    ],
-                    "Comment": "Forecast.ResourceAlreadyExistsException",
-                    "Next": "ListPredictors",
-                    "ResultPath": "$.RetrainPredictorCatch"
-                  },
-                  {
-                    "ErrorEquals": [
-                      "Forecast.ResourceInUseException"
-                    ],
-                    "Comment": "Forecast.ResourceInUseException",
-                    "Next": "Retrain Predictor In Use Wait",
-                    "ResultPath": "$.RetrainPredictorCatch"
-                  }
-                ],
-                "HeartbeatSeconds": 300,
-                "Next": "ListPredictors",
-                "ResultPath": "$.RetrainPredictor"
-              },
-              "ListPredictors": {
-                "Type": "Task",
-                "Next": "State of Retrain Predictor",
-                "Parameters": {
-                  "Filters": [
+                  "ReferencePredictorArn.$": "$.GetReference.Parameter.Value",
+                  "Tags": [
                     {
-                      "Condition": "IS",
-                      "Key": "DatasetGroupArn",
-                      "Value.$": "$.DatasetGroupArn"
+                      "Key": "MLOpsPublishDate",
+                      "Value": "20220830"
                     }
                   ]
                 },
-                "Resource": "arn:aws:states:::aws-sdk:forecast:listPredictors",
-                "ResultSelector": {
-                  "PredictorName.$": "$.Predictors[0].PredictorName",
-                  "PredictorStatus.$": "$.Predictors[0].Status",
-                  "PredictorArn.$": "$.Predictors[0].PredictorArn"
-                },
-                "ResultPath": "$.ListPredictors"
-              },
-              "State of Retrain Predictor": {
-                "Type": "Choice",
-                "Choices": [
+                "Resource": "arn:aws:states:::aws-sdk:forecast:createAutoPredictor",
+                "Catch": [
                   {
-                    "Variable": "$.ListPredictors.PredictorStatus",
-                    "StringEquals": "ACTIVE",
-                    "Next": "Parallel Post Predictor Tasks"
-                  },
-                  {
-                    "Variable": "$.ListPredictors.PredictorStatus",
-                    "StringEquals": "CREATE_IN_PROGRESS",
-                    "Next": "Retrain Create In Progress Wait"
+                    "ErrorEquals": [
+                      "States.ALL"
+                    ],
+                    "Comment": "All Errors",
+                    "Next": "SNS Predictor Fail",
+                    "ResultPath": "$.RetrainPredictorCatch"
                   }
                 ],
-                "Default": "Unknown List Predictor State Fail"
-              },
-              "Retrain Predictor In Use Wait": {
-                "Type": "Wait",
-                "Seconds": 300,
-                "Next": "Attempt Retrain Predictor"
-              },
-              "Retrain Create In Progress Wait": {
-                "Type": "Wait",
-                "Seconds": 300,
-                "Next": "Attempt Retrain Predictor"
+                "Next": "DescribeAutoPredictor",
+                "ResultPath": "$.CreateAutoPredictor"
               }
             }
           }          
       RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/ForecastStepFunctionExecutionRole"
-
 
   CreateForecastStateMachine:
     Type: AWS::StepFunctions::StateMachine
@@ -1583,69 +1522,66 @@ Resources:
                 "Parameters": {
                   "PredictorArn.$": "$.PredictorArn",
                   "ForecastName.$": "States.Format('{}_{}', $.DatasetGroupName, $.CreateRuntimeMetadata.Payload.timeKey)",
-                  "ForecastTypes.$": "States.StringToJson($.ForecastTypes)"
-                },
-                "Resource": "arn:aws:states:::aws-sdk:forecast:createForecast.waitForTaskToken",
-                "Retry": [
-                  {
-                    "ErrorEquals": [
-                      "States.HeartbeatTimeout"
-                    ],
-                    "BackoffRate": 1,
-                    "IntervalSeconds": 5,
-                    "MaxAttempts": 2
-                  }
-                ],
-                "Catch": [
-                  {
-                    "ErrorEquals": [
-                      "Forecast.ResourceAlreadyExistsException"
-                    ],
-                    "Next": "ListForecasts",
-                    "ResultPath": "$.CreateForecastError"
-                  }
-                ],
-                "ResultPath": "$.CreateForecast",
-                "End": true,
-                "HeartbeatSeconds": 5
-              },
-              "ListForecasts": {
-                "Type": "Task",
-                "Next": "Forecast Active",
-                "Parameters": {
-                  "Filters": [
+                  "ForecastTypes.$": "States.StringToJson($.ForecastTypes)",
+                  "Tags": [
                     {
-                      "Condition": "IS",
-                      "Key": "PredictorArn",
-                      "Value.$": "$.PredictorArn"
+                      "Key": "MLOpsPublishDate",
+                      "Value": "20220830"
                     }
                   ]
                 },
-                "Resource": "arn:aws:states:::aws-sdk:forecast:listForecasts",
-                "ResultPath": "$.ListForecasts"
+                "Resource": "arn:aws:states:::aws-sdk:forecast:createForecast",
+                "ResultPath": "$.CreateForecast",
+                "Next": "DescribeForecast",
+                "Catch": [
+                  {
+                    "ErrorEquals": [
+                      "States.ALL"
+                    ],
+                    "Next": "SNS Fail"
+                  }
+                ]
+              },
+              "DescribeForecast": {
+                "Type": "Task",
+                "Next": "Forecast Active",
+                "Parameters": {
+                  "ForecastArn.$": "$.CreateForecast.ForecastArn"
+                },
+                "Resource": "arn:aws:states:::aws-sdk:forecast:describeForecast",
+                "ResultPath": "$.DescribeForecast",
+                "Catch": [
+                  {
+                    "ErrorEquals": [
+                      "States.ALL"
+                    ],
+                    "Next": "SNS Fail"
+                  }
+                ]
               },
               "Forecast Active": {
-              "Type": "Choice",
+                "Type": "Choice",
                 "Choices": [
                   {
-                    "Variable": "$.ListForecasts.Forecasts[0].Status",
+                    "Variable": "$.DescribeForecast.Status",
                     "StringEquals": "ACTIVE",
                     "Next": "CreateForecastExportJob"
                   },
                   {
                     "Or": [
                       {
-                        "Variable": "$.ListForecasts.Forecasts[0].Status",
+                        "Variable": "$.DescribeForecast.Status",
                         "StringEquals": "CREATE_IN_PROGRESS"
                       },
                       {
-                        "Variable": "$.ListForecasts.Forecasts[0].Status",
+                        "Variable": "$.DescribeForecast.Status",
                         "StringEquals": "CREATE_PENDING"
                       }
                     ],
-                    "Next": "Wait"
+                    "Next": "Wait for Forecast Active"
                   }
-                ]
+                ],
+                "Default": "SNS Fail"
               },
               "CreateForecastExportJob": {
                 "Type": "Task",
@@ -1656,63 +1592,72 @@ Resources:
                       "RoleArn": "arn:aws:iam::${AWS::AccountId}:role/ForecastProcessorLambdaExecutionRole"
                     }
                   },
-                  "ForecastArn.$": "$.ListForecasts.Forecasts[0].ForecastArn",
-                  "ForecastExportJobName.$": "$.ListForecasts.Forecasts[0].ForecastName"
+                  "ForecastArn.$": "$.DescribeForecast.ForecastArn",
+                  "ForecastExportJobName.$": "$.DescribeForecast.ForecastName"
                 },
                 "Resource": "arn:aws:states:::aws-sdk:forecast:createForecastExportJob",
+                "ResultPath": "$.CreateForecastExportJob",
+                "Next": "DescribeForecastExportJob",
                 "Catch": [
                   {
                     "ErrorEquals": [
-                      "Forecast.ResourceAlreadyExistsException"
+                      "States.ALL"
                     ],
-                    "Comment": "Forecast.ResourceAlreadyExistsException",
-                    "Next": "ListForecastExportJobs",
-                    "ResultPath": "$.CreateForecastExportJobError"
+                    "Next": "SNS Fail"
                   }
-                ],
-                "ResultPath": "$.CreateForecastExportJob",
-                "Next": "ListForecastExportJobs"
+                ]
               },
-              "ListForecastExportJobs": {
+              "DescribeForecastExportJob": {
                 "Type": "Task",
-                "Parameters": {
-                  "Filters": [
-                    {
-                      "Condition": "IS",
-                      "Key": "ForecastArn",
-                      "Value.$": "$.ListForecasts.Forecasts[0].ForecastArn"
-                    }
-                  ]
-                },
-                "Resource": "arn:aws:states:::aws-sdk:forecast:listForecastExportJobs",
                 "Next": "Forecast Export Active",
-                "ResultPath": "$.ListForecastExport"
+                "Parameters": {
+                  "ForecastExportJobArn.$": "$.CreateForecastExportJob.ForecastExportJobArn"
+                },
+                "Resource": "arn:aws:states:::aws-sdk:forecast:describeForecastExportJob",
+                "ResultPath": "$.DescribeForecastExportJob",
+                "Catch": [
+                  {
+                    "ErrorEquals": [
+                      "States.ALL"
+                    ],
+                    "Next": "SNS Fail"
+                  }
+                ]
               },
               "Forecast Export Active": {
                 "Type": "Choice",
                 "Choices": [
                   {
-                    "Variable": "$.ListForecastExport.ForecastExportJobs[0].Status",
+                    "Variable": "$.DescribeForecastExportJob.Status",
                     "StringEquals": "ACTIVE",
-                    "Next": "SNS Publish"
+                    "Next": "SNS Success"
                   },
                   {
                     "Or": [
                       {
-                        "Variable": "$.ListForecastExport.ForecastExportJobs[0].Status",
+                        "Variable": "$.DescribeForecastExportJob.Status",
                         "StringEquals": "CREATE_IN_PROGRESS"
                       },
                       {
-                        "Variable": "$.ListForecastExport.ForecastExportJobs[0].Status",
+                        "Variable": "$.DescribeForecastExportJob.Status",
                         "StringEquals": "CREATE_PENDING"
                       }
                     ],
-                    "Next": "Retry ListForecastExportjob"
+                    "Next": "Wait for Forecast Export Job Active"
                   }
                 ],
-                "Default": "Fail"
+                "Default": "SNS Fail"
               },
-              "SNS Publish": {
+              "SNS Fail": {
+                "Type": "Task",
+                "Resource": "arn:aws:states:::sns:publish",
+                "Parameters": {
+                  "Message.$": "$",
+                  "TopicArn": "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${AWS::StackName}"
+                },
+                "Next": "Fail"
+              },
+              "SNS Success": {
                 "Type": "Task",
                 "Resource": "arn:aws:states:::sns:publish",
                 "Parameters": {
@@ -1724,18 +1669,18 @@ Resources:
               "Fail": {
                 "Type": "Fail"
               },
-              "Retry ListForecastExportjob": {
+              "Wait for Forecast Export Job Active": {
                 "Type": "Wait",
                 "Seconds": 120,
-                "Next": "ListForecastExportJobs"
+                "Next": "DescribeForecastExportJob"
               },
-              "Wait": {
+              "Wait for Forecast Active": {
                 "Type": "Wait",
-                "Seconds": 120,
-                "Next": "ListForecasts"
+                "Seconds": 180,
+                "Next": "DescribeForecast"
               }
             }
-          }
+          }          
       RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/ForecastStepFunctionExecutionRole"
 
   AthenaConnectorStateMachine:
