@@ -76,10 +76,12 @@ We recommend you write the queries and test them out first in your Snowflake con
 3. Click Start Execution, then Start Execution a second time to launch without any changing any input parameters.
 4. You can observe the state machine running.  The idea is it runs each of your queries, returning data to Amazon S3, where the next Amazon MLOps Step function will import the data for model training or inference.
 
+
+
 ## Important Considerations
 -  As delivered, there is a default limit of 500,000 rows retrieved per SQL query.  We have load tested this several million rows of data, but you will need to change settings in the Lambda function to enable more than 500,000.  Open the Lambda function you created as part of the CloudFormation deployment.  By default, the name was <b>snowflake_forecast_connector</b>.   Click on the Configuration tab choose the <b>Environment Variables</b> item from the left pane.  Change the pagecount value from 500000 to as appropriate for your workload.
 
 - If you have any memory errors with Lambda from large datasets, you can increase the memory from 3008MB as delivered to as high as 10240MB.  Open the Lambda function you created as part of the CloudFormation deployment.  By default, the name was <b>snowflake_forecast_connector</b>.   Click on the Configuration tab choose the <b>Edit</b> on the right side of the page.  Change the memory setting as appropriate for your workload to a max of 10240MB.
 
 
-If you have any questions, please conect your AWS solution architect and ask for assistance.
+If you have any questions, please contact your AWS Solution Architect and ask for assistance.
