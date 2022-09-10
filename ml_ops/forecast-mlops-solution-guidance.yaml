@@ -1,6 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Creation for Amazon Forecast Solution Guidance, publish date 20220830
-
+Description: >
+    Amazon Forecast MLOps Solution Guidance
+    Publish: 20220909
 
 Parameters:
 
@@ -24,6 +25,7 @@ Parameters:
 
   DatasetGroupName:
     Description: Short name for dataset group, a self-contained workload
+    Default: MyDatasetGroup
     Type: String
     AllowedPattern: ^[a-zA-Z][a-zA-Z0-9_]*
 
@@ -50,6 +52,7 @@ Parameters:
   S3Bucket:
     Description: Provide the S3 Bucket Name to be used
     Type: String
+    AllowedPattern: ^[a-z0-9][a-z0-9-_]*[a-z0-9]
 
   SchemaTTS:
     Description: Provide a valid JSON string to define the Target Time Series Schema
@@ -284,6 +287,60 @@ Parameters:
       ]'
 
 Resources:
+
+  StepFunctionsWorkflowRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Statement:
+          - Action:
+            - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+              - states.amazonaws.com
+          Version: '2012-10-17'
+        Path: "/"
+        Policies:
+        - PolicyDocument:
+            Statement:
+            - Action:
+              - lambda:InvokeFunction
+              Effect: Allow
+              Resource:
+              - !Join 
+                  - ''
+                  - - !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:ForecastSelectPredictor'
+                    - ':*'
+            Version: '2012-10-17'
+          PolicyName: !Sub '${AWS::StackName}-lambda-ops'
+        - PolicyDocument:
+            Statement:
+            - Action:
+              - states:StartExecution
+              - states:DescribeExecution
+              - states:StopExecution
+              Effect: Allow
+              Resource:
+              - !Join 
+                    - ''
+                    - - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${AWS::StackName}'
+                      - '*'
+            Version: '2012-10-17'
+          PolicyName: !Sub '${AWS::StackName}-states-ops'
+        - PolicyDocument:
+            Statement:
+            - Action:
+              - events:PutTargets
+              - events:PutRule
+              - events:DescribeRule
+              Effect: Allow
+              Resource:
+                - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/StepFunctionsGetEventsForStepFunctionsExecutionRule'
+            Version: '2012-10-17'
+          PolicyName: !Sub '${AWS::StackName}-events-ops'
+        RoleName: !Sub "StepFunctions-${AWS::StackName}-Workflow-Role"
+
 
   CreateDatasetGroupStateMachine:
     Type: "AWS::StepFunctions::StateMachine"
@@ -1191,7 +1248,7 @@ Resources:
                   "Tags": [
                     {
                       "Key": "MLOpsPublishDate",
-                      "Value": "20220830"
+                      "Value": "20220909"
                     }
                   ]
                 },
@@ -1428,7 +1485,7 @@ Resources:
                   "Tags": [
                     {
                       "Key": "MLOpsPublishDate",
-                      "Value": "20220830"
+                      "Value": "20220909"
                     }
                   ]
                 },
@@ -1526,7 +1583,7 @@ Resources:
                   "Tags": [
                     {
                       "Key": "MLOpsPublishDate",
-                      "Value": "20220830"
+                      "Value": "20220909"
                     }
                   ]
                 },
@@ -2062,3 +2119,84 @@ Resources:
           }
 
       RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/ForecastStepFunctionExecutionRole"
+
+  StepFunctionWorkflowStateMachine:
+    Type: "AWS::StepFunctions::StateMachine"
+    Properties:
+      StateMachineName: !Sub "${AWS::StackName}-Workflow"
+      DefinitionString:
+        !Sub |
+          {
+            "Comment": "An automation pipeline, edit for use case prior to execution",
+            "StartAt": "Athena-Connector",
+            "States": {
+              "Athena-Connector": {
+                "Type": "Task",
+                "Resource": "arn:aws:states:::states:startExecution.sync:2",
+                "Parameters": {
+                  "StateMachineArn": "arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${AWS::StackName}-Athena-Connector",
+                  "Input": {
+                    "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
+                  }
+                },
+                "Next": "Import-Dataset"
+              },
+              "Import-Dataset": {
+                "Type": "Task",
+                "Resource": "arn:aws:states:::states:startExecution.sync:2",
+                "Parameters": {
+                  "StateMachineArn": "arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${AWS::StackName}-Import-Dataset",
+                  "Input": {
+                    "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
+                  }
+                },
+                "Next": "Create-Predictor"
+              },
+              "Create-Predictor": {
+                "Type": "Task",
+                "Resource": "arn:aws:states:::states:startExecution.sync:2",
+                "Parameters": {
+                  "StateMachineArn": "arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${AWS::StackName}-Create-Predictor",
+                  "Input": {
+                    "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
+                  }
+                },
+                "Next": "Select-Best-Predictor"
+              },
+              "Select-Best-Predictor": {
+                "Type": "Task",
+                "Resource": "arn:aws:states:::lambda:invoke",
+                "OutputPath": "$.Payload",
+                "Parameters": {
+                  "FunctionName": "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:ForecastSelectPredictor:$LATEST",
+                  "Payload": {
+                    "StackName": "${AWS::StackName}"
+                  }
+                },
+                "Next": "Create-Forecast",
+                "Catch": [
+                  {
+                    "ErrorEquals": [
+                      "States.HeartbeatTimeout"
+                    ],
+                    "Next": "Create-Forecast",
+                    "Comment": "Heartbeat"
+                  }
+                ],
+                "HeartbeatSeconds": 15
+              },
+              "Create-Forecast": {
+                "Type": "Task",
+                "Resource": "arn:aws:states:::states:startExecution.sync:2",
+                "Parameters": {
+                  "StateMachineArn": "arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${AWS::StackName}-Create-Forecast",
+                  "Input": {
+                    "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
+                  }
+                },
+                "End": true
+              }
+            }
+          }
+
+      RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/StepFunctions-${AWS::StackName}-Workflow-Role"

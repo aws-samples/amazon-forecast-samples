@@ -1,11 +1,14 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: One-time creation for Amazon Forecast MLOps dependencies
+Description: >
+    One-time creation for Amazon Forecast MLOps dependencies
+    Publish: 20220909
 
 Parameters:
 
   S3Bucket:
     Description: Provide the S3 Bucket Name to be used
     Type: String
+    AllowedPattern: ^[a-z0-9][a-z0-9-_]*[a-z0-9]
 
   ExistingS3Bucket:
     Description: Does your S3 bucket already exist?
@@ -68,7 +71,18 @@ Resources:
       - PolicyDocument:
           Statement:
           - Action:
-            - forecast:*
+            - forecast:Describe*
+            - forecast:Get*
+            - forecast:List*
+            - forecast:Query*
+            - forecast:Invoke*
+            - forecast:Tag*
+            - forecast:Untag*
+            - forecast:Create*
+            - forecast:Delete*
+            - forecast:Stop*
+            - forecast:Update*
+            - forecast:Resume*
             Effect: Allow
             Resource: '*'
           Version: '2012-10-17'
@@ -485,7 +499,7 @@ Resources:
       Runtime: python3.9
       Role: !GetAtt ForecastProcessorLambdaExecutionRole.Arn
       Timeout: 300
-      MemorySize: 8192
+      MemorySize: 3008
       Code:
         ZipFile: |
           #THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
@@ -561,7 +575,27 @@ Resources:
           - Action:
             - lambda:InvokeFunction
             Effect: Allow
-            Resource: '*'
+            Resource:
+            - !Join 
+                - ''
+                - - !GetAtt LambdaGetForecastMetadata.Arn 
+                  - ':*'
+            - !Join 
+                - ''
+                - - !GetAtt LambdaForecastCreateDatasetGroup.Arn 
+                  - ':*'
+            - !Join 
+                - ''
+                - - !GetAtt LambdaForecastSelectPredictor.Arn 
+                  - ':*'
+            - !Join 
+                - ''
+                - - !GetAtt LambdaForecastPurgeS3Folder.Arn 
+                  - ':*'
+            - !Join 
+                - ''
+                - - !GetAtt LambdaForecastRemoveAthenaQuotes.Arn 
+                  - ':*'
           Version: '2012-10-17'
         PolicyName: !Sub '${AWS::StackName}-lambda-ops'
       - PolicyDocument:
@@ -600,7 +634,18 @@ Resources:
       - PolicyDocument:
           Statement:
           - Action:
-            - forecast:*
+            - forecast:Describe*
+            - forecast:Get*
+            - forecast:List*
+            - forecast:Query*
+            - forecast:Invoke*
+            - forecast:Tag*
+            - forecast:Untag*
+            - forecast:Create*
+            - forecast:Delete*
+            - forecast:Stop*
+            - forecast:Update*
+            - forecast:Resume*
             Effect: Allow
             Resource: '*'
           Version: '2012-10-17'
@@ -629,17 +674,8 @@ Resources:
             - ssm:GetParameters
             - ssm:PutParameter
             Effect: Allow
-            Resource: '*'
+            Resource: 
+            - !Sub 'arn:aws:ssm:*:${AWS::AccountId}:parameter/forecast/*'
           Version: '2012-10-17'
         PolicyName: !Sub '${AWS::StackName}-ssm-ops'
-      - PolicyDocument:
-          Statement:
-          - Action:
-            - states:StartExecution
-            - states:DescribeExecution
-            - states:StopExecution
-            Effect: Allow
-            Resource: '*'
-          Version: '2012-10-17'
-        PolicyName: !Sub '${AWS::StackName}-state-machine-ops'
       RoleName: !Sub 'ForecastStepFunctionExecutionRole'
