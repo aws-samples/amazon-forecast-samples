@@ -1,6 +1,6 @@
 ﻿## Connecting Snowflake to Amazon Forecast through Amazon Athena Federated Query
 
-This is an optional process that can extend the (Amazon Forecast MLOps base deployment)[https://github.com/aws-samples/amazon-forecast-samples/tree/main/ml_ops] by allowing customers to retrieve historical data from their Snowflake environment and prepare it for ingestion into Amazon Forecast.   The base deployment must be completed first in order to have a working Amazon Forecast solution.
+This is an optional process that can extend the [Amazon Forecast MLOps base deployment](https://github.com/aws-samples/amazon-forecast-samples/tree/main/ml_ops) by allowing customers to retrieve historical data from their Snowflake environment and prepare it for ingestion into Amazon Forecast.   The base deployment must be completed first in order to have a working Amazon Forecast solution.
 
 ## Architecture
 
