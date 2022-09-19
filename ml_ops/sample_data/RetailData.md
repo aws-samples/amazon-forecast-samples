@@ -1,6 +1,11 @@
 ﻿## Retail Forecasting Use Case
 
-This example is based on a public dataset available through [Kaggle](https://www.kaggle.com/c/walmart-recruiting-store-sales-forecasting) which contains real-world weekly sales data provided by a major retailer.  Departmental level sales data was made available for a small sample of stores for partial periods in years 2010-2012.  The Kaggle competition concluded years ago; the purpose of this page is not to compete but to demonstrate how to forecast a public set of data with Amazon Forecast.  More importantly, this allows you to understand how to adapt your own data for use with Amazon Forecast.
+This example is inspired by a public dataset available through [Kaggle](https://www.kaggle.com/c/walmart-recruiting-store-sales-forecasting) which contains real-world weekly sales data provided by a major retailer.  Departmental level sales data was made available for a small sample of stores for partial periods in years 2010-2012.  The Kaggle competition concluded years ago; the purpose of this page is not to compete but to demonstrate how to forecast a public set of data with Amazon Forecast.  More importantly, this allows you to understand how to adapt your own data for use with Amazon Forecast.
+
+This dataset is available at other repositories:
+- (Github)[https://github.com/PacktPublishing/Hands-On-Artificial-Intelligence-on-Amazon-Web-Services/tree/master/Chapter11/deep-ar/data]
+- (Kaggle)[https://www.kaggle.com/datasets/manjeetsingh/retaildataset]
+
 
 Instead of following the [normal set of steps provided for the MLOps workflow](https://github.com/aws-samples/amazon-forecast-samples/tree/main/ml_ops), you may use this dataset as an override.
 
@@ -137,7 +142,7 @@ These next set of values are multi-line and can be copied to your clipboard with
    ]
 }
 ```   
-6. Download the prepared dataset: [RetailData.zip](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/RetailData.zip)
+6. Download the prepared dataset, which is inspired by the original: [RetailData.zip](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/RetailData.zip)
 7. Unzip this file on your laptop and then upload the uncompressed folders and files to your S3 bucket, inside a child <b>retaildemo</b> folder.  Please note the S3 bucket and child stack folder that will contain the tts and rts folder should match the Stack Name and S3 bucket name from above.  Stated differently, if your Stack Name is abc123, the top-level folder in your S3 bucket should also be named abc123.
 8. Resume the overall instruction set for MLOps [here](https://github.com/aws-samples/amazon-forecast-samples/blob/main/ml_ops/docs/UploadData.md).  However; on the next page, instead of using the sample dataset as directed, use the [RetailData.zip](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/RetailData.zip) file obtained on this page as an override.
 

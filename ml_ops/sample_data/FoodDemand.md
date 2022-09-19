@@ -7,7 +7,7 @@ Instead of following the [normal set of steps provided for the MLOps workflow](h
 1. Complete the [MLOps dependency stack](https://github.com/aws-samples/amazon-forecast-samples/blob/main/ml_ops/docs/DependencyStack.md) prior to attemping the instructions below.  The MLOps dependency stack creates necessary underlying permissions.  This step only needs to occur once per AWS account.
 2.  Once the MLOPs dependency stack is in place, navigate to [CloudFormation service](https://us-west-2.console.aws.amazon.com/cloudformation) and select your desired deployment region.
 3.  Click the "Create Stack, with new resources (Standard)".
-4.  Provide "retaildemo" as Stack Name and provide the following URL as the Amazon S3 URL.  You may [download the file](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/forecast-mlops-solution-guidance.yaml) locally or clone using git.
+4.  Provide "fooddemo" as Stack Name and provide the following URL as the Amazon S3 URL.  You may [download the file](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/forecast-mlops-solution-guidance.yaml) locally or clone using git.
 
 	 ```
      https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/forecast-mlops-solution-guidance.yaml
@@ -163,7 +163,7 @@ These next set of values are multi-line and can be copied to your clipboard with
     ]
 }
 ```   
-6. Download the prepared dataset: [FoodDemand.zip](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/FoodDemand.zip)
+6. Download a unique dataset, similar to the original: [FoodDemand.zip](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/FoodDemand.zip)
 7. Unzip this file on your laptop and then upload the uncompressed folders and files to your S3 bucket, inside a child <b>retaildemo</b> folder.  Please note the S3 bucket and child stack folder that will contain the tts and rts folder should match the Stack Name and S3 bucket name from above.  Stated differently, if your Stack Name is abc123, the top-level folder in your S3 bucket should also be named abc123.
 8. Resume the overall instruction set for MLOps [here](https://github.com/aws-samples/amazon-forecast-samples/blob/main/ml_ops/docs/UploadData.md).  This page directs you to download [FoodDemand.zip](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/FoodDemand.zip), uncompress it and then upload to S3.
 

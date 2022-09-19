@@ -1,6 +1,12 @@
 ﻿## Connecting Snowflake to Amazon Forecast through Amazon Athena Federated Query
 
-This is an optional process that can extend the Amazon Forecast MLOps base deployment by allowing customers to retrieve historical data from their Snowflake environment and prepare it for ingestion into Amazon Forecast.
+This is an optional process that can extend the (Amazon Forecast MLOps base deployment)[https://github.com/aws-samples/amazon-forecast-samples/tree/main/ml_ops] by allowing customers to retrieve historical data from their Snowflake environment and prepare it for ingestion into Amazon Forecast.   The base deployment must be completed first in order to have a working Amazon Forecast solution.
+
+## Architecture
+
+![Athena-Snowflake-Connector](../images/snowflake-connector-architecture.jpg)<br>
+
+Note: In the CloudFormation stack deployed below, connectivity is added through a NAT gateway which is supportable on multiple cloud backends.  If you wish, the NAT gateway may be replaced with another path enabled by AWS PrivateLink for Snowflake resources backed by AWS.
 
 ## Installing the CloudFormation Stack
 This procedure will create a new VPC with both private and public subnets and a NAT gateway that allows connectivity to Snowflake.  This stack also installs a Lambda function that helps facilitate a JDBC connection to Snowflake and securely stores your username and password using AWS Secrets Manager.  Effectively, this process is the bridge that connects Amazon Athena to Snowflake.
