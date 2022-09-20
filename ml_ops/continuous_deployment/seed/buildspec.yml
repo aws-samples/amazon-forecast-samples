@@ -1,0 +1,27 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      # Upgrade AWS CLI to the latest version
+      - pip install --upgrade --force-reinstall "botocore>1.21.30" "boto3>1.18.30" "awscli>1.20.30"
+
+  build:
+    commands:
+      # Package the infrastructure as code defined in forecast-mlops-dependency.yml by using AWS CloudFormation.
+      # Note that the Environment Variables like ARTIFACT_BUCKET, etc,. used below are expected to be setup by the
+      # CodeBuild resource in the infra pipeline
+      - aws cloudformation package --template forecast-mlops-dependency.yml --s3-bucket $ARTIFACT_BUCKET --output-template $EXPORT_DEP_TEMPLATE_NAME
+      - aws cloudformation package --template forecast-mlops-solution-guidance.yml --s3-bucket $ARTIFACT_BUCKET --output-template $EXPORT_TEMPLATE_NAME
+
+artifacts:
+  files:
+    - $EXPORT_DEP_TEMPLATE_NAME
+    - $EXPORT_TEMPLATE_NAME
+    - $EXPORT_TEMPLATE_STAGING_CONFIG
+    - $EXPORT_TEMPLATE_PROD_CONFIG
+    - $EXPORT_TEMPLATE_DEP_STAGING_CONFIG
+    - $EXPORT_TEMPLATE_DEP_PROD_CONFIG
+
