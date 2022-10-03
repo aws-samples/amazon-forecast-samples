@@ -1,6 +1,8 @@
 ﻿## Amazon Forecast End-to-End Deployments Made Simple
 
-Begin here, with the one-time deployment of the [Dependency Stack](./docs/DependencyStack.md)
+Begin here, with the one-time deployment of the [Dependency Stack](./docs/DependencyStack.md).
+<br><br>
+If your historical data is located in Snowflake, you may install an [Athena Snowflake connector](./docs/AthenaSnowflakeConnector.md) after installing the base Dependency Stack.  Read more about the capability in our [blog](https://aws.amazon.com/blogs/machine-learning/automate-your-time-series-forecasting-in-snowflake-using-amazon-forecast/).
 
 
 ## **Purpose of this Solution Guidance**  

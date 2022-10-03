@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
     One-time creation for Amazon Forecast MLOps dependencies
-    Publish: 20220909
+    Publish: 20221003
 
 Parameters:
 
@@ -607,6 +607,7 @@ Resources:
             - athena:GetDataCatalog
             - glue:GetTable
             - glue:GetPartitions
+            - glue:GetDatabase
             Effect: Allow
             Resource: '*'
           Version: '2012-10-17'

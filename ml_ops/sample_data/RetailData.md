@@ -137,15 +137,11 @@ These next set of values are multi-line and can be copied to your clipboard with
    ]
 }
 ```   
-6. Download the prepared dataset, which is inspired by the original: [RetailData.zip](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/RetailData.zip)
 
-Our set is incomplete and reshaped, but you may obtain this dataset at other repositories, in additional to the original, if you wish to reshape it first-hand:
-- [Github](https://github.com/PacktPublishing/Hands-On-Artificial-Intelligence-on-Amazon-Web-Services/tree/master/Chapter11/deep-ar/data)
-- [Kaggle](https://www.kaggle.com/datasets/manjeetsingh/retaildataset)
+6. Once you have prepared the data to conform to the shape to the RTS and TTS above, place the files in your S3 bucket, inside a child <b>retaildemo</b> folder.  Please note the S3 bucket and child stack folder that will contain the tts and rts folder should match the Stack Name and S3 bucket name from above.  Stated differently, if your Stack Name is abc123, the top-level folder in your S3 bucket should also be named abc123.
 
+7. Resume the overall instruction set for MLOps [here](https://github.com/aws-samples/amazon-forecast-samples/blob/main/ml_ops/docs/UploadData.md).
 
-7. Unzip this file on your laptop and then upload the uncompressed folders and files to your S3 bucket, inside a child <b>retaildemo</b> folder.  Please note the S3 bucket and child stack folder that will contain the tts and rts folder should match the Stack Name and S3 bucket name from above.  Stated differently, if your Stack Name is abc123, the top-level folder in your S3 bucket should also be named abc123.
-8. Resume the overall instruction set for MLOps [here](https://github.com/aws-samples/amazon-forecast-samples/blob/main/ml_ops/docs/UploadData.md).  However; on the next page, instead of using the sample dataset as directed, use the [RetailData.zip](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/RetailData.zip) file obtained on this page as an override.
 
 ## Conclusion
 
