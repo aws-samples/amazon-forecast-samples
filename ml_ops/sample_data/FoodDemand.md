@@ -1,6 +1,6 @@
 ﻿## Food Demand Use Case
 
-This example is based on a popular public dataset available through [Kaggle](https://www.kaggle.com/datasets/kannanaikkal/food-demand-forecasting) which contains demand data for a fictional meal delivery company.  The company must anticipate how many meals of each type, at each location will be demanded, so they can have enough supplies ordered to produce the meals.  The purpose of this page is not to compete with anything on Kaggle, but to demonstrate how to forecast a public set of data with Amazon Forecast.  More importantly, this allows you to understand how to adapt your own data for use with Amazon Forecast.
+This example is based a synthetic dataset of food products by location.  In this scenario, the company must anticipate how many of each item, at each location will be demanded, so they can have enough to cover on-shelf demand.  As a synthetic dataset, the purpose of this data isn't to produce highly accurate insights; instead this is to demonstrate a workflow pattern so you can understand how to adapt your own data for use with Amazon Forecast.
 
 Instead of following the [normal set of steps provided for the MLOps workflow](https://github.com/aws-samples/amazon-forecast-samples/tree/main/ml_ops), you may use this dataset as an override.
 
@@ -163,10 +163,10 @@ These next set of values are multi-line and can be copied to your clipboard with
     ]
 }
 ```   
-6. Download a unique dataset, similar to the original: [FoodDemand.zip](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/FoodDemand.zip)
+6. Download a unique dataset: [FoodDemand.zip](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/FoodDemand.zip)
 7. Unzip this file on your laptop and then upload the uncompressed folders and files to your S3 bucket, inside a child <b>retaildemo</b> folder.  Please note the S3 bucket and child stack folder that will contain the tts and rts folder should match the Stack Name and S3 bucket name from above.  Stated differently, if your Stack Name is abc123, the top-level folder in your S3 bucket should also be named abc123.
 8. Resume the overall instruction set for MLOps [here](https://github.com/aws-samples/amazon-forecast-samples/blob/main/ml_ops/docs/UploadData.md).  This page directs you to download [FoodDemand.zip](https://amazon-forecast-samples.s3.us-west-2.amazonaws.com/ml_ops/FoodDemand.zip), uncompress it and then upload to S3.
 
 ## Conclusion
 
-The steps above help you understand how to override the default MLOps toy dataset with an alternate Kaggle originated set.  Please use these overrides as a way to learn how to adapt data to your bespoke schema and use case.  If you have any questions, please reach out to your AWS Solutions Architect or account team.
+The steps above help you understand how produce a forecast on a synthetic dataset.  Please use overrides as a way to learn how to adapt data to your bespoke schema and use case.  If you have any questions, please reach out to your AWS Solutions Architect or account team.
