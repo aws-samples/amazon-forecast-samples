@@ -308,7 +308,7 @@ Resources:
                       PredictorCutoffAge = int(parameter['Parameter']['Value'])
                   except:
                       PredictorCutoffAge = 14
-                      response = ssm.put_parameter(Name=ParameterPrefix+'/Predictor/PredictorCutoffAge',
+                      response = ssm.put_parameter(Name=ParameterPrefix+'/Forecast/PredictorCutoffAge',
                           Value=str(PredictorCutoffAge),
                           Type='String',
                           Overwrite=True)
