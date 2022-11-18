@@ -5,14 +5,14 @@ Workshops, Notebooks and examples on how to learn and use various features of Am
 
 ##  Announcements and New Service Features 
 
+ - [Learn in a workshop](https://catalog.us-east-1.prod.workshops.aws/workshops/b28f3502-ca9f-4e12-8b84-59e454c1ed53/en-US)
  - [Building a Strong Time-Series ML Model: AutoPredictor](./library/content/AutoPredictor.md)
  - [New Feature: Forecast with Cold-Start Items](./notebooks/advanced/Forecast%20with%20Cold%20Start%20Items/Forecast%20with%20Cold%20Start%20Items.ipynb)
- - [New Feature: What-if Analysis](./notebooks/amazon-forecast-samples/notebooks/advanced/WhatIf_Analysis/WhatIf_Analysis.ipynb)
+ - [New Feature: What-if Analysis](./notebooks/advanced/WhatIf_Analysis/WhatIf_Analysis.ipynb)
  - [New Feature: Custom Time Alignment Boundary](./notebooks/advanced/Custom_Time_Alignment_Boundary/Time_Alignment_Boundary_Introduction.ipynb)
  - [New Feature: Forecast on Selected Time-Series](./notebooks/advanced/Forecast_Selected_TimeSeries/Forecast_Selected_TimeSeries_Introduction.ipynb)
  - [New Feature: Predictor Monitoring](./notebooks/advanced/Predictor_Monitoring/Predictor_Monitoring_Introduction.ipynb)
  - [No Code Guide to Automate Forecast for PoC and production workloads](./ml_ops/README.md)
- - [Learn in a workshop](./workshops)
  - [Python developers: A Quick Start Guide](./notebooks/basic/Getting_Started/Amazon_Forecast_Quick_Start_Guide.ipynb)
  
 
