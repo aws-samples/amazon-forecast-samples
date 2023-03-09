@@ -12,17 +12,17 @@ Parameters:
 
   ExistingS3Bucket:
     Description: Does your S3 bucket already exist?
-    Default: false
+    Default: 'false'
     Type: String
     AllowedValues:
-        - true
-        - false
+        - 'true'
+        - 'false'
     ConstraintDescription: must specify true or false
 
 Conditions:
-  CreateS3Resource: !Equals 
+  CreateS3Resource: !Equals
     - !Ref ExistingS3Bucket
-    - false
+    - 'false'
 
 Resources:
 

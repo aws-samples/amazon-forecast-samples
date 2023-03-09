@@ -7,20 +7,20 @@ Parameters:
 
   DatasetIncludeRTS:
     Description: Do you wish to provide a related time series (RTS) for this use-case?
-    Default: true
+    Default: 'true'
     Type: String
     AllowedValues:
-        - true
-        - false
+        - 'true'
+        - 'false'
     ConstraintDescription: must specify true or false
 
   DatasetIncludeItem:
     Description: Do you wish to provide item metadata for this use-case?
-    Default: true
+    Default: 'true'
     Type: String
     AllowedValues:
-        - true
-        - false
+        - 'true'
+        - 'false'
     ConstraintDescription: must specify true or false
 
   DatasetGroupName:
@@ -322,7 +322,7 @@ Resources:
               - states:StopExecution
               Effect: Allow
               Resource:
-              - !Join 
+              - !Join
                     - ''
                     - - !Sub 'arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:${AWS::StackName}'
                       - '*'
@@ -339,7 +339,6 @@ Resources:
                 - !Sub 'arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/StepFunctionsGetEventsForStepFunctionsExecutionRule'
             Version: '2012-10-17'
           PolicyName: !Sub '${AWS::StackName}-events-ops'
-        RoleName: !Sub "StepFunctions-${AWS::StackName}-Workflow-Role"
 
 
   CreateDatasetGroupStateMachine:
@@ -1747,7 +1746,7 @@ Resources:
       DefinitionString:
         !Sub |
           {
-            "Comment": "A description of my state machine",
+            "Comment": "An automation pipeline to query forecasting input data from Amazon Athena",
             "StartAt": "GetParameters",
             "States": {
               "GetParameters": {
@@ -2199,4 +2198,30 @@ Resources:
             }
           }
 
-      RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/StepFunctions-${AWS::StackName}-Workflow-Role"
+      RoleArn: !GetAtt StepFunctionsWorkflowRole.Arn
+
+Outputs:
+  CreateDatasetGroupStateMachineArn:
+    Description: ARN of the AWS Step Functions State Machine to create the Amazon Forecast dataset group
+    Value: !Ref CreateDatasetGroupStateMachine
+  AthenaConnectorStateMachineArn:
+    Description: ARN of the AWS Step Functions State Machine to query data from Amazon Athena
+    Value: !Ref AthenaConnectorStateMachine
+  DatasetImportStateMachineArn:
+    Description: ARN of the AWS Step Functions State Machine to import data to Amazon Forecast
+    Value: !Ref CreateImportDatasetStateMachine
+  CreatePredictorStateMachineArn:
+    Description: ARN of the AWS Step Functions State Machine to train an Amazon Forecast predictor
+    Value: !Ref CreatePredictorStateMachine
+  CreateForecastStateMachineArn:
+    Description: ARN of the AWS Step Functions State Machine to generate a forecast
+    Value: !Ref CreateForecastStateMachine
+  StepFunctionWorkflowStateMachineArn:
+    Description: ARN of the AWS Step Functions State Machine for end-to-end flow from Athena to forecast output
+    Value: !Ref StepFunctionWorkflowStateMachine
+  StepFunctionsWorkflowRoleArn:
+    Description: ARN of the IAM Execution Role used for the End-to-end forecasting Step Functions workflow
+    Value: !GetAtt StepFunctionsWorkflowRole.Arn
+  StackName:
+    Description: (Output to expose the StackName when nesting this stack inside others) This is used for naming some useful resources
+    Value: !Ref AWS::StackName
