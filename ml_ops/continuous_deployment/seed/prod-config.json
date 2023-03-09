@@ -1,0 +1,24 @@
+{
+	"Parameters": {
+		"S3Bucket": "forecast-mlops-prod",
+		"SNSEndpoint": "<your-email>@example.com",
+		"DatasetGroupFrequencyRTS": "W",
+		"DatasetGroupFrequencyTTS": "W",
+		"DatasetGroupName": "fooddemo_prod",
+		"DatasetIncludeItem": "true",
+		"DatasetIncludeRTS": "true",
+		"ForecastForecastTypes": "[\"0.50\"]",
+		"PredictorExplainPredictor": "true",
+		"PredictorForecastDimensions": "[\"location_id\"]",
+		"PredictorForecastFrequency": "W",
+		"PredictorForecastHorizon": "10",
+		"PredictorForecastOptimizationMetric": "AverageWeightedQuantileLoss",
+		"PredictorForecastTypes": "[\"0.30\",\"0.40\",\"0.50\",\"0.60\",\"0.70\"]",
+		"TimestampFormatRTS": "yyyy-MM-dd",
+		"TimestampFormatTTS": "yyyy-MM-dd",
+		"PredictorAttributeConfigs": "[{\"AttributeName\":\"checkout_price\",\"Transformations\":{\"backfill\":\"mean\",\"futurefill\":\"mean\",\"middlefill\":\"mean\"}},{\"AttributeName\":\"base_price\",\"Transformations\":{\"backfill\":\"mean\",\"futurefill\":\"mean\",\"middlefill\":\"mean\"}},{\"AttributeName\":\"emailer_for_promotion\",\"Transformations\":{\"backfill\":\"zero\",\"futurefill\":\"zero\",\"middlefill\":\"zero\"}},{\"AttributeName\":\"homepage_featured\",\"Transformations\":{\"backfill\":\"zero\",\"futurefill\":\"zero\",\"middlefill\":\"zero\"}},{\"AttributeName\":\"target_value\",\"Transformations\":{\"aggregation\":\"sum\",\"backfill\":\"nan\",\"frontfill\":\"none\",\"middlefill\":\"nan\"}}]",
+		"SchemaITEM": "{\"Attributes\":[{\"AttributeName\":\"item_id\",\"AttributeType\":\"string\"},{\"AttributeName\":\"food_category\",\"AttributeType\":\"string\"},{\"AttributeName\":\"food_cuisine\",\"AttributeType\":\"string\"}]}",
+		"SchemaRTS": "{\"Attributes\":[{\"AttributeName\":\"location_id\",\"AttributeType\":\"string\"},{\"AttributeName\":\"item_id\",\"AttributeType\":\"string\"},{\"AttributeName\":\"checkout_price\",\"AttributeType\":\"float\"},{\"AttributeName\":\"base_price\",\"AttributeType\":\"float\"},{\"AttributeName\":\"emailer_for_promotion\",\"AttributeType\":\"integer\"},{\"AttributeName\":\"homepage_featured\",\"AttributeType\":\"integer\"},{\"AttributeName\":\"timestamp\",\"AttributeType\":\"timestamp\"}]}",
+		"SchemaTTS": "{\"Attributes\":[{\"AttributeName\":\"location_id\",\"AttributeType\":\"string\"},{\"AttributeName\":\"item_id\",\"AttributeType\":\"string\"},{\"AttributeName\":\"target_value\",\"AttributeType\":\"integer\"},{\"AttributeName\":\"timestamp\",\"AttributeType\":\"timestamp\"}]}"
+	}
+}

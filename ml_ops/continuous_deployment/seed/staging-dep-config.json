@@ -1,0 +1,6 @@
+{
+  "Parameters": {
+    "S3Bucket": "forecast-mlops-staging",
+    "ExistingS3Bucket": "false"
+  }
+}

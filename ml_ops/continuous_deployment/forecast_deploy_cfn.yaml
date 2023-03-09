@@ -1,0 +1,380 @@
+Description: |-
+  Toolchain template which provides the resources needed to represent infrastructure as code. This template specifically creates a CI/CD pipeline to deploy Amazon Forecast MLOps workflow to two stages in CD -- staging and production.
+Parameters:
+  SeedCodeS3Bucket:
+    Type: String
+    AllowedPattern: ^[a-zA-Z](-*[a-zA-Z0-9])*
+    Description: Seed Code S3 Bucket
+    MaxLength: 32
+    MinLength: 1
+  SeedCodeS3Key:
+      Type: String
+      Description: Seed Code S3 Key
+      MaxLength: 64
+      MinLength: 1
+Resources:
+  MlOpsArtifactsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        Fn::Sub: forecast-project-${AWS::StackName}-deploy
+    DeletionPolicy: Retain
+  ModelDeployCodeCommitRepository:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryName:
+        Fn::Sub: forecast-${AWS::StackName}-modeldeploy
+      Code:
+        BranchName: main
+        S3:
+          Bucket: !Ref SeedCodeS3Bucket
+          Key: !Ref SeedCodeS3Key
+      RepositoryDescription:
+        Fn::Sub: Amazon Forecast infrastructure as code for the Project ${AWS::StackName}
+  CodePipelineServiceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codepipeline.amazonaws.com
+                - cloudformation.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: AWS-CodePipeline-Service-3
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'codecommit:CancelUploadArchive'
+                  - 'codecommit:GetBranch'
+                  - 'codecommit:GetCommit'
+                  - 'codecommit:GetUploadArchiveStatus'
+                  - 'codecommit:UploadArchive'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'codedeploy:CreateDeployment'
+                  - 'codedeploy:GetApplicationRevision'
+                  - 'codedeploy:GetDeployment'
+                  - 'codedeploy:GetDeploymentConfig'
+                  - 'codedeploy:RegisterApplicationRevision'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'codebuild:BatchGetBuilds'
+                  - 'codebuild:StartBuild'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'devicefarm:ListProjects'
+                  - 'devicefarm:ListDevicePools'
+                  - 'devicefarm:GetRun'
+                  - 'devicefarm:GetUpload'
+                  - 'devicefarm:CreateUpload'
+                  - 'devicefarm:ScheduleRun'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'lambda:InvokeFunction'
+                  - 'lambda:ListFunctions'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'iam:PassRole'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - 'elasticbeanstalk:*'
+                  - 'ec2:*'
+                  - 'elasticloadbalancing:*'
+                  - 'autoscaling:*'
+                  - 'cloudwatch:*'
+                  - 's3:*'
+                  - 'sns:*'
+                  - 'cloudformation:*'
+                  - 'rds:*'
+                  - 'sqs:*'
+                  - 'ecs:*'
+                  - 'states:*'
+                  - 'ssm:*'
+                  - 'events:*'
+                  - 'lambda:*'
+                  - 'forecast:*'
+                  - 'iam:*'
+                Resource: '*'
+  CodeBuildRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action: sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service: codebuild.amazonaws.com
+      Path: /
+      RoleName: !Join
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - CodeBuild
+      Policies:
+        - PolicyName: "logs"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+                -
+                  Effect: "Allow"
+                  Action:
+                      - logs:CreateLogGroup
+                      - logs:CreateLogStream
+                      - logs:PutLogEvents
+                      - ecr:GetAuthorizationToken
+                      - ssm:GetParameters
+                  Resource: "*"
+        - PolicyName: "S3"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+                -
+                  Effect: "Allow"
+                  Action:
+                      - s3:GetObject
+                      - s3:PutObject
+                      - s3:GetObjectVersion
+                  Resource: !Sub arn:aws:s3:::${MlOpsArtifactsBucket}/*
+    Type: AWS::IAM::Role
+  EventBridgeIAMrole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: StartCodePipeline
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'codepipeline:StartPipelineExecution'
+                Resource: "*"
+  ModelDeployBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        EnvironmentVariables:
+          - Name: ARTIFACT_BUCKET
+            Value:
+              Ref: MlOpsArtifactsBucket
+          - Name: AWS_REGION
+            Value:
+              Ref: AWS::Region
+          - Name: EXPORT_DEP_TEMPLATE_NAME
+            Value: template-dep-export.yml
+          - Name: EXPORT_TEMPLATE_NAME
+            Value: template-export.yml
+          - Name: EXPORT_TEMPLATE_STAGING_CONFIG
+            Value: staging-config.json
+          - Name: EXPORT_TEMPLATE_PROD_CONFIG
+            Value: prod-config.json
+          - Name: EXPORT_TEMPLATE_DEP_STAGING_CONFIG
+            Value: staging-dep-config.json
+          - Name: EXPORT_TEMPLATE_DEP_PROD_CONFIG
+            Value: prod-dep-config.json
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+        Type: LINUX_CONTAINER
+      ServiceRole: !Ref 'CodeBuildRole'
+      Source:
+        BuildSpec: buildspec.yml
+        Type: CODEPIPELINE
+      Description: Builds the Cfn templates which defines the Forecast solutions with specified configuration
+      Name:
+        Fn::Sub: forecast-${AWS::StackName}-solution-deploy
+      TimeoutInMinutes: 30
+  ModelDeployPipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !GetAtt 
+        - CodePipelineServiceRole
+        - Arn
+      Stages:
+        - Actions:
+            - ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeCommit
+                Version: '1'
+              Configuration:
+                PollForSourceChanges: false
+                RepositoryName:
+                  Fn::GetAtt: ModelDeployCodeCommitRepository.Name
+                BranchName: main
+              Name: ModelDeployInfraCode
+              OutputArtifacts:
+                - Name: SourceArtifact
+          Name: Source
+        - Actions:
+            - ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName:
+                  Ref: ModelDeployBuildProject
+              InputArtifacts:
+                - Name: SourceArtifact
+              Name: BuildDeploymentTemplates
+              OutputArtifacts:
+                - Name: BuildArtifact
+              RunOrder: 1
+          Name: Build
+        - Actions:
+            - ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              Configuration:
+                ActionMode: REPLACE_ON_FAILURE
+                Capabilities: CAPABILITY_NAMED_IAM
+                RoleArn: !GetAtt 
+                  - CodePipelineServiceRole
+                  - Arn
+                StackName: forecast-mlops-dependency-staging
+                TemplateConfiguration: BuildArtifact::staging-dep-config.json
+                TemplatePath: BuildArtifact::template-dep-export.yml
+              InputArtifacts:
+                - Name: BuildArtifact
+              Name: DeployResourcesStagingDep
+              RunOrder: 1
+            - ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              Configuration:
+                ActionMode: REPLACE_ON_FAILURE
+                Capabilities: CAPABILITY_NAMED_IAM
+                RoleArn: !GetAtt 
+                  - CodePipelineServiceRole
+                  - Arn
+                StackName: forecast-mlops-staging
+                TemplateConfiguration: BuildArtifact::staging-config.json
+                TemplatePath: BuildArtifact::template-export.yml
+              InputArtifacts:
+                - Name: BuildArtifact
+              Name: DeployResourcesStaging
+              RunOrder: 2
+            - ActionTypeId:
+                Category: Approval
+                Owner: AWS
+                Provider: Manual
+                Version: '1'
+              Configuration:
+                CustomData: Approve this model for Production
+              Name: ApproveDeployment
+              RunOrder: 3
+          Name: DeployStaging
+        - Actions:
+            # The following part is a not needed for a single account deployment.
+            # - ActionTypeId:
+            #     Category: Deploy
+            #     Owner: AWS
+            #     Provider: CloudFormation
+            #     Version: '1'
+            #   Configuration:
+            #     ActionMode: REPLACE_ON_FAILURE
+            #     Capabilities: CAPABILITY_NAMED_IAM
+            #     RoleArn: !GetAtt 
+            #       - CodePipelineServiceRole
+            #       - Arn
+            #     StackName: forecast-mlops-dependency-prod
+            #     TemplateConfiguration: BuildArtifact::prod-dep-config.json
+            #     TemplatePath: BuildArtifact::template-dep-export.yml
+            #   InputArtifacts:
+            #     - Name: BuildArtifact
+            #   Name: DeployResourcesProdDep
+            #   RunOrder: 1
+            - ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              Configuration:
+                ActionMode: REPLACE_ON_FAILURE
+                Capabilities: CAPABILITY_NAMED_IAM
+                RoleArn: !GetAtt 
+                  - CodePipelineServiceRole
+                  - Arn
+                StackName: forecast-mlops-prod
+                TemplateConfiguration: BuildArtifact::prod-config.json
+                TemplatePath: BuildArtifact::template-export.yml
+              InputArtifacts:
+                - Name: BuildArtifact
+              Name: DeployResourcesProd
+              RunOrder: 2
+          Name: DeployProd
+      ArtifactStore:
+        Location:
+          Ref: MlOpsArtifactsBucket
+        Type: S3
+      Name:
+        Fn::Sub: forecast-${AWS::StackName}-solution-deploy
+    DependsOn:
+      - MlOpsArtifactsBucket
+  ModelDeployCodeCommitEventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Rule to trigger a deployment when CodeCommit is updated with a commit
+      EventPattern:
+        source:
+          - aws.codecommit
+        detail-type:
+          - CodeCommit Repository State Change
+        resources:
+          - Fn::GetAtt: ModelDeployCodeCommitRepository.Arn
+        detail:
+          referenceType:
+            - branch
+          referenceName:
+            - main
+      Name:
+        Fn::Sub: forecast-${AWS::StackName}-code
+      State: ENABLED
+      Targets:
+        - Arn:
+            Fn::Join:
+              - ':'
+              - - arn
+                - Ref: AWS::Partition
+                - codepipeline
+                - Ref: AWS::Region
+                - Ref: AWS::AccountId
+                - Ref: ModelDeployPipeline
+          Id:
+            Fn::Sub: codecommit-${AWS::StackName}-trigger
+          RoleArn: !GetAtt 
+            - EventBridgeIAMrole
+            - Arn
+Outputs:
+  ModelDeployPipeline:
+    Value:
+      Fn::Join:
+        - ''
+        - - https://console.aws.amazon.com/codesuite/codepipeline/pipelines/
+          - Ref: ModelDeployPipeline
+          - /view?region=
+          - Ref: AWS::Region
