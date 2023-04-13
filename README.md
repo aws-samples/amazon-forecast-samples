@@ -38,7 +38,7 @@ Here you will find examples how to use Amazon Forecast Python SDK to make API ca
 - Advanced folder contains notebooks to show API calls for more complex tasks:
   - [Time Series Clustering Preprocessing](./notebooks/advanced/Clustering_Preprocessing/README.md)
   - [Using the Amazon Forecast Weather Index](./notebooks/advanced/Weather_index/1.%20Training%20your%20model%20with%20Weather%20Index.ipynb)
-  - [Incorporating Related data](./notebooks/advanced/Incorporating_Related_Time_Series_dataset_to_your_Predictor/Incorporating_Related_Time_Series_dataset_to_your_Predictor.ipynb) 
+  - [Incorporating Related data](./notebooks/advanced/Incorporating_Related_Time_Series_dataset_to_your_Predictor/Incorporating%20Related%20Time%20Series%20dataset%20to%20your%20Predictor.ipynb) 
   - [Incorporating Item Meta data](./notebooks/advanced/Incorporating_Item_Metadata_Dataset_to_your_Predictor/Incorporating_Item_Metadata_Dataset_to_your_Predictor.ipynb) 
   - [Assessing item level accuracy using custom metrics with Predictor backtest exported data](./notebooks/advanced/Item_Level_Accuracy/Item_Level_Accuracy_Using_Bike_Example.ipynb) 
 
